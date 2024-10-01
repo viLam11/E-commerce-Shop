@@ -10,7 +10,7 @@ router.post('/login', authController.postLogin);
 router.get('/users', isAuth, authController.fetchAllUsers);
 
 router.get('/', (req, res, next) => {
-    res.status(200).send('This is auth route');
+    res.status(200).send('Hello World');
 });
 
 module.exports = router;
