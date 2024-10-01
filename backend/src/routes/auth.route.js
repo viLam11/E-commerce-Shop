@@ -1,16 +1,16 @@
 const express = require('express');
-const route = express.Router();
+const router = express.Router();
 const UserService = require('../../database/userService');
 
-express.get('/users', async (req, res, next) => { 
+router.post('/signUp', authController.postSignUp);
 
-})
 
-route.get('/', (req, res, next) => {
-    res.status(200).json({
-        "title": "Book",
-        "content": "Welcome to..."
-    })
+router.post('/login', authController.postLogin);
+
+router.get('/users', isAuth, authController.fetchAllUsers);
+
+router.get('/', (req, res, next) => {
+    res.status(200).send('This is auth route');
 });
 
-module.exports = route;
+module.exports = router;

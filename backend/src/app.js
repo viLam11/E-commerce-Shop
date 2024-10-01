@@ -12,6 +12,14 @@ app.use(cors({
     methods: 'GET, POST, DELETE, PATCH, OPTIONS', // Allow specific methods
     allowedHeaders: ['Content-Type', 'Authorization'] // Allow specific headers, including Content-Type
 }));
+app.use(express.json());
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Method', 'POST, GET, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Header', 'Content-Type, Authorization');
+  next();
+})
 route(app);
 
 app.listen(port, () => {
