@@ -1,1 +1,4 @@
 Đồ án HTTT
+BE: phải tải postgres, sử dụng password và username tương ứng trong file BE/databse/database.js
+- Tải tất cả packages: npm install 
+- Chạy chương trình: npm run start
