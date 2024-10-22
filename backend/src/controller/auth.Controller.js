@@ -8,14 +8,6 @@ class AuthController {
     postSignUp(req, res, next){
         // console.log('CHECK authData: ', req.body)
         const userId = uuidv4();
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            const error = new Error('Validation failed');
-            error.statusCode = 422;
-            error.data = errors.array();
-            console.log(error);
-            throw error;
-        }
         const {email, password} = req.body;
         let username = req.body.username;
         if(!username) {
