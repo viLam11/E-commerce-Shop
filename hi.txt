@@ -3,4 +3,4 @@ BE: phải tải postgres, sử dụng password và username tương ứng trong
 - Tải tất cả packages: npm install 
 - Chạy chương trình: npm run start
 
-It's backend branch
+It's backend branch, and new
