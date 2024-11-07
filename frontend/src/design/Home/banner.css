@@ -1,0 +1,116 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    margin-top: 0px;
+}
+.container{
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 20px;
+    margin-right: 20px;
+    
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Adjust the width as needed */
+    height: 500px;
+    /* background-color: #f0f0f0; */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+    margin-top: 80px;
+}
+
+.banner iframe{
+    height: 100%;
+    width: 100%;
+}
+
+.banner .banner-content p img{
+    vertical-align: middle;
+}
+/* Left Side Content */
+.banner-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px;
+    background-color: #666;
+    color: #fff;
+    width: 50%;
+}
+
+.banner-content h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.banner-content p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.shop-now {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1em;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid #fff;
+    padding-bottom: 2px;
+    margin-top: 20px;
+    transition: opacity 0.3s;
+}
+
+.shop-now:hover {
+    opacity: 0.8;
+}
+
+.shop-now span {
+    margin-left: 5px;
+    font-size: 1.2em;
+}
+
+/* Right Side Image */
+.banner-image {
+    width: 50%;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.banner-image img {
+    width: 100%;
+    height: auto;
+}
+
+/* Pagination Dots */
+.pagination {
+    display: flex;
+    justify-content: center;
+    /* margin-top: 10px; */
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.pagination span {
+    margin-top: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: #ccc;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.pagination span {
+    background-color: #ff4b2b;
+}
