@@ -1,6 +1,8 @@
 import React , {Component,useEffect,useState} from 'react';
 import ReactDOM from 'react-dom/client'
-import AccountMenu from './AccountMenu';
+import AccountMenu from './format/AccountMenu'
+import actionMenu from './format/actionMenu'
+import RatingBar from './format/ratingBar'
 
 export class PageComponent extends React.Component {
     // Define the Header as a class method
@@ -13,6 +15,7 @@ export class PageComponent extends React.Component {
             categoryData:[],
             reviews:[],
             users:[],
+            currentUser: "user000001",
             isViewProduct:false,
             currentProduct: null,
             currentCategory: null,
@@ -26,6 +29,7 @@ export class PageComponent extends React.Component {
         this.navigateToCartPage = this.navigateToCartPage.bind(this);
         this.navigateToViewProduct = this.navigateToViewProduct.bind(this);
         this.navigateToByCategory = this.navigateToByCategory.bind(this);
+        this.navigateToUserAccount = this.navigateToUserAccount.bind(this)
     }
 
     componentDidMount() {
@@ -70,7 +74,6 @@ export class PageComponent extends React.Component {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                console.log('fetch reviews\n');
                 return response.json();
             })
             .then(data => this.setState({ reviews: data }))
@@ -115,9 +118,14 @@ export class PageComponent extends React.Component {
         })
     }
 
+    navigateToUserAccount(){
+        this.setState({
+            currentPage: 'ManageAccount'
+        })
+    }
+
     renderPage() {
         const { currentPage, currentProduct } = this.state;
-        
         switch (currentPage) {
             case 'HomePage':
                 return <HomePage 
@@ -128,7 +136,16 @@ export class PageComponent extends React.Component {
                     cateData = {this.state.categoryData}
                 />; // Gọi hàm render của HomePage
             case 'ShoppingPage':
-                return <ShoppingPage />; // Gọi hàm render của shoppingPage
+                return <ShoppingPage 
+                    navigateToByCategory = {this.navigateToByCategory}
+                    navigateToViewProduct = {this.navigateToViewProduct}
+                    product={currentProduct} 
+                    categoryData = {this.state.categoryData}
+                    productData = {this.state.productData}
+                    imageData={this.state.imageData}
+                    reviews = {this.state.reviews}
+                    users = {this.state.users}
+                />; // Gọi hàm render của shoppingPage
             case 'PromotionPage':
                 return <PromotionPage />; // Gọi hàm render của promotionPage
             case 'CartPage':
@@ -137,6 +154,7 @@ export class PageComponent extends React.Component {
                 return <ViewProduct 
                     navigateToViewProduct={this.navigateToViewProduct} 
                     navigateToByCategory = {this.navigateToByCategory}
+                    navigateToShoppingPage = {this.navigateToShoppingPage}
                     product={currentProduct} 
                     imageData={currentProduct}
                     reviews = {this.state.reviews}
@@ -146,11 +164,14 @@ export class PageComponent extends React.Component {
                 return <Categories 
                     navigateToByCategory = {this.navigateToByCategory}
                     navigateToViewProduct = {this.navigateToViewProduct}
+                    navigateToShoppingPage = {this.navigateToShoppingPage}
                     productData={this.state.productData} 
                     cateData = {this.state.categoryData}
                     category = {this.state.currentCategory}
                     imageData={this.state.imageData}
                 />
+            case 'ManageAccount':
+                return <UserAccountManagement/>
             default:
                 return <HomePage 
                     navigateToByCategory = {this.navigateToByCategory} 
@@ -178,8 +199,18 @@ export class PageComponent extends React.Component {
                 </div>
                 <div className="icons">
                     <a href="#"><span>&#128276;</span></a> 
-                    <a href="#" onClick={this.navigateToCartPage}><span>&#128722;</span></a> 
-                    <a href="#" ><span>&#128100;</span></a> 
+                    <a href="#" onClick={this.navigateToCartPage}><span>&#128722;</span></a>
+                    <div className='dropdown-container'>
+                        <a href="#" className = 'dropdown' id = 'dropdownButton' onClick={actionMenu}><span>&#128100;</span></a> 
+                        <div className='action-menu' id = 'actionMenu'>
+                            <div onClick={this.navigateToUserAccount}><span>&#128100;</span> Manage My Account</div>
+                            <div><span>&#128230;</span> My Orders</div>
+                            <div><span>&#10060;</span>  My Cancellations</div>
+                            <div><span>&#11088;</span>   My Reviews</div>
+                            <div><span>&#x1F512;</span> Log out</div>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         );
@@ -210,7 +241,7 @@ export class PageComponent extends React.Component {
             
                 <div className="footer-section">
                     <h3>Sản phẩm</h3>
-                    <a href="#">Trang chủ</a><br />
+                    <a href="#" onClick={this.navigateToHomePage}>Trang chủ</a><br />
                     <a href="#">Điện thoại</a><br />
                     <a href="#">Laptop</a><br />
                     <a href="#">Máy tính bảng</a><br />
@@ -339,7 +370,6 @@ class HomePage extends PageComponent{
             
             {this.flashProduct()}
             {this.advertisement()}
-            {this.discovery()}
             {this.newProduct()}
             </div>
         )
@@ -407,6 +437,10 @@ class HomePage extends PageComponent{
         )
     }
     flashProduct(){
+        const {productData, imageData, categoryData,navigateToViewProduct} = this.props;
+        const sortedItems = productData 
+            ? [...productData].sort((a, b) => (b.sold || 0) - (a.sold || 0))
+            : null;
         return(
             <div className="spotlight">
                 <h2>Tháng này</h2>
@@ -417,7 +451,47 @@ class HomePage extends PageComponent{
                 </div>
                 
                 <div className="spotlight-list">
-                    
+                    {sortedItems?sortedItems.slice(0,5).map((row, index) => {
+                        const productImage = imageData.find(item => item.product_id === row.product_id);
+                        const productCate  = categoryData?categoryData.find(item => item.cate_id === row.cate_id):null;
+                        return (
+                            <div className="spotlight-product" onClick={() => navigateToViewProduct(row, productImage,productCate)} key={index}>
+                                <div>
+                                    <span className="discount">-35%</span>
+                                    <span className="icon">
+                                        <a href="#"><img src="icon/notifications_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="Notifications" /></a>
+                                        <a href="#"><img src="icon/shopping_cart_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="Shopping Cart" /></a>
+                                    </span>
+                                    <br />
+                                    {/* Kiểm tra và sử dụng đường dẫn ảnh nếu tìm thấy */}
+                                    <img 
+                                        className="product-img" 
+                                        src={productImage ? productImage.image_url : "default_image.png"} 
+                                        alt="Product" 
+                                    />
+                                </div>
+                                <div className='prod-data'>
+                                    <div className="product-name">{row.pname}</div>
+                                    <div className="product-cash">{(() => {
+                                            const format = String(row.price);
+                                            let token = " đ";
+                                            let checkpoint = 0;
+                                            for (let i = format.length - 1; i >= 0; i--) {
+                                                token = format[i] + token;
+                                                checkpoint++;
+                                                if (checkpoint === 3 && i !== 0) {
+                                                    token = "." + token;
+                                                    checkpoint = 0;
+                                                }
+                                            }
+
+                                            return token;
+                                        })()} <span>({row.sold})</span></div>
+                                    <p className="product-rating">★★★★☆ (65)</p>
+                                </div>
+                            </div>
+                        );
+                    }):null}
                 </div>
             </div>
         )
@@ -511,6 +585,11 @@ class HomePage extends PageComponent{
     }
 
     newProduct(){
+        const {productData, imageData} = this.props;
+        const sortedItems = productData?[...productData].sort((a, b) => new Date(a.create_time) - new Date(b.create_time)):null;
+        const fprod = sortedItems && sortedItems.length > 0 ? sortedItems[0]:null;
+        const cid = fprod?fprod.product_id:null;
+        const image1 = imageData?imageData.find(item => item.product_id == cid && item.ismain == true):null;
         return (
             <div className="new-arrivals-section">
                 <div className="section-header">
@@ -519,39 +598,29 @@ class HomePage extends PageComponent{
             
                 <div className="product-highlights">
                     <div className="feature-large">
-                        <img src="https://via.placeholder.com/300x200" alt="Swarovski and Diamond Studded Notebook"/>
+                        <img src={image1} alt={fprod?fprod.pname : null}/>
                         <div className="feature-info">
-                            <h3>Swarovski and Diamond Studded Notebook</h3>
-                            <p>Giá trị của laptop chủ yếu đến từ hàng trăm viên kim cương Swarovski vô cùng quý giá trên nắp máy.</p>
-                            <button>Free Now</button>
+                            <h3>{fprod?fprod.pname : null}</h3>
+                            <p>{fprod?fprod.description : null}</p>
+                            <button>Buy Now</button>
                         </div>
                     </div>
             
                     <div className="feature-small">
-                        <div className="small-feature">
-                            <img src="https://via.placeholder.com/150x100" alt="Huawei Collection"/>
-                            <div className="small-feature-info">
-                                <h3>Huawei Collections</h3>
-                                <p>Building a Fully Connected, Intelligent World.</p>
-                                <button>Shop Now</button>
-                            </div>
-                        </div>
-                        <div className="small-feature">
-                            <img src="https://via.placeholder.com/150x100" alt="Speakers"/>
-                            <div className="small-feature-info">
-                                <h3>Speakers</h3>
-                                <p>Amazon wireless speakers</p>
-                                <button>Shop Now</button>
-                            </div>
-                        </div>
-                        <div className="small-feature">
-                            <img src="https://via.placeholder.com/150x100" alt="Marshall"/>
-                            <div className="small-feature-info">
-                                <h3>Marshall</h3>
-                                <p>New version speakers</p>
-                                <button>Shop Now</button>
-                            </div>
-                        </div>
+                        {sortedItems?sortedItems.slice(1,4).map((token,index)=>{
+                            const cid = token?token.product_id:null;
+                            const image = imageData?imageData.find(item => item.product_id == cid && item.ismain == true):null;
+                            return (
+                                <div key ={index} className="small-feature">
+                                    <img src={image} alt="Huawei Collection"/>
+                                    <div className="small-feature-info">
+                                        <h3>{token.pname}</h3>
+                                        <p>{token.description}</p>
+                                        <button>Shop Now</button>
+                                    </div>
+                                </div>
+                            )
+                        }):null}
                     </div>
                 </div>
             </div>
@@ -595,7 +664,7 @@ class ViewProduct extends PageComponent{
 
     Detail(){
         
-        const { product, imageData, categoryData } = this.props;
+        const { product, imageData, categoryData, reviews,navigateToByCategory,navigateToShoppingPage } = this.props;
         if (!product) {
             alert('No product to view')
             return null;
@@ -603,11 +672,12 @@ class ViewProduct extends PageComponent{
         const mainImage = this.state.imageData.find(item => item.product_id === product.product_id && item.ismain == true);
         const otherImage = this.state.imageData.filter(item => item.product_id === product.product_id && item.ismain == false);
         const instantCate = this.state.categoryData.find(item => item.cate_id === product.cate_id);
+        const numReviews = reviews?reviews.filter(item => item.product_id == product.product_id).length:0;
         return(
             <>
             <div className="breadcrumbs">
                 <div>
-                    <a href="#" className='off'>Mua sắm</a> / <a href="#" className='off'>{instantCate? instantCate.cate_name:""}</a> / {product.pname}
+                    <a href="#" className='off' onClick={() => navigateToShoppingPage()}>Mua sắm</a> / <a href="#" className='off' onClick={()=>navigateToByCategory(instantCate? instantCate.cate_id:"")}>{instantCate? instantCate.cate_name:""}</a> / {product.pname}
                 </div>
             </div>
             <div className="product-page">
@@ -628,7 +698,7 @@ class ViewProduct extends PageComponent{
                     <div class="product-details">
                         <h1>{product.pname}</h1>
                         <div class="rating-stock">
-                            <p>★★★★★ (150 Reviews) | <span class="stock-status">In Stock</span></p>
+                            <p>★★★★★ ({numReviews} Reviews) | <span class="stock-status">In Stock</span></p>
                         </div>
                         <p class="price">{(() => {
                                         const format = String(product.price);
@@ -690,9 +760,7 @@ class ViewProduct extends PageComponent{
     Review(){
         const { product , reviews, users} = this.props;
         if (!product) return null;
-        console.log(reviews)
-        const review = reviews?(reviews.filter(item => item.product_id == product.product_id)):null;
-        console.log("\nfor: " + review + "\n")
+        const review = reviews?(reviews.filter(item => item.product_id == product.product_id)):0;
         let averageRate = "0.0";
         if (review && review.length > 0) {
             let rate = 0.0;
@@ -701,18 +769,23 @@ class ViewProduct extends PageComponent{
             }
             averageRate = (rate / review.length).toFixed(1); // làm tròn 1 chữ số thập phân
         }
+        const ratings ={
+            5: review.filter(item => item.rating == 5).length,
+            4: review.filter(item => item.rating == 4).length,
+            3: review.filter(item => item.rating == 3).length,
+            2: review.filter(item => item.rating == 2).length,
+            1: review.filter(item => item.rating == 1).length
+        };
         return(
             <div className='review-prod'>
                 <h3>Đánh giá và nhận xét {product.pname}</h3>
                 <div className='view-review'>
                     <div>
-                        <p>{averageRate}/5</p>
-                        <p>Star</p>
-                        <p>Số lượng đánh giá</p>
+                        <p>Đánh giá trung bình: <span style={{color:'red'}}>{averageRate}</span>/5</p>
+                        <p>{review.length} đánh giá</p>
                     </div>
-                    <div className='view-detail'>
-                        Chi tiết hạng đánh giá
-                    </div>
+                    <div className='horizon-slash'></div>
+                    <RatingBar ratings={ratings}/>
                 </div>
                 <div className='review-of-customer'>
                     {review?review.map((token,index)=>{
@@ -752,7 +825,7 @@ class Categories extends PageComponent{
         super(props);
         this.CategoryDetail = this.CategoryDetail.bind(this);
     }
-    
+
     CategoryProduct(){
         const {cateData, category, productData, imageData,navigateToViewProduct} = this.props;
         if (!cateData){
@@ -811,7 +884,7 @@ class Categories extends PageComponent{
     }
 
     CategoryDetail(){
-        const {cateData, category} = this.props;
+        const {cateData, category, navigateToShoppingPage} = this.props;
         if (!cateData){
             alert('No category defined')
             throw ('404 Not Found');
@@ -820,7 +893,7 @@ class Categories extends PageComponent{
             <>
                 <div className="breadcrumbs">
                     <div>
-                        <a href="#" className='shopping'>Mua sắm</a> / <a href="#">{cateData.find(item => item.cate_id == category).cate_name}</a> /
+                        <a href="#" className='shopping' onClick={() => navigateToShoppingPage()}>Mua sắm</a> / <a href="#">{cateData.find(item => item.cate_id == category).cate_name}</a> /
                     </div> 
                     {this.CategoryProduct()}
                 </div>
@@ -880,11 +953,80 @@ class ShoppingPage extends PageComponent{
         super(props);
         this.Shopping = this.Shopping.bind(this);
     }
-    Shopping(){
+
+    ProductByCategory(category){
+        const { imageData, productData, navigateToViewProduct,categoryData } = this.props;
+        if (!productData) throw ("No product defined")
+        const sortProductByCategory = productData?productData.filter(item => item.cate_id == category):null;
         return (
-            <div className='view-state'>
-                {this.Product()}
-            </div>
+            <>
+                {sortProductByCategory?sortProductByCategory.slice(0,4).map((row, index) => {
+                    const productImage = imageData?imageData.find(item => item.product_id === row.product_id):null;
+                    return (
+                        <div className="spotlight-product" onClick={() => navigateToViewProduct(row, productImage,category)} key={index}>
+                            <div>
+                                <span className="discount">-35%</span>
+                                <span className="icon">
+                                    <a href="#"><img src="icon/notifications_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="Notifications" /></a>
+                                    <a href="#"><img src="icon/shopping_cart_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="Shopping Cart" /></a>
+                                </span>
+                                <br />
+                                {/* Kiểm tra và sử dụng đường dẫn ảnh nếu tìm thấy */}
+                                <img 
+                                    className="product-img" 
+                                    src={productImage ? productImage.image_url : "default_image.png"} 
+                                    alt="Product" 
+                                />
+                            </div>
+                            <div className='prod-data'>
+                                <div className="product-name">{row.pname}</div>
+                                <div className="product-cash">{(() => {
+                                        const format = String(row.price);
+                                        let token = " đ";
+                                        let checkpoint = 0;
+                                        for (let i = format.length - 1; i >= 0; i--) {
+                                            token = format[i] + token;
+                                            checkpoint++;
+                                            if (checkpoint === 3 && i !== 0) {
+                                                token = "." + token;
+                                                checkpoint = 0;
+                                            }
+                                        }
+
+                                        return token;
+                                    })()}</div>
+                                <p className="product-rating">★★★★☆ (65)</p>
+                            </div>
+                        </div>
+                    );
+                }):null}
+            </>
+            
+        )
+        
+
+    }
+
+    Shopping(){
+        const {categoryData, navigateToByCategory} = this.props;
+        if(!categoryData) throw("No cate data defined")
+        return (
+            <>
+                {categoryData.map((token, index)=>{
+                    return(
+                        <div className="spotlight">
+                        
+                        <div className="view-all-container">
+                        <h3>{token.cate_name}</h3>
+                            <button className="view-all-button" onClick={()=>navigateToByCategory(token.cate_id)}>Xem tất cả sản phẩm</button>
+                        </div>
+                        <div className='spotlight-list'>
+                        {this.ProductByCategory(token.cate_id)}
+                        </div>
+                        </div>
+                    );
+                })}
+            </>
         )
     }
     render(){
@@ -893,6 +1035,55 @@ class ShoppingPage extends PageComponent{
                 {this.Shopping()}
             </div>
         )
+    }
+}
+
+class UserAccountManagement extends PageComponent{
+    render() {
+        return (
+            <div className="acc-container">
+                <div className="acc-breadcrumb">
+                    <a>Home</a>/<a><b>Account</b></a>
+                </div>
+                <div className="profile-form">
+                    <h2>Chỉnh sửa hồ sơ</h2>
+                    <div className="form-group">
+                        <div className="full-width">
+                            <label htmlFor="firstName">Tên</label>
+                            <input type="text" id="firstName" placeholder="Nhập tên"/>
+                        </div>
+                        <div className="full-width">
+                            <label htmlFor="lastName">Họ và tên lót</label>
+                            <input type="text" id="lastName" placeholder="Nhập họ và tên lót"/>
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <div className="full-width">
+                            <label htmlFor="email">Email</label>
+                            <input type="email" id="email" placeholder="Nhập email"/>
+                        </div>
+                        <div className="full-width">
+                            <label htmlFor="address">Địa chỉ</label>
+                            <input type="text" id="address" placeholder="Nhập địa chỉ"/>
+                        </div>
+                    </div>
+                    <h3>Thay đổi mật khẩu</h3>
+                    <div className="form-group">
+                        <input type="password" className="full-width" placeholder="Mật khẩu hiện tại"/>
+                    </div>
+                    <div className="form-group">
+                        <input type="password" className="full-width" placeholder="Mật khẩu mới"/>
+                    </div>
+                    <div className="form-group">
+                        <input type="password" className="full-width" placeholder="Nhập lại mật khẩu mới"/>
+                    </div>
+                    <div className="form-actions">
+                        <button className="btn-cancel">Hủy</button>
+                        <button className="btn-save">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 }
 
