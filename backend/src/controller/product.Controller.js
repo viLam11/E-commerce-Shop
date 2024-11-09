@@ -91,7 +91,6 @@ class ProductController {
         }
     }
 
-
     async getDetailProduct(req, res) {
         try {
             const productId = req.params.id
@@ -113,7 +112,6 @@ class ProductController {
         }
     }
 
-
     async getAllProduct(req, res) {
         try {
             const { limit, page, filter, sort } = req.query
@@ -123,6 +121,118 @@ class ProductController {
         catch (err) {
             return res.status(404).json({
                 status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    //Image
+
+    async addImage(req, res) {
+        try {
+            const image = req.body
+            const productId = req.params.id
+            if (!image || !productId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.addImage(productId, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async getImageByProduct(req, res) {
+        try {
+            const productId = req.params.id
+            if (!productId) {
+                return res.status(400).json({
+                    status: 'ERR',
+                    message: 'The productID is required'
+                })
+            }
+            const response = await ProductService.getImageByProduct(productId);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async deleteImage(req, res) {
+        try {
+            const imageID = req.params.id
+            if (!imageID) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The imageID is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.deleteImage(imageID);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async deleteImageByProduct(req, res) {
+        try {
+            const productID = req.params.id
+            if (!productID) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The imageID is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.deleteImageByProduct(productID);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async updateImage(req, res) {
+        try {
+            const imageID = req.params.id
+            if (!imageID && !req.body) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The imageID is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.updateImage(imageID, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
                 msg: err,
                 data: null
             })

@@ -82,22 +82,35 @@ class UserService {
         return new Promise((resolve, reject) => {
             const allowedColumns = ['uid', 'username', 'upassword', 'fname', 'lname', 'email', 'gender', 'userType', 'birthday', 'total_payment', 'id_no']
             //ranking cần xếp lại
-            if (sort === undefined) {
-                sort = ['ASC', 'uid']
-            }
-            else if (typeof (sort) === "string") {
+
+            let order = 'ASC';
+            let column = 'uid';
+
+            if (Array.isArray(sort)) {
+                const upperSort0 = sort[0].toUpperCase();
+                const upperSort1 = sort[1].toUpperCase();
+
+                if (upperSort0 === 'ASC' || upperSort0 === 'DESC') {
+                    order = upperSort0;
+                    if (allowedColumns.includes(sort[1])) {
+                        column = sort[1];
+                    }
+                } else if (upperSort1 === 'ASC' || upperSort1 === 'DESC') {
+                    order = upperSort1;
+                    if (allowedColumns.includes(sort[0])) {
+                        column = sort[0];
+                    }
+                }
+            } else if (typeof (sort) === "string") {
                 if (allowedColumns.includes(sort)) {
-                    sort = ['ASC', sort]
-                } else {
-                    sort = [(sort.toUpperCase() === 'DESC') ? 'DESC' : 'ASC', 'uid']
+                    column = sort;
+                }
+                else if (sort.toUpperCase() === 'ASC' || sort.toUpperCase() === 'DESC') {
+                    order = sort.toUpperCase()
                 }
             }
-            else {
-                sort[0] = (sort[0] === 'DESC' || sort[0].toUpperCase() === 'DESC') ? sort[0].toUpperCase() : 'ASC'
-                sort[1] = allowedColumns.includes(sort[1]) ? sort[1] : 'uid'
-            }
             client.query(
-                `SELECT * FROM users ORDER BY ${sort[1]} ${sort[0]} LIMIT $1 OFFSET $2`,
+                `SELECT * FROM users ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`,
                 [limit, offset],
                 (err, res) => {
                     if (err) {
@@ -191,7 +204,7 @@ class UserService {
                     resolve({
                         status: 200,
                         msg: 'SUCCESS',
-                        data: users,
+                        data: users.data,
                         totalUser: countUser.data,
                         currentPage: page + 1,
                         totalPage: Math.ceil(countUser.data / limit)
@@ -299,6 +312,7 @@ class UserService {
                         else {
                             try {
                                 for (const [key, value] of Object.entries(data)) {
+                                    if (key === "uid") continue;
                                     await client.query(
                                         `UPDATE users SET ${key} = $1 WHERE uid = $2`,
                                         [value, id]
