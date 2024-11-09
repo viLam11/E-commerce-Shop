@@ -8,6 +8,11 @@ function route(app) {
     app.use('/api/user', authRoute);
     app.use('/api/product', productRoute);
     app.use('/api/order', orderRoute);
+
+    
+    app.get("/", (req, res, next) => {
+        res.send("Success connect BE");
+    })
 }
 
 module.exports = route;

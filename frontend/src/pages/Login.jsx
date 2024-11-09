@@ -8,7 +8,7 @@ export default function Login() {
 
       <div className="flex w-full h-screen">
         <div className="w-7/12 p-4 flex items-center justify-center">
-          <img src="../../public/login.png" alt="login-img" className="w-3/4" />
+          <img src="./login.png" alt="login-img" className="w-3/4" />
         </div>
 
         <div className="w-5/12 p-4 flex justify-center items-center">
