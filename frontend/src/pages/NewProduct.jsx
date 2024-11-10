@@ -59,7 +59,7 @@ export default function NewProduct() {
     }
     return (
         <>
-            <Header />
+            <Header page="product" />
             <main>
                 <div className="m-4 mb-10">
                     <span className="text-gray-600">Shop /</span><span /> <span className="font-medium">Add Products</span>

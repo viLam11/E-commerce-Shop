@@ -28,7 +28,7 @@ export default function ProductsManagement() {
 
         return (
             <>
-                   <Header />
+                   <Header page="homepage" />
 
                    <div className="p-4">
                     <span>Shop /</span>
