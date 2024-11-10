@@ -1,0 +1,178 @@
+.spotlight{
+    background-color: #f5e9e6;
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: 50px;
+}
+
+.spotlight h2{
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.spotlight .view-all-container{
+    display: inline-flex;
+    align-items: left;
+    margin: -20px;
+}
+
+.spotlight .view-all-container h3{
+    text-align: left;
+    box-sizing: content-box;
+    width: 400px;
+}
+
+.spotlight .view-all-container .view-all-button{
+    width: auto;
+    height: auto;
+    padding: 10px 20px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-top: -20px;
+}
+.spotlight .spotlight-list{
+    display: inline-flex;
+    display: flex;
+    overflow-x: scroll;
+    gap: 16px;
+    height: 250px;
+}
+
+.spotlight .spotlight-list .spotlight-product{
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 200px;
+    height: 100%;
+    text-align: center;
+    cursor: pointer;
+}
+.spotlight .spotlight-list .spotlight-product{
+    margin-top: 10px;
+}
+
+.spotlight .spotlight-list .spotlight-product .product-name{
+    color: #000;
+    margin-left: -10px;
+    margin-top: 10px;
+    text-align: left;
+    font-weight: bold;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.spotlight .spotlight-list .spotlight-product .product-cash{
+    color: #d32f2f;
+    margin-left: -10px;
+    font-size: small;
+    text-align: left;
+    font-weight: bold;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.spotlight .spotlight-list .spotlight-product .product-rating{
+    color: #ffab40;
+    margin-left: -10px;
+    font-size: small;
+    text-align: left;
+}
+
+.spotlight .spotlight-list .spotlight-product div span img{
+    width: 16px;
+    /* margin-left: 50px; */
+    align-items: right;
+    text-align: right;
+}
+
+.spotlight .spotlight-list .spotlight-product div .icon{
+    display: inline-flex;
+}
+
+.spotlight .spotlight-list .spotlight-product div img{
+    width: 100px;
+    
+}
+
+.spotlight .spotlight-list .spotlight-product div .discount {
+    background-color: #ff6d6d;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin-left: -10px;
+    align-items: left;
+    font-size: 0.8em;
+    margin-top: -10px;
+}
+
+.spotlight .spotlight-list .spotlight-product div .addcart{
+    background-color: #000;
+    color:#ddd;
+    width: 200px;
+    margin-left: -10px;
+    align-items: center;
+}
+
+.price {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.sale-price {
+    color: #d32f2f;
+    border-radius: 20px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #9e9e9e;
+    font-size: 0.9em;
+}
+
+.rating {
+    color: #ffab40;
+    margin-top: 5px;
+}
+
+
+
+.view-all-container {
+    text-align: center;
+    padding: 20px 0;
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 300px;
+    margin-right: 300px;
+}
+
+.view-all-button {
+    background-color: #e53935;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.view-all-button:hover {
+    background-color: #d32f2f;
+}
+
+.underline {
+    width: 80%;
+    height: 1px;
+    background-color: #ddd;
+    margin: 10px auto 0;
+}
+
