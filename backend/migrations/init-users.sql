@@ -4,10 +4,11 @@ create type status	as enum('active', 'inactive');
 create type ranks as enum('silver', 'gold', 'diamond');
 create type bool as enum ('Yes', 'No');
 
+
 create table users(
 	uid	 		varchar(100) 	PRIMARY KEY,
 	username	varchar(50) 	NOT NULL unique,
-	upassword 	varchar(33) 	NOT NULL,
+	upassword 	varchar(200) 	NOT NULL,
 	fname		varchar(32) 	NOT NULL,
 	lname		varchar(32) 	NOT NULL,
 	email		varchar(50) 	NOT NULL unique,

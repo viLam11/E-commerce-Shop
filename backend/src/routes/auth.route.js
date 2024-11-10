@@ -26,7 +26,7 @@ router.post('/login', [
         .withMessage('Password mus be  at leat 5 characters long')
 ], authController.postLogin);
 
-router.get('/users', authMiddleware.authUserMiddleWare, authController.fetchAllUsers);
+router.get('/users', authController.fetchAllUsers);
 
 // router.get('/', (req, res, next) => {
 //     res.status(200).send('Hello World');

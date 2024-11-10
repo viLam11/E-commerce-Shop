@@ -6,7 +6,7 @@ export default function Header() {
 
             <span className="absolute left-1/2 transform -translate-x-1/2 space-x-4 text-xl ">
                 <a>Homepage</a>
-                <a className="underline decoration-solid">Login </a>
+                <a className="underline decoration-solid">Product</a>
             </span>
         </header>
     )

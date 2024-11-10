@@ -26,7 +26,9 @@ export default function AuthProvider({children}) {
     //     }
     //     setIsLogged(false);
     // }
-    return <AuthContext.Provider>{children}</AuthContext.Provider>
+    const [user, setUser] = useState(null);
+
+    return <AuthContext.Provider value={user} >{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => {
