@@ -6,56 +6,73 @@ class ProductService {
 
     async createProduct(newProduct) {
         return new Promise((resolve, reject) => {
-            const { pname, price, brand, description, quantity, cate_id } = newProduct
-            client.query(`
-                SELECT * FROM product
-                WHERE pname = $1
-            `, [pname], (err, res) => {
+            const { pname, price, brand, description, quantity, cate_id } = newProduct;
+    
+            client.query(`SELECT * FROM product WHERE pname = $1`, [pname], (err, res) => {
                 if (err) {
                     reject({
                         status: 400,
                         msg: err.message,
                         data: null
                     });
-                }
-                else if (res.rows.length !== 0) {
+                } else if (res.rows.length !== 0) {
                     resolve({
                         status: 404,
-                        msg: 'The product is already exist',
+                        msg: 'The product already exists',
                         data: null
                     });
-                }
-                else {
+                } else {
                     try {
-                        const productId = uuidv4();
-                        client.query(
-                            `INSERT INTO product( product_id, pname, price, brand, description, quantity, cate_id) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                            [productId, pname, price, brand, description, quantity, cate_id],
-                            (err, res) => {
-                                if (err) {
-                                    console.log(err)
-                                    reject({
-                                        status: 400,
-                                        msg: err.message,
-                                        data: null
-                                    })
-                                } else {
-                                    resolve({
-                                        status: 200,
-                                        msg: "Create successfully!",
-                                        data: newProduct
-                                    })
-                                }
+                        const productId = uuidv4();   
+                        // Thực hiện insert sản phẩm
+                        client.query(`
+                            INSERT INTO product (product_id, pname, price, brand, description, quantity, cate_id)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7)`, 
+                            [productId, pname, price, brand, description, quantity, cate_id], (err, res) => {
+                            if (err) {
+                                console.log(err);
+                                reject({
+                                    status: 400,
+                                    msg: err.message,
+                                    data: null
+                                });
+                            } else {
+                                // let obj = {};
+                                // if ("image" in newProduct) {
+                                //     obj = { image: newProduct.image };
+                                //     if ("ismain" in newProduct) obj.ismain = newProduct.ismain;
+                                //     try {
+                                //         await this.addImage(productId, obj);  // ensure this is an async function
+                                //     } catch (error) {
+                                //         console.log(error);
+                                //         reject({
+                                //             status: 400,
+                                //             msg: "Error adding image",
+                                //             data: null
+                                //         });
+                                //         return;
+                                //     }
+                                // }
+    
+                                resolve({
+                                    status: 200,
+                                    msg: "Create successfully!",
+                                    data: newProduct
+                                });
                             }
-                        )
-                        client.end;
-                    }
-                    catch (e) {
-                        reject(e)
+                        });
+                        // Đảm bảo client.end được gọi đúng cách
+                        client.end();
+                    } catch (e) {
+                        reject({
+                            status: 400,
+                            msg: e.message,
+                            data: null
+                        });
                     }
                 }
-            })
-        })
+            });
+          });
     }
 
     async findsomethingExist(column, value) {
@@ -257,6 +274,8 @@ class ProductService {
                         });
                     }
                     else {
+                        const image = await this.getImageByProduct(id);
+                        res.rows[0].image = image.data.map(item => item.image_url);
                         resolve({
                             status: 200,
                             msg: 'SUCCESS',
@@ -269,7 +288,7 @@ class ProductService {
                 reject(err)
             }
         })
-    }
+    };
 
 
     async countProducts() {
@@ -291,7 +310,6 @@ class ProductService {
             });
         });
     }
-
 
     async sortProducts(sort, limit, offset) {
         return new Promise((resolve, reject) => {
@@ -484,6 +502,8 @@ class ProductService {
         })
     }
 
+// image
+
     async findsomethingExistImage(column, value) {
         return new Promise((resolve, reject) => {
             client.query(`
@@ -509,101 +529,75 @@ class ProductService {
     }
 
     async addImage(productId, data) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Kiểm tra sự tồn tại của product_id
-                const images = data.image; // Giả sử data.images là một mảng chứa các URL hình ảnh
-                const isArray = Array.isArray(images);
-                console.log(data);
-                let checkProduct;
-                try {
-                    checkProduct = await this.findsomethingExist("product_id", productId);
-                } catch (errFindProduct) {
-                    return reject({
-                        status: 400,
-                        msg: errFindProduct.msg,
-                        data: null
-                    });
+        try {
+            const images = data.image; // Assuming data.images is an array containing image URLs
+            const isArray = Array.isArray(images);
+            console.log(data);
+    
+            // Check if product exists
+            const checkProduct = await this.findsomethingExist("product_id", productId);
+            if (checkProduct.data.rows.length === 0) {
+                return {
+                    status: 404,
+                    msg: `The product_id does not exist`,
+                    data: null
+                };
+            }
+    
+            // Add images to the product
+            for (let i = 0; true; i++) {
+                let imageUrl = isArray ? images[i] : images; // Handle case when images is not an array
+                
+                // Check if image already exists
+                const checkImage = await client.query('SELECT * FROM image WHERE product_id = $1 AND image_url = $2', [productId, imageUrl]);
+                if (checkImage.rows.length !== 0) {
+                    console.log(`Image URL ${imageUrl} already exists for this product`);
+                    continue; // Skip this image if it already exists for the product
                 }
-                if (checkProduct.data.rows.length === 0) {
-                    return resolve({
-                        status: 404,
-                        msg: `The product_id does not exist`,
-                        data: null
-                    });
-                }
-
-                // Thêm từng ảnh vào sản phẩm
-                for (let i = 0; true; i++) {
-                    let imageUrl = isArray ? images[i] : images;
-                    let checkImage;
-                    const imid = uuidv4();
-                    try {
-                        checkImage = await this.findsomethingExistImage("image_url", imageUrl);
-                    } catch (errFindImage) {
-                        return reject({
-                            status: 400,
-                            msg: errFindImage.msg,
-                            data: null
-                        });
-                    }
-                    // Nếu ảnh đã tồn tại và không thuộc sản phẩm này
-                    if (checkImage.data.rows.length !== 0 && checkImage.data.rows[0].product_id === productId) {
-                        // return resolve({
-                        //     status: 409,
-                        //     msg: 'The image URL is already exist with this product',
-                        //     data: null
-                        // });
-                        console.log(`Image URL ${imageUrl} is already exist with this product`);
-                    }
-                    else {
-                        // Thêm ảnh mới nếu chưa tồn tại
-                        try {
-                            let Ismain = false;
-
-                            if ("ismain" in data) {
-                                console.log("Found 'ismain' in data");
-
-                                if (!isArray) {
-                                    Ismain = true;
-                                } else {
-                                    const ismainIndex = Number(data.ismain);
-                                    if (!isNaN(ismainIndex) && ismainIndex === i) {
-                                        // Đảm bảo rằng data.ismain là số và khớp với chỉ số ảnh hiện tại
-                                        Ismain = true;
-                                    }
-                                }
-                            }
-
-                            await client.query(
-                                `INSERT INTO image (product_id, image_id, image_url, ismain) VALUES ($1, $2, $3, $4)`,
-                                [productId, imid, imageUrl, Ismain]
-                            );
-                        } catch (insertErr) {
-                            return reject({
-                                status: 400,
-                                msg: insertErr.message,
-                                data: null
-                            });
+    
+                // Determine if this image should be the main image
+                let Ismain = false;
+                if ("ismain" in data) {
+                    console.log("Found 'ismain' in data");
+                    if (!isArray) {
+                        Ismain = true; // If only one image is provided, set it as main
+                    } else {
+                        const ismainIndex = Number(data.ismain);
+                        if (!isNaN(ismainIndex) && ismainIndex === i) {
+                            Ismain = true; // Set the main image based on the index
                         }
                     }
-                    if (!isArray) break;
-                    if (isArray && i === images.length - 1) break;
                 }
-                resolve({
-                    status: 200,
-                    msg: 'Images added successfully',
-                    data: null
-                });
-            } catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+    
+                // Insert new image
+                try {
+                    await client.query('INSERT INTO image (product_id, image_url, ismain) VALUES ($1, $2, $3)', [productId, imageUrl, Ismain]);
+                } catch (insertErr) {
+                    return {
+                        status: 400,
+                        msg: insertErr.message,
+                        data: null
+                    };
+                }
+
+                if(isArray && i == images.length - 1) break;
+                if(!isArray) break;
             }
-        });
-    }
+    
+            return {
+                status: 200,
+                msg: 'Images added successfully',
+                data: null
+            };
+    
+        } catch (err) {
+            return {
+                status: 400,
+                msg: err.message,
+                data: null
+            };
+        }
+    }    
 
     async getImageByProduct(productId) {
         return new Promise(async (resolve, reject) => {
@@ -642,54 +636,52 @@ class ProductService {
         })
     }
 
-    async deleteImage(imageID) {
+    async deleteImage(product_id, image_url) {
         return new Promise(async (resolve, reject) => {
             try {
-                let checkID
-                try {
-                    checkID = await this.findsomethingExistImage("image_id", imageID)
-                }
-                catch (errfindID) {
-                    reject({
-                        status: 400,
-                        msg: errfindID.msg,
-                        data: null
-                    });
-                }
-                if (checkID.data.rows.length === 0) {
-                    resolve({
-                        status: 404,
-                        msg: `The image_id is not exist in image table`,
-                        data: null
-                    });
-                } else {
-                    client.query(`
-                        DELETE FROM image WHERE image_id = $1
-                    `, [imageID], (deleteErr, deleteRes) => {
-                        if (deleteErr) {
-                            reject({
-                                status: 400,
-                                msg: deleteErr.message,
-                                data: null
-                            });
-                        } else {
-                            resolve({
-                                status: 200,
-                                msg: "Image deleted successfully",
-                                data: null
-                            });
-                        }
-                    });
-                }
+                //checkID = await this.findsomethingExistImage("image_url", image_url)
+                client.query('SELECT * FROM image WHERE product_id = $1 AND image_url = $2', [product_id, image_url], (err, res)=> {
+                    if (err) {
+                        reject({
+                            status: 400,
+                            msg: err.message,
+                            data: null
+                        });
+                    } 
+                    //console.log(res);
+                    else if(res.rows.length === 0){
+                        resolve({
+                            status: 404,
+                            msg: `The image is not exist in image table`,
+                            data: null
+                        });
+                    } else {
+                        client.query(`DELETE FROM image WHERE product_id = $1 AND image_url = $2`, [product_id, image_url], (deleteErr, deleteRes) => {
+                            if (deleteErr) {
+                                reject({
+                                    status: 400,
+                                    msg: deleteErr.message,
+                                    data: null
+                                });
+                            } else {
+                                resolve({
+                                    status: 200,
+                                    msg: "Product's image deleted successfully",
+                                    data: null
+                                });
+                            }
+                        });                        
+                    }
+                })
             }
-            catch (err) {
+            catch (errfindID) {
                 reject({
                     status: 400,
-                    msg: err.message,
+                    msg: errfindID.msg,
                     data: null
                 });
-            }
-        });
+            }  
+        })
     }
 
     async deleteImageByProduct(productId) {
@@ -742,33 +734,24 @@ class ProductService {
         });
     }
 
-    async updateImage(imageID, data) {
+    async updateImage(query, data) {
         return new Promise(async (resolve, reject) => {
             try {
-                const res = await client.query(`
-                    SELECT * FROM image
-                    WHERE image_id = $1
-                `, [imageID]);
-
+                const res = await client.query(`SELECT * FROM image WHERE product_id = $1 AND image_url = $2`, [query.product_id, query.image_url]);
                 if (res.rows.length === 0) {
                     return resolve({
                         status: 404,
-                        msg: 'The id does not exist',
+                        msg: 'The image does not exist',
                         data: null
                     });
                 }
-
                 // Cập nhật từng trường trong data
-                for (const [key, value] of Object.entries(data)) {
-                    if (key === "image_id") continue;
-                    await client.query(`UPDATE image SET ${key} = $1 WHERE image_id = $2`, [value, imageID]);
+                if("ismain" in data) {
+                    await client.query(`UPDATE image SET ismain = $1 WHERE product_id = $2 AND image_url = $3`, [data.ismain, query.product_id, query.image_url]);
                 }
 
                 // Lấy thông tin sau khi cập nhật
-                const updatedResult = await client.query(`
-                    SELECT * FROM image WHERE image_id = $1
-                `, [imageID]);
-
+                const updatedResult = await client.query(`SELECT * FROM image WHERE product_id = $1 AND image_url = $2`, [query.product_id, data.image_url]);
                 resolve({
                     status: 200,
                     msg: 'Update success',
@@ -784,7 +767,6 @@ class ProductService {
         });
     }
 }
-
 
 
 module.exports = new ProductService;

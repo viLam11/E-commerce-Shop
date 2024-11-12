@@ -175,15 +175,16 @@ class ProductController {
 
     async deleteImage(req, res) {
         try {
-            const imageID = req.params.id
-            if (!imageID) {
+            const imageURL = req.query.image_url;
+            const productID = req.query.product_id;
+            if (!imageURL || !productID) {
                 return res.status(400).json({
                     status: 400,
-                    msg: 'The imageID is required',
+                    msg: 'The input is required',
                     data: null
                 })
             }
-            const response = await ProductService.deleteImage(imageID);
+            const response = await ProductService.deleteImage(productID ,imageURL);
             return res.status(200).json(response)
         }
         catch (err) {
@@ -219,15 +220,16 @@ class ProductController {
 
     async updateImage(req, res) {
         try {
-            const imageID = req.params.id
-            if (!imageID && !req.body) {
+            const imageURL = req.query.image_url;
+            const productID = req.query.product_id;
+            if (!imageURL || !productID) {
                 return res.status(400).json({
                     status: 400,
-                    msg: 'The imageID is required',
+                    msg: 'The input is required',
                     data: null
                 })
             }
-            const response = await ProductService.updateImage(imageID, req.body);
+            const response = await ProductService.updateImage(req.query, req.body);
             return res.status(200).json(response)
         }
         catch (err) {
