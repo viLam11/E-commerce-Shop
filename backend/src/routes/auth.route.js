@@ -26,15 +26,15 @@ router.post('/login', [
         .withMessage('Password mus be  at leat 5 characters long')
 ], authController.postLogin);
 
-router.post('/logout', authController.logout);
-router.get('/users', authMiddleware.authMiddleWare, authMiddleware.authUserMiddleWare, authController.fetchAllUsers);
+//router.post('/logout', authController.logout);
+router.get('/users', authController.fetchAllUsers);
 
 
-router.put('/update-user/:id', authMiddleware.authMiddleWare, authMiddleware.authUserMiddleWare, authController.updateUser);
+router.put('/update-user/:id', authController.updateUser);
 
-router.delete('/delete-user/:id', authMiddleware.authMiddleWare, authMiddleware.authUserMiddleWare, authController.deleteUser);
+router.delete('/delete-user/:id', authMiddleware.authUserMiddleWare, authController.deleteUser);
 
-router.get('/get-detail/:id', authMiddleware.authMiddleWare, authMiddleware.authUserMiddleWare, authController.getDetailUser);
+router.get('/get-detail/:id', authController.getDetailUser);
 
 //router.put('/confirmPayment/:id', authOrder.confirmPayment);
 

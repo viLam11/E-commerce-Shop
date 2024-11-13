@@ -4,7 +4,7 @@ class PromotionController {
     async createPromotion(req, res, next) {
         try {
             const { name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id } = req.body
-            if (!(name && quantity && description && starttime && endtime && minspent && value && percentage && max_amount && discount_type && apply_range && apply_id)) {
+            if (!(name && quantity && description && starttime && endtime && minspent && max_amount && discount_type && apply_range )) {
                 return res.status(200).json({
                     status: 'ERR',
                     msg: 'The input is required',

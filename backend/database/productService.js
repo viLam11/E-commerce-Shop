@@ -195,6 +195,7 @@ class ProductService {
                         data: null
                     });
                 } else {
+
                     client.query(`
                         DELETE FROM product WHERE product_id = $1
                     `, [id], (deleteErr, deleteRes) => {
@@ -452,6 +453,7 @@ class ProductService {
                 let countPro = await this.countProducts()
                 if (filter) {
                     const productFilter = await this.filterProduct(filter, limit, limit * page)
+
                     resolve({
                         status: 200,
                         msg: 'SUCCESS',

@@ -137,11 +137,11 @@ class AuthController {
                 );
 
                 //localStorage.setItem('token', token);
-                res.cookie('token', token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production', // Chỉ bật secure trên môi trường production
-                    maxAge: 3600000 // 1 giờ
-                });
+                // res.cookie('token', token, {
+                //     httpOnly: true,
+                //     secure: process.env.NODE_ENV === 'production', // Chỉ bật secure trên môi trường production
+                //     maxAge: 3600000 // 1 giờ
+                // });
 
                 res.status(200).json({
                     status: 200,
@@ -252,22 +252,23 @@ class AuthController {
     //     localStorage.removeItem('token');
     //     localStorage.removeItem('userType');
     // }
-    async logout(req, res) {
-        const token = req.cookies.token;
-        if (!token) {
-            return res.status(401).json({
-                status: 401,
-                msg: 'No active session found',
-                data: null
-            });
-        }
-        res.clearCookie('token'); // Xóa cookie chứa token
-        return res.status(200).json({
-            status: 200,
-            msg: 'Logged out successfully',
-            data: null
-        });
-    }
+    
+    // async logout(req, res) {
+    //     const token = req.cookies.token;
+    //     if (!token) {
+    //         return res.status(401).json({
+    //             status: 401,
+    //             msg: 'No active session found',
+    //             data: null
+    //         });
+    //     }
+    //     res.clearCookie('token'); // Xóa cookie chứa token
+    //     return res.status(200).json({
+    //         status: 200,
+    //         msg: 'Logged out successfully',
+    //         data: null
+    //     });
+    // }
 }
 
 module.exports = new AuthController;
