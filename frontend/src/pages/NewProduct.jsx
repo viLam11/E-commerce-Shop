@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "../components/Header";
 
 export default function NewProduct() {
+    // IMAGE
     const [fileImg, setFileImg] = useState({
         i1: null,
         i2: null,
@@ -13,6 +14,16 @@ export default function NewProduct() {
     const [img1, setImg1] = useState("../../public/img_upload.svg");
     const [img2, setImg2] = useState("../../public/img_upload.svg");
     const [img3, setImg3] = useState("../../public/img_upload.svg");
+    
+    // PRODUCT VALUE
+    const [productName, setProductName] =  useState("");
+    const [selectCat, setSelectCat] = useState(false);
+    const [brand, setBrand] = useState("");
+    const [description, setDiscription] = useState(false);
+    const [price, setPrice] = useState(null);
+    const [quantity, setQuantity]  = useState(null);
+
+    // FUNCTION
     function handleChangeImg1() {
         document.getElementById('img1').click();
     }
@@ -57,9 +68,18 @@ export default function NewProduct() {
             }
         }
     }
+
+    function handleSelectCat(e) {
+        setSelectCat(e.target.value != "");
+    }
+
+    function handleChangeDescription(e) {
+        if(e.target.value.length > 0 ) setDiscription(true)
+        else setDiscription(false);
+    }
     return (
         <>
-            <Header page="product" />
+            <Header page="product" role="admin" />
             <main>
                 <div className="m-4 mb-10">
                     <span className="text-gray-600">Shop /</span><span /> <span className="font-medium">Add Products</span>
@@ -70,17 +90,13 @@ export default function NewProduct() {
                         <h2 className="font-medium text-3xl" >Thêm sản phẩm mới</h2>
                         <div className="my-6">
                             <label>Tên sản phẩm <span className="text-red-600">*</span></label>
-                            <input type="text" name="pname" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="text" name="pname" className={`pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md `} />
                         </div>
 
-                        <div className="my-6">
-                            <label>Mã sản phẩm<span className="text-red-600">*</span></label>
-                            <input type="text" name="productID" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
-                        </div>
 
                         <div className="my-6">
                             <label>Phân loại<span className="text-red-600">*</span></label>
-                            <select name="category" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md ">
+                            <select name="category" className={`block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100 ${selectCat? 'bg-blue-100': 'bg-gray-100'} `} onChange={(e) => handleSelectCat(e)}>
                                 <option value="" disabled>Chọn loại sản phẩm</option>
                                 <option value="smartphone">Điện thoại</option>
                                 <option value="laptop">Laptop</option>
@@ -90,22 +106,22 @@ export default function NewProduct() {
 
                         <div className="my-6">
                             <label>Hãng sản xuất<span className="text-red-600">*</span></label>
-                            <input type="text" name="brand" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="text" name="brand" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100" />
                         </div>
 
                         <div className="my-6">
                             <label>Giá thành<span className="text-red-600">*</span></label>
-                            <input type="number" name="price" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="number" name="price" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
                         </div>
 
                         <div className="my-6">
                             <label>Số lượng trong kho<span className="text-red-600">*</span></label>
-                            <input type="number" name="quantity" className="bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="number" name="quantity" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
                         </div>
 
                         <div className="my-6">
                             <label>Mô tả sản phẩm<span className="text-red-600">*</span></label>
-                            <textarea name="price" className="bg-gray-100 block w-4/5 h-36 my-2 rounded-md" />
+                            <textarea name="price" className={`p-4 block w-4/5 h-36 my-2 rounded-md hover:bg-blue-100 ${description ? "bg-blue-100" : "bg-gray-100"}`} onChange={(e) => handleChangeDescription(e)} />
                         </div>
                     </div>
 
