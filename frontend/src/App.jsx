@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import ProductsManagement from "./pages/ProductsManagement";
 import NewProduct from "./pages/NewProduct";
 import ProductUpdate from "./pages/ProductUpdate";
+import Homepage from "./pages/Homepage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/product-manage" element={<ProductsManagement />} />
           <Route path="/product-new"element={<NewProduct />} />
           <Route path="/product-update"element={<ProductUpdate />} />
+          <Route path="/homepage"element={<Homepage />} />
         </Routes>
       </AuthProvider>
     </Router>
