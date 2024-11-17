@@ -2,12 +2,48 @@ import { useState, useEffect } from "react";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import axios from "axios";
 export default function Login() {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+
+  async function handleLogin(e) {
+    // e.prevent.default();
+    alert("LOGIN")
+    const result = await axios.post("http://localhost:8000/api/user/login", {
+      email: email,
+      password: pass
+    });
+    console.log(result);
+
+
+
+    if (result.status == 200) {
+      const token = result.data.data["token"];
+      alert(token);
+      localStorage.setItem("token", token);
+    }
+  }
+
+  async function handleSignUp(e) {
+    const result = await axios.post("http://localhost:8000/api/user/signUp", {
+      email: email,
+      password: pass,
+      confirmPassword: pass,
+      fname: name,
+      lname: name,
+      gender: "female",
+      userType: "customer",
+      birthday: "2004-02-22"
+    })
+
+    if(result.status == 200) {
+      alert("Sigup success!");
+    }
+  }
 
   if (mode == "login") {
     return (
@@ -21,7 +57,7 @@ export default function Login() {
 
           <div className="w-5/12 p-4 flex justify-center items-center">
             <div className="w-full">
-              <h1 className="text-3xl font-bold text-left mb-6">Đăng nhập</h1>
+              <h1 className="text-3xl font-bold text-left mb-6" >Đăng nhập</h1>
 
 
               <form action="#" method="POST">
@@ -50,8 +86,9 @@ export default function Login() {
 
                 <div className="flex items-center">
                   <button
-                    type="submit"
+                    type="button"
                     className="p-6 bg-red-600 text-white py-2 rounded-lg  hover:bg-red-700"
+                    onClick={handleLogin}
                   >
                     Đăng nhập
                   </button>
@@ -153,8 +190,9 @@ export default function Login() {
 
                 <div className="flex items-center mt-6">
                   <button
-                    type="submit"
+                    type="button"
                     className="p-6 bg-red-600 text-white py-2 rounded-lg  hover:bg-red-700 w-4/5"
+                    onClick={handleSignUp}
                   >
                     Đăng ký tài khoản
                   </button>

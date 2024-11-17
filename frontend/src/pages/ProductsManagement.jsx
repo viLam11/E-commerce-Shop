@@ -155,10 +155,10 @@ export default function ProductsManagement() {
                                     <span onClick={() => { setNameToggle((prev) => !prev); }} className="cursor-pointer">
                                         Tên sản phẩm
                                     </span>
-                                    <div className={`absolute right-10  w-40 bg-white border  shadow-lg z-40 ${nameToggle ? 'block' : 'hidden'}`}>
+                                    <div className={`absolute  left-24  top-13 w-40 bg-purple-1 border-collapse  shadow-lg z-40 ${nameToggle ? 'block' : 'hidden'}`}>
                                         <ul className="">
-                                            <li className=" hover:bg-gray-100 cursor-pointer">Increasing</li>
-                                            <li className=" hover:bg-gray-100 cursor-pointer">Decreasing</li>
+                                            <li className=" hover:bg-purple-100 cursor-pointer border-b border-black">Increasing</li>
+                                            <li className=" hover:bg-purple-100 cursor-pointer border-b border-black">Decreasing</li>
                                         </ul>
                                     </div>
                                 </td>
@@ -167,10 +167,10 @@ export default function ProductsManagement() {
                                     <span onClick={() => { setPriceToggle((prev) => !prev); }} className="cursor-pointer">
                                         Giá
                                     </span>
-                                    <div className={`absolute right-10  w-40 bg-white border  shadow-lg z-40 ${priceToggle ? 'block' : 'hidden'}`}>
+                                    <div className={`absolute left-24 top-13 w-40 bg-purple-1 border-collapse  shadow-lg z-40 ${priceToggle ? 'block' : 'hidden'}`}>
                                         <ul className="">
-                                            <li className=" hover:bg-gray-100 cursor-pointer">Increasing</li>
-                                            <li className=" hover:bg-gray-100 cursor-pointer">Decreasing</li>
+                                            <li className=" hover:bg-purple-100 cursor-pointer border-b border-black">Increasing</li>
+                                            <li className=" hover:bg-purple-100 cursor-pointer border-b border-black">Decreasing</li>
                                         </ul>
                                     </div>
                                 </td>
