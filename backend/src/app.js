@@ -2,11 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const route = require('./routes/index');
 const cors = require('cors');
+//const cookieParser = require('cookie-parser');
 const port = 8000;
 
-const app  = express();
+const app = express();
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+//app.use(cookieParser());
+
 app.use(cors({
     origin: '*', // Allow all origins (adjust for production)
     methods: 'GET, POST, DELETE, PATCH, OPTIONS', // Allow specific methods
@@ -23,5 +26,5 @@ app.use((req, res, next) => {
 route(app);
 
 app.listen(port, () => {
-    console.log(`App listening on port http://localhost:${port}`)
+  console.log(`App listening on port http://localhost:${port}`)
 })
