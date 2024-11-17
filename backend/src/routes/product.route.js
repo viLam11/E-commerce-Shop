@@ -4,18 +4,18 @@ const router = express.Router();
 const productController = require('../controller/product.Controller');
 const authMiddleware = require('../middleware/authMiddleware');
 
-router.post('/CreateProduct', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.createProduct);
-router.put('/UpdateProduct/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.updateProduct);
-router.delete('/DeleteProduct/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.deleteProduct);
-router.get('/get-detail/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.getDetailProduct);
-router.get('/getAll', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.getAllProduct);
-router.delete('/delete-many', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.deleteMany);
+router.post('/CreateProduct', authMiddleware.authUserMiddleWare, productController.createProduct);
+router.put('/UpdateProduct/:id',authMiddleware.authUserMiddleWare, productController.updateProduct);
+router.delete('/DeleteProduct/:id',authMiddleware.authUserMiddleWare, productController.deleteProduct);
+router.get('/get-detail/:id', productController.getDetailProduct);
+router.get('/getAll', productController.getAllProduct);
+router.delete('/delete-many',authMiddleware.authUserMiddleWare, productController.deleteMany);
 
 //image
-router.post('/AddImage/:id', productController.addImage);
-router.get('/GetImageByProduct/:id', productController.getImageByProduct);
-router.delete('/DeleteImage/:id', productController.deleteImage);
-router.delete('/DeleteImageByProduct/:id', productController.deleteImageByProduct);
-router.put('/UpdateImage/:id', productController.updateImage);
+router.post('/AddImage/:id',authMiddleware.authUserMiddleWare, productController.addImage);
+router.get('/GetImageByProduct/:id',authMiddleware.authUserMiddleWare, productController.getImageByProduct);
+router.delete('/DeleteImage',authMiddleware.authUserMiddleWare, productController.deleteImage);
+router.delete('/DeleteImageByProduct/:id',authMiddleware.authUserMiddleWare, productController.deleteImageByProduct);
+router.put('/UpdateImage',authMiddleware.authUserMiddleWare, productController.updateImage);
 
 module.exports = router;
