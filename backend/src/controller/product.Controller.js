@@ -257,6 +257,95 @@ class ProductController {
             })
         }
     }
+
+    async CreateReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.CreateReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async UpdateReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.UpdateReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async DeleteReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.DeleteReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async GetReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.GetReview(product_id);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
 }
 
 module.exports = new ProductController;

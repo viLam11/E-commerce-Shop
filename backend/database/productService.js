@@ -836,38 +836,6 @@ class ProductService {
         });
     }
 
-    // async renameFileWithValidation(image_url) {
-    //     // 1. Construct the file path (handle potential path separators)
-    //     const sanitizedImageUrl = image_url.replace(/\\|\//g, path.sep); // Replace backslashes or forward slashes with the appropriate system separator
-    //     let filePath = path.join(__dirname, sanitizedImageUrl); // Adjust __dirname if needed
-    //     filePath = filePath.replace('database\\', '');
-    //     // 2. Validate file existence
-    //     if (!fs.existsSync(filePath)) {
-    //       console.error(`Error: File '${filePath}' does not exist.`);
-    //       return null; // Exit the function if file doesn't exist
-    //     }
-
-    //     // 3. Extract filename and handle edge cases
-    //     const fileName = path.basename(filePath);
-    //     console.log('File name:', fileName);
-
-    //     // 4. Update filename (optional prepend product ID)
-    //       let updatedFileName = fileName;
-    //       updatedFileName = updatedFileName.replace(/\d+(?=\.csv)/, Date.now());
-    //       console.log("Updated file name:", updatedFileName);
-    //       //updatedFileName = `image\\${updatedFileName}`;
-    //     // 5. Perform file renaming with error handling
-    //     fs.rename(filePath, updatedFileName, (err) => {
-    //       if (err) {
-    //         console.error('Error renaming file:', err);
-    //         // Handle errors appropriately (e.g., logging, retries, notifications)
-    //       } else {
-    //         console.log('File renamed successfully!');
-    //       }
-    //     });
-    //     return updatedFileName;
-    // }
-
     async deletefileImage(imageUrl) {
         const filePath = imageUrl;
 
@@ -884,6 +852,187 @@ class ProductService {
             console.error('Xóa file thất bại:', err);
             return false; // Indicate failure
         }
+    }
+
+    async CreateReview(product_id, newReview) {
+        return new Promise((resolve, reject) => {
+            const { uid, rating, comment } = newReview
+            client.query(`
+                SELECT * FROM reviews
+                WHERE uid = $1 AND product_id = $2
+            `, [uid, product_id], (err, res) => {
+                if (err) {
+                    reject({
+                        status: 400,
+                        msg: err.message,
+                        data: null
+                    });
+                }
+                else if (res.rows.length !== 0) {
+                    resolve({
+                        status: 404,
+                        msg: 'The Review is already exist',
+                        data: null
+                    });
+                }
+                else {
+                    try {
+                        client.query(
+                            `INSERT INTO reviews(product_id, uid, rating, comment) VALUES ($1, $2, $3, $4)`,
+                            [product_id, uid, rating, comment],
+                            async (err, res) => {
+                                if (err) {
+                                    console.log(err)
+                                    reject({
+                                        status: 400,
+                                        msg: err.message,
+                                        data: null
+                                    })
+                                } else {
+                                    resolve({
+                                        status: 200,
+                                        msg: "Create successfully!",
+                                        data: newReview
+                                    })
+                                }
+                            }
+                        )
+                        client.end;
+                    }
+                    catch (e) {
+                        reject(e)
+                    }
+                }
+            })
+        })
+    }
+    /*
+    create table reviews(
+        product_id	varchar(255)	not null,
+        uid		varchar(100)	not null,
+        rating		integer			not null check(rating >= 1 and rating <=5),
+        comment	text,
+        time		timestamp 		default now(),
+        primary key(product_id, uid),
+        constraint fk_review_prod foreign key(product_id) references product(product_id),
+        constraint fk_cus_review	foreign key(uid) references users(uid)
+    )
+    */
+    async UpdateReview(product_id, body) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                client.query(`SELECT * FROM reviews WHERE product_id = $1 AND uid = $2`, [product_id, body.uid], async (err, res) => {
+                    if (err) {
+                        reject({
+                            status: 400,
+                            msg: err.message,
+                            data: null
+                        })
+                    }
+                    else {
+                        try {
+                            for (const [key, value] of Object.entries(body)) {
+                                if (key === "product_id" || key === "uid") continue;
+                                await client.query(
+                                    `UPDATE reviews SET ${key} = $1 WHERE product_id = $2 AND uid = $3`,
+                                    [value, product_id, body.uid]
+                                );
+                            }
+                            const updateReview = await client.query(`SELECT * FROM reviews WHERE product_id = $1 AND uid = $2`, [product_id, body.uid])
+
+                            resolve({
+                                status: 200,
+                                msg: 'Update success',
+                                data: updateReview.rows[0]
+                            });
+                        } catch (updateErr) {
+                            reject({
+                                status: 400,
+                                msg: updateErr.message,
+                                data: null
+                            });
+                        }
+                    }
+                })
+            }
+
+            catch (err) {
+                reject({
+                    status: 400,
+                    msg: err.message,
+                    data: null
+                });
+            }
+        })
+    }
+
+    async GetReview(product_id) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                client.query(`SELECT * FROM reviews WHERE product_id = $1`
+                    , [product_id], async (err, res) => {
+                        if (err) {
+                            reject({
+                                status: 400,
+                                msg: err.message,
+                                data: null
+                            });
+                        }
+                        else if (res.rows.length === 0) {
+                            resolve({
+                                status: 404,
+                                msg: "The product's review is not exist",
+                                data: null
+                            });
+                        }
+                        else {
+                            console.log(res.rows);
+                            resolve({
+                                status: 200,
+                                msg: 'SUCCESS',
+                                data: res.rows
+                            });
+                        }
+                    })
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    }
+
+    async DeleteReview(product_id, body) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let checkID = await client.query('SELECT * FROM reviews WHERE product_id = $1 AND uid = $2', [product_id, body.uid]);
+                if (checkID.rows.length === 0) {
+                    return resolve({
+                        status: 404,
+                        msg: `The review does not exist in the reviews table`,
+                        data: null
+                    });
+                }
+
+                // Xóa dữ liệu tùy theo điều kiện
+                const query = { sql: 'DELETE FROM reviews WHERE product_id = $1 AND uid = $2', params: [product_id, body.uid], successMsg: "User's review deleted successfully" };
+
+                // Thực hiện truy vấn DELETE
+                const deleteRes = client.query(query.sql, query.params);
+                // console.log(deleteRes);
+                resolve({
+                    status: 200,
+                    msg: query.successMsg,
+                    data: null
+                });
+            } catch (err) {
+                // Bắt lỗi truy vấn hoặc lỗi logic
+                reject({
+                    status: 400,
+                    msg: err.message,
+                    data: null
+                });
+            }
+        });
     }
 }
 

@@ -49,6 +49,11 @@ router.put('/UpdatePhone/:id', authController.updatePhone);
 router.delete('/DeletePhone/:id', authController.deletePhone);
 router.get('/GetPhone/:id', authController.getPhone); //tất cả số điện thoại của người dùng
 
+
+
+
+
+
 //router.put('/confirmPayment/:id', authOrder.confirmPayment);
 
 //router.post('/cart', authController.userCart);

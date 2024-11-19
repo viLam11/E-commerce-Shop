@@ -30,4 +30,10 @@ router.delete('/DeleteImage', authMiddleware.authUserMiddleWare, productControll
 router.delete('/DeleteImageByProduct/:id', authMiddleware.authUserMiddleWare, productController.deleteImageByProduct);
 router.put('/UpdateImage/:id', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.updateImage);
 
+
+router.post('/CreateReview/:id', productController.CreateReview);
+router.put('/UpdateReview/:id', productController.UpdateReview);
+router.delete('/DeleteReview/:id', productController.DeleteReview);
+router.get('/GetReview/:id', productController.GetReview);
+
 module.exports = router;
