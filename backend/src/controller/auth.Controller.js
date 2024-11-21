@@ -252,23 +252,220 @@ class AuthController {
     //     localStorage.removeItem('token');
     //     localStorage.removeItem('userType');
     // }
-    
-    // async logout(req, res) {
-    //     const token = req.cookies.token;
-    //     if (!token) {
-    //         return res.status(401).json({
-    //             status: 401,
-    //             msg: 'No active session found',
-    //             data: null
-    //         });
-    //     }
-    //     res.clearCookie('token'); // Xóa cookie chứa token
-    //     return res.status(200).json({
-    //         status: 200,
-    //         msg: 'Logged out successfully',
-    //         data: null
-    //     });
-    // }
+    async logout(req, res) {
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({
+                status: 401,
+                msg: 'No active session found',
+                data: null
+            });
+        }
+        res.clearCookie('token'); // Xóa cookie chứa token
+        return res.status(200).json({
+            status: 200,
+            msg: 'Logged out successfully',
+            data: null
+        });
+    }
+
+    async createPhone(req, res) {
+        try {
+            const body = req.body;
+            const user_id = req.params.id
+
+            if (!(body && user_id)) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.createPhone(user_id, body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async updatePhone(req, res) {
+        try {
+            const body = req.body;
+            const user_id = req.params.id
+
+            if (!(body && user_id)) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.updatePhone(user_id, body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async deletePhone(req, res) {
+        try {
+            const body = req.body;
+            const user_id = req.params.id
+
+            if (!(body && user_id)) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.deletePhone(user_id, body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async getPhone(req, res) {
+        try {
+            const body = req.body;
+            const user_id = req.params.id
+
+            if (!(body && user_id)) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.getPhone(user_id);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async createAddress(req, res) {
+        try {
+            const userId = req.params.id
+            if (!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The userID is required',
+                    data: null
+                })
+            }
+            if (!req.body) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.createAddress(userId, req.body)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async updateAddress(req, res) {
+        try {
+            const userId = req.params.id
+            if (!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The userID is required',
+                    data: null
+                })
+            }
+            if (!req.body) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await UserService.updateAddress(userId, req.body)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async deleteAddress(req, res) {
+        try {
+            const userId = req.params.id
+            if (!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The userID is required',
+                    data: null
+                })
+            }
+            const response = await UserService.deleteAddress(userId, req.body)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async getAllAddress(req, res) {
+        try {
+            const userId = req.params.id
+            if (!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The userID is required',
+                    data: null
+                })
+            }
+            const response = await UserService.getAllAddress(userId)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
 }
 
 module.exports = new AuthController;

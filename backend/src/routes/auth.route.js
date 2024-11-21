@@ -26,17 +26,33 @@ router.post('/login', [
         .withMessage('Password mus be  at leat 5 characters long')
 ], authController.postLogin);
 
-router.get('/users', authController.fetchAllUsers);
-
-//router.post('/logout', authController.logout);
-router.get('/users', authController.fetchAllUsers);
+router.post('/logout', authController.logout);
+router.get('/users', authMiddleware.authUserMiddleWare, authController.fetchAllUsers);
 
 
-router.put('/update-user/:id', authController.updateUser);
+router.put('/update-user/:id', authMiddleware.authUserMiddleWare, authController.updateUser);
 
 router.delete('/delete-user/:id', authMiddleware.authUserMiddleWare, authController.deleteUser);
 
 router.get('/get-detail/:id', authController.getDetailUser);
+
+
+router.post('/CreateAddress/:id', authController.createAddress);
+router.get('/GetAll/:id', authController.getAllAddress);
+router.delete('/DeleteAddress/:id', authController.deleteAddress);
+router.put('/UpdateAddress/:id', authController.updateAddress);
+
+
+
+router.post('/CreatePhone/:id', authController.createPhone);
+router.put('/UpdatePhone/:id', authController.updatePhone);
+router.delete('/DeletePhone/:id', authController.deletePhone);
+router.get('/GetPhone/:id', authController.getPhone); //tất cả số điện thoại của người dùng
+
+
+
+
+
 
 //router.put('/confirmPayment/:id', authOrder.confirmPayment);
 
