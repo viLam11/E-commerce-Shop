@@ -146,7 +146,7 @@ class AuthController {
                 res.status(200).json({
                     status: 200,
                     msg: 'Authentication successful',
-                    data: { token: token }
+                    data: { token: token, userType: loadedUser.usertype}
                 });
             })
             .catch(err => {

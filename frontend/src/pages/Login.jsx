@@ -1,31 +1,58 @@
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import axios from "axios";
+import DayPick from "../components/DayPick.jsx";
+
 export default function Login() {
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [errors, setErrors] = useState([]);
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("customer");
+  const [dateOfBirth, setDateOfBirth] = useState({
+    day: "",
+    month: "",
+    year: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setDateOfBirth({
+      ...dateOfBirth,
+      [name]: value,
+    });
+  };
+
+  const { day, month, year } = dateOfBirth;
+
 
   async function handleLogin(e) {
-    // e.prevent.default();
-    alert("LOGIN")
-    const result = await axios.post("http://localhost:8000/api/user/login", {
+    axios.post("http://localhost:8000/api/user/login", {
       email: email,
       password: pass
-    });
-    console.log(result);
-
-
-
-    if (result.status == 200) {
-      const token = result.data.data["token"];
-      alert(token);
-      localStorage.setItem("token", token);
-    }
+    })
+      .then((response) => {
+        if (response.status == 200) {
+          const token = response.data.token;
+          const userType = response.data.userType;
+          localStorage.setItem("token", token);
+          localStorage.setItem("role", userType);
+          navigate("/homepage")
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          alert(error.response.data.msg);
+        } else {
+          console.error('Error:', error.message);
+        }
+      })
   }
 
   async function handleSignUp(e) {
@@ -40,7 +67,7 @@ export default function Login() {
       birthday: "2004-02-22"
     })
 
-    if(result.status == 200) {
+    if (result.status == 200) {
       alert("Sigup success!");
     }
   }
@@ -125,6 +152,7 @@ export default function Login() {
   }
   else {
     return (
+
       <div className="">
         <Header role="customer" />
 
@@ -140,50 +168,121 @@ export default function Login() {
 
               <form action="#" method="POST">
 
-                <div className="space-y-6">
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${name != "" ? 'bg-blue-100' : null}`}
-                      placeholder="Tên"
-                      onChange={(e) => setName(e.target.value)}
-                    />
+                <div className="space-y-6 w-full">
+
+                  <div className="mb- flex items-end w-full">
+                    <div className="w-1/2">
+                      <div>Họ</div>
+                      <input
+                        type="text"
+                        id="name"
+                        name="firstName"
+                        className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${name != "" ? 'bg-blue-100' : null}`}
+                        placeholder="Huỳnh Bảo"
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="w-1/2">
+                      <div>Tên</div>
+                      <input
+                        type="text"
+                        id="name"
+                        name="lastName"
+                        className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${name != "" ? 'bg-blue-100' : null}`}
+                        placeholder="Ngọc"
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+
                   </div>
                   <div className="mb-4">
+                    <div>Email</div>
                     <input
                       type="email"
                       id="email"
                       name="email"
-                      className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${email != "" ? 'bg-blue-100' : null}`}
-                      placeholder="Email"
+                      className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${email !== "" ? 'bg-blue-100' : null}`}
+                      placeholder="ngoc@gmail.com"
                       onChange={(e) => setEmail(e.target.value)}
                     />
 
                   </div>
 
                   <div>
+                    <div>Số điện thoại</div>
                     <input
                       type="number"
                       id="phone"
                       name="phone"
                       className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${phone != "" ? 'bg-blue-100' : null}`}
-                      placeholder="Số điện thoại"
+                      placeholder="09xxxx"
                       onChange={(e) => setPhone(e.target.value)}
                     />
 
                   </div>
 
                   <div className="mb-4">
+                    <div>Mật khẩu</div>
                     <input
                       type="password"
                       id="password"
                       name="password"
                       className={`mt-1 p-2 w-4/5 border-b border-black  ${pass != "" ? "bg-blue-100" : null}`}
-                      placeholder="Mật khẩu"
+                      placeholder="****"
                       onChange={(e) => setPass(e.target.value)}
                     />
+                  </div>
+
+                  <div className="mb-4 flex space-x-2">
+                    <div className="pr-4">Giới tính</div>
+                    <input type="radio" id="male" value="male" name="gender" />
+                    <label htmlFor="male">Nam</label>
+                    <input type="radio" id="female" value="female" name="gender" />
+                    <label htmlFor="female">Nữ</label>
+                    <input type="radio" id="null" value="null" name="gender" />
+                    <label htmlFor="null">Khác</label>
+                  </div>
+
+                  <div className="dob-container">
+                    <div className="flex items-center">
+                      <span className="pr-4">Ngày sinh:</span>
+                      <div className="flex">
+                      <span className="inline-block w-10">
+                        <input
+                          type="number"
+                          min={0}
+                          max={31}
+                          name="day"
+                          value={day}
+                          onChange={handleInputChange}
+                          placeholder="DD"
+                          className="border-b text-center inline-block w-10"
+                        />
+                      </span>/
+                      <span className="inline-block w-10">
+                        <input
+                          type="number"
+                          name="month"
+                          value={month}
+                          onChange={handleInputChange}
+                          placeholder="MM"
+                          className="border-b text-center inline-block w-10"
+                        />
+                      </span>/
+                      <span className="inline-block w-10">
+                        <input
+                          type="number"
+                          name="year"
+                          value={year}
+                          onChange={handleInputChange}
+                          placeholder="YYYY"
+                          className="border-b text-center inline-block w-10"
+                        />
+                      </span>
+                      </div>
+
+                    </div>
                   </div>
                 </div>
 

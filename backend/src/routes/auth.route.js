@@ -26,9 +26,8 @@ router.post('/login', [
         .withMessage('Password mus be  at leat 5 characters long')
 ], authController.postLogin);
 
-<<<<<<< HEAD
 router.get('/users', authController.fetchAllUsers);
-=======
+
 //router.post('/logout', authController.logout);
 router.get('/users', authController.fetchAllUsers);
 
@@ -42,7 +41,6 @@ router.get('/get-detail/:id', authController.getDetailUser);
 //router.put('/confirmPayment/:id', authOrder.confirmPayment);
 
 //router.post('/cart', authController.userCart);
->>>>>>> BE2
 
 // router.get('/', (req, res, next) => {
 //     res.status(200).send('Hello World');
