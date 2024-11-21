@@ -27,13 +27,7 @@ class AuthMiddleWare {
     // }
 
     async authUserMiddleWare(req, res, next) {
-        if (!req.headers.authorization) {
-            return res.status(401).json({
-                status: 401,
-                msg: 'Authentication failed',
-                data: null
-            });
-        }
+        //const token = req.headers.token.split(' ')[1]
         const token = req.headers.authorization.split(' ')[1]
         //const userid = req.params.id
         jwt.verify(token, process.env.SECRET_TOKEN, function (err, user) {
@@ -95,28 +89,41 @@ class AuthMiddleWare {
     // }
 
 
-    // // async authAdminMiddleware(req, res, next) {
-    // //     if (req.user && req.user.userType === 'admin') {
-    // //         next();
-    // //     } else {
-    // //         return res.status(403).json({
-    // //             status: 403,
-    // //             msg: 'Access denied. Admins only.',
-    // //             data: null
-    // //         });
-    // //     }
-    // // }
+    // async authAdminMiddleware(req, res, next) {
+    //     if (req.user && req.user.userType === 'admin') {
+    //         next();
+    //     } else {
+    //         return res.status(403).json({
+    //             status: 403,
+    //             msg: 'Access denied',
+    //             data: null
+    //         });
+    //     }
+    // }
 
-    // // async authCustomerMiddleware(req, res, next) {
-    // //     if (req.user && req.user.userType === 'customer') {
-    // //         if (req.params.id && req.params.id !== req.user.userId) {
-    // //             return res.status(403).json({ msg: 'Access denied: Customers can only access their own data.' });
-    // //         }
-    // //         next();
-    // //     } else {
-    // //         return res.status(403).json({ msg: 'Access denied. Customers only.' });
-    // //     }
-    // // }
+    // async authProductMiddleWare(req, res, next) {
+    //     if (req.user && req.user.userType === 'customer') {
+    //         // Customer chỉ có thể xem sản phẩm, không thể tạo, sửa, xóa
+    //         if (req.method === 'GET') {
+    //             next();
+    //         } else {
+    //             return res.status(403).json({
+    //                 status: 403,
+    //                 msg: 'Access denied: Customers cannot modify products',
+    //                 data: null
+    //             });
+    //         }
+    //     } else if (req.user && req.user.userType === 'admin') {
+    //         // Admin có thể xem và sửa sản phẩm
+    //         next();
+    //     } else {
+    //         return res.status(403).json({
+    //             status: 403,
+    //             msg: 'Access denied',
+    //             data: null
+    //         });
+    //     }
+    // }
 
     // async authUserMiddleWare(req, res, next) {
     //     if (req.user && req.user.userType === 'customer') {
