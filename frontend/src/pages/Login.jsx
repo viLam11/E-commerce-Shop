@@ -7,13 +7,14 @@ import DayPick from "../components/DayPick.jsx";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(null);
   const [errors, setErrors] = useState([]);
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+  const [phone, setPhone] = useState(null);
+  const [gender, setGender] = useState(null);
   const [role, setRole] = useState("customer");
   const [dateOfBirth, setDateOfBirth] = useState({
     day: "",
@@ -39,11 +40,13 @@ export default function Login() {
     })
       .then((response) => {
         if (response.status == 200) {
-          const token = response.data.token;
-          const userType = response.data.userType;
+          const token = response.data.data.token;
+          const userType = response.data.data.userType;
+          console.log(response, "token: ", token);
           localStorage.setItem("token", token);
           localStorage.setItem("role", userType);
-          navigate("/homepage")
+          if(userType == "customer") navigate("/homepage")
+          else navigate("/product-manage")
         }
       })
       .catch((error) => {
@@ -56,20 +59,44 @@ export default function Login() {
   }
 
   async function handleSignUp(e) {
-    const result = await axios.post("http://localhost:8000/api/user/signUp", {
-      email: email,
-      password: pass,
-      confirmPassword: pass,
-      fname: name,
-      lname: name,
-      gender: "female",
-      userType: "customer",
-      birthday: "2004-02-22"
-    })
+    // const result = await axios.post("http://localhost:8000/api/user/signUp", {
+    //   email: email,
+    //   password: pass,
+    //   confirmPassword: pass,
+    //   fname: fname,
+    //   lname: lname,
+    //   gender: gender,
+    //   userType: role,
+    //   birthday: `${day}-${month}-${year}`
+    // })
 
-    if (result.status == 200) {
-      alert("Sigup success!");
-    }
+
+    // if (result.status == 200) {
+    //   alert("Sigup success!");
+    // } 
+    axios.post("http://localhost:8000/api/user/signUp", {
+      email: email,
+        password: pass,
+        confirmPassword: pass,
+        fname: fname,
+        lname: lname,
+        gender: gender,
+        userType: role,
+        birthday: `${day}-${month}-${year}`
+    })
+      .then((response) => {
+        if (response.status == 200) {
+          alert("Create account success");
+          navigate("/")
+        }
+      })
+      .catch((error) => {
+        if (error.response) {
+          alert(error.response.data.msg);
+        } else {
+          console.error('Error:', error.message);
+        }
+      })
   }
 
   if (mode == "login") {
@@ -136,10 +163,10 @@ export default function Login() {
                   </span>
                 </div>
 
-                <div className="block my-4 space-x-4">
+                {/* <div className="block my-4 space-x-4">
                   <span>Bạn là chủ shop?</span>
                   <span className="border-b border-black p-1">Kênh người bán</span>
-                </div>
+                </div> */}
               </form>
 
             </div>
@@ -179,7 +206,7 @@ export default function Login() {
                         name="firstName"
                         className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${name != "" ? 'bg-blue-100' : null}`}
                         placeholder="Huỳnh Bảo"
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setLname(e.target.value)}
                       />
                     </div>
 
@@ -191,7 +218,7 @@ export default function Login() {
                         name="lastName"
                         className={`mt-1 p-2  w-4/5 border-b border-black hover:bg-blue-100 ${name != "" ? 'bg-blue-100' : null}`}
                         placeholder="Ngọc"
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setFname(e.target.value)}
                       />
                     </div>
 
@@ -236,11 +263,11 @@ export default function Login() {
 
                   <div className="mb-4 flex space-x-2">
                     <div className="pr-4">Giới tính</div>
-                    <input type="radio" id="male" value="male" name="gender" />
+                    <input type="radio" id="male" value="male" name="gender" onClick={() => {setGender("male")}} />
                     <label htmlFor="male">Nam</label>
-                    <input type="radio" id="female" value="female" name="gender" />
+                    <input type="radio" id="female" value="female" name="gender" onClick={() => {setGender("female")}} />
                     <label htmlFor="female">Nữ</label>
-                    <input type="radio" id="null" value="null" name="gender" />
+                    <input type="radio" id="null" value="null" name="gender" onClick={() => {setGender(null)}} />
                     <label htmlFor="null">Khác</label>
                   </div>
 
@@ -283,6 +310,14 @@ export default function Login() {
                       </div>
 
                     </div>
+                  </div>
+
+                  <div className="role flex space-x-2">
+                      <div>Bạn là nhân viên ? </div>
+                      <input type="radio" value="admin" name="role" onClick={() => {setRole("admin")}} />
+                      <label htmlFor="role">Đúng</label>
+                      <input type="radio" value="customer" name="role" onClick={() => {setRole("customer")}} />
+                      <label htmlFor="role">Không</label>
                   </div>
                 </div>
 

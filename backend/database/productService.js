@@ -272,7 +272,7 @@ class ProductService {
                     }
                     else {
                         const image = await this.getImageByProduct(id);
-                        res.rows[0].image = image.data.map(item => item.image_url);
+                        if(image.data) res.rows[0].image = image.data.map(item => item.image_url);
                         resolve({
                             status: 200,
                             msg: 'SUCCESS',
@@ -447,7 +447,10 @@ class ProductService {
                 } else {
                     for (let i = 0; i < res.rowCount; i++) {
                         const image = await this.getImageByProduct(res.rows[i].product_id);
-                        res.rows[i].image = image.data.map(item => item.image_url);
+                        if(image.data) {
+                            res.rows[i].image = image.data.map(item => item.image_url);
+                        }
+                        // 
                     }
                     resolve({
                         status: 200,

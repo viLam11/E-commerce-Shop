@@ -1,19 +1,20 @@
 import { useState } from "react";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
+import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 export default function NewProduct() {
     // IMAGE
-    const [fileImg, setFileImg] = useState({
-        i1: null,
-        i2: null,
-        i3: null,
-        i4: null,
-        i5: null,
-        i6: null
-    })
+    const [fileImg, setFileImg] = useState([
+        null, null, null, null, null, null
+    ])
     const [img1, setImg1] = useState("../../public/img_upload.svg");
     const [img2, setImg2] = useState("../../public/img_upload.svg");
     const [img3, setImg3] = useState("../../public/img_upload.svg");
+    const [img4, setImg4] = useState("../../public/img_upload.svg");
+    const [img5, setImg5] = useState("../../public/img_upload.svg");
+    const [img6, setImg6] = useState("../../public/img_upload.svg");
     
     // PRODUCT VALUE
     const [productName, setProductName] =  useState("");
@@ -31,41 +32,59 @@ export default function NewProduct() {
         document.getElementById(`img${index}`).click();
     }
 
-    function onChangeImg1(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result;
-                setImg1(base64String);
-                localStorage.setItem('img1', base64String);
-            };
-            setFileImg((prevFile) => ({...prevFile, i1: file}));
-            reader.readAsDataURL(file); 
-            setImg1(base64String);
-        }
-    }
+        // function onChangeImg1(e) {
+        //     const file = e.target.files[0];
+        //     if (file) {
+        //         const reader = new FileReader();
+        //         reader.onloadend = () => {
+        //             const base64String = reader.result;
+        //             setImg1(base64String);
+        //             localStorage.setItem('img1', base64String);
+        //         };
+        //         setFileImg((prevFile) => ({...prevFile, i1: file}));
+        //         reader.readAsDataURL(file); 
+        //         setImg1(base64String);
+        //     }
+        // }
+
 
     function onChangeImg(e, index) {
         const file = e.target.files[0];
+        let base64String;
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                const base64String = reader.result;
-                setImg1(base64String);
+                base64String = reader.result;
+                // setImg1(base64String);
+                setFileImg((prev) => {
+                    if (Array.isArray(prev)) {
+                      const updatedFileImg = [...prev];
+                      updatedFileImg[index-1] = file;
+                      return updatedFileImg;
+                    }
+                    return [file]; 
+                  });
+                if(index == 1 ){
+                    setImg1(base64String);
+                } 
+                else if(index == 2) {
+                    setImg2(base64String);
+                }
+                else if(index == 3) {
+                    setImg3(base64String);
+    
+                } else if(index == 4) {
+                    setImg4(base64String);
+                } else if(index == 5) {
+                    setImg5(base64String);
+                } else if(index ==6 ) {
+                    setImg6(base64String);
+                }
                 localStorage.setItem(`img${index}`, base64String);
             };
             setFileImg((prevFile) => ({...prevFile, i1: file}));
             reader.readAsDataURL(file); 
-            if(index == 1 ){
-                setImg1(base64String);
-            } 
-            else if(index == 2) {
-                setImg2(base64String);
-            }
-            else if(index == 3) {
-                setImg3(base64String);
-            }
+         
         }
     }
 
@@ -77,9 +96,45 @@ export default function NewProduct() {
         if(e.target.value.length > 0 ) setDiscription(true)
         else setDiscription(false);
     }
+
+    function handleCreateProduct() {
+        const formData = new FormData();
+
+        formData.append('pname', productName)
+        formData.append('brand', brand)
+        formData.append('description', description );
+        formData.append('quantity', quantity);
+        formData.append('cate_id', "c01");
+        formData.append('price', price);
+
+        fileImg.forEach((image, index) => {
+            formData.append('image', image);
+          });
+
+        axios.post('http://localhost:8000/api/product/CreateProduct', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+            .then((response) => {
+                console.log(response)
+                alert("New product is created!");
+                navigate
+            })
+            .catch((error) => {
+                console.log(error);
+                if (error.response) {
+                  alert(error.response.data.msg);
+                } else {
+                  console.error('Error:', error.message);
+                }
+              })
+        
+    }
+
     return (
         <>
-            <Header page="product" role="admin" />
+            <Header page="product-manage" role="admin" />
             <main>
                 <div className="m-4 mb-10">
                     <span className="text-gray-600">Shop /</span><span /> <span className="font-medium">Add Products</span>
@@ -90,7 +145,9 @@ export default function NewProduct() {
                         <h2 className="font-medium text-3xl" >Thêm sản phẩm mới</h2>
                         <div className="my-6">
                             <label>Tên sản phẩm <span className="text-red-600">*</span></label>
-                            <input type="text" name="pname" className={`pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md `} />
+                            <input type="text" name="pname" className={`pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md `}  
+                                onChange={(e) => {setProductName(e.target.value)}}
+                            />
                         </div>
 
 
@@ -98,83 +155,99 @@ export default function NewProduct() {
                             <label>Phân loại<span className="text-red-600">*</span></label>
                             <select name="category" className={`block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100 ${selectCat? 'bg-blue-100': 'bg-gray-100'} `} onChange={(e) => handleSelectCat(e)}>
                                 <option value="" disabled>Chọn loại sản phẩm</option>
-                                <option value="smartphone">Điện thoại</option>
-                                <option value="laptop">Laptop</option>
-                                <option value="tablet">Máy tính bảng</option>
+                                <option value="smartphone" onClick={(e) => {setBrand("c01")}}>Điện thoại</option>
+                                <option value="laptop" onClick={(e) => {setBrand("c02")}}>Laptop</option>
+                                <option value="tablet" onClick={(e) => {setBrand("c03")}}>Máy tính bảng</option>
+                                <option value="swatch" onClick={(e) => {setBrand("c04")}}>Đồng hồ</option>
+                                <option value="other" onClick={(e) => {setBrand("c05")}}>Phụ kiện</option>
                             </select>
                         </div>
 
                         <div className="my-6">
                             <label>Hãng sản xuất<span className="text-red-600">*</span></label>
-                            <input type="text" name="brand" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100" />
+                            <input type="text" name="brand" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100" 
+                                onChange={(e) => setBrand(e.target.value) }
+                            />
                         </div>
 
                         <div className="my-6">
                             <label>Giá thành<span className="text-red-600">*</span></label>
-                            <input type="number" name="price" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="number" name="price" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" 
+                                onChange={(e) => setPrice(e.target.value) }
+                            />
                         </div>
 
                         <div className="my-6">
                             <label>Số lượng trong kho<span className="text-red-600">*</span></label>
-                            <input type="number" name="quantity" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" />
+                            <input type="number" name="quantity" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md" 
+                                onChange={(e) => setQuantity(e.target.value) }
+                            />
                         </div>
 
                         <div className="my-6">
                             <label>Mô tả sản phẩm<span className="text-red-600">*</span></label>
-                            <textarea name="price" className={`p-4 block w-4/5 h-36 my-2 rounded-md hover:bg-blue-100 ${description ? "bg-blue-100" : "bg-gray-100"}`} onChange={(e) => handleChangeDescription(e)} />
+                            <textarea name="price" className={`p-4 block w-4/5 h-36 my-2 rounded-md hover:bg-blue-100 ${description ? "bg-blue-100" : "bg-gray-100"}`} 
+                            onChange={(e) => handleChangeDescription(e)} />
                         </div>
                     </div>
 
                     <div>
-                        <h2 className="font-medium text-3xl" >Thêm hình ảnh mới</h2>
-                        <div class="flex items-center space-x-2 my-5">
+                        <h2 className="font-medium text-3xl pb-4" >Thêm hình ảnh</h2>
+                        {/* <div class="flex items-center space-x-2 my-5">
                             <span class="text-sm font-semibold">Màu</span>
                             <span class="inline-block w-6 h-6 rounded-full bg-yellow-400"></span>
                             <span class="inline-block w-6 h-6 rounded-full bg-indigo-300"></span>
-                        </div>
+                        </div> */}
 
                         <div class="grid grid-cols-3 gap-2 mr-8">
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img1" onClick={handleChangeImg1} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img1} alt="" name="img1" onClick={() => {document.getElementById('img1').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
-                                <input id="img1" type="file" accept="image/*" class="hidden" onChange={onChangeImg1} />
+                                <input id="img1" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 1)}} />
                             </div>
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img2" onClick={handleChangeImg} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img2} alt="" name="img2" onClick={() => {document.getElementById('img2').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
+                                <input id="img2" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 2)}} />
                             </div>
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img3" onClick={handleChangeImg} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img3} alt="" name="img3" onClick={() => {document.getElementById('img3').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
+                                <input id="img3" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 3)}} />
                             </div>
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img4" onClick={handleChangeImg} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img4} alt="" name="img4" onClick={() => {document.getElementById('img4').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
+                                <input id="img4" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 4)}} />
                             </div>
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img5" onClick={handleChangeImg} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img5} alt="" name="img5" onClick={() => {document.getElementById('img5').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
+                                <input id="img5" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 5)}} />
                             </div>
 
                             <div>
-                                <div class="block m-auto w-3/4 h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img6" onClick={handleChangeImg} className="w-full h-full block rounded-lg" />
+                                <div class="block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img6} alt="" name="img6" onClick={() => {document.getElementById('img6').click()}} className="w-72 h-80 block object-contain rounded-lg" />
                                 </div>
+                                <input id="img6" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 6)}} />
                             </div>
                         </div>
 
-                        <div className="flex justify-end mr-20">
-                            <div className="bg-red-500 text-white mt-20 w-44 p-4 text-center rounded-md ml-8">Tạo sản phẩm mới</div>
+                        <div className="flex justify-end mr-20 mb-10">
+                            <div className="bg-red-500 text-white w-44 p-4 text-center rounded-md ml-8" onClick={handleCreateProduct} >Tạo sản phẩm  mới</div>
                         </div>
 
                     </div>
                 </div>
             </main>
+
+            <Footer />
         </>
     )
 }

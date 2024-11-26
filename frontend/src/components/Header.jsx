@@ -5,14 +5,19 @@ export default function Header({ page, role }) {
         return (
             <header className="h-20 bg-black text-white w-full">
                 <div className="w-full h-full flex items-center">
-                    <div className="w-1/6 text-2xl font-bold tex-white flex justify-start pl-20">EXCLUSIVE</div>
+                    <div className={"w-1/6 text-2xl font-bold tex-white flex justify-start pl-20"}>EXCLUSIVE</div>
                     <div className="menu w-4/6 justify-center text-center flex flex-row">
                         <ul className="flex flex-row space-x-9 text-lg items-center">
-                            <li>Trang chủ</li>
-                            <li>Doanh thu</li>
-                            <li className="w-20">Quản lý sản phẩm</li>
-                            <li className="w-24">Quản lý khuyến mãi</li>
-                            <li className="w-24">Quản lý người dùng</li>
+                            <li  className={`${page === "homepage" ? "border-b" : ""}`}>Trang chủ</li>
+                            <li className={`${page === "revenue" ? "border-b" : null}`} >
+                                <a href="/revenue">Doanh thu</a>
+                                
+                            </li>
+                            <li className={`${page === "product-manage" ? "border-b" : null} w-20`}>
+                                <a href="/product-manage">Quản lý sản phẩm</a>
+                            </li>
+                            <li className={`${page === "promotion-manage" ? "border-b" : null} w-24`}>Quản lý khuyến mãi</li>
+                            <li className={`${page === "user-manage" ? "border-b" : null} w-24`}>Quản lý người dùng</li>
                         </ul>
                     </div>
                     <div className="w-1/6 flex justify-end pr-20">

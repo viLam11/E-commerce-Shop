@@ -27,12 +27,12 @@ router.post('/login', [
 ], authController.postLogin);
 
 router.post('/logout', authController.logout);
-router.get('/users', authMiddleware.authUserMiddleWare, authController.fetchAllUsers);
+router.get('/users', authController.fetchAllUsers);
 
 
-router.put('/update-user/:id', authMiddleware.authUserMiddleWare, authController.updateUser);
+router.put('/update-user/:id', authController.updateUser);
 
-router.delete('/delete-user/:id', authMiddleware.authUserMiddleWare, authController.deleteUser);
+router.delete('/delete-user/:id', authController.deleteUser);
 
 router.get('/get-detail/:id', authController.getDetailUser);
 
