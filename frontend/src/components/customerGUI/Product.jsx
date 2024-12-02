@@ -3,12 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 function Product({ state, ViewProductDetail }) {
     console.log("Product Data:", state.productData);
     return (
-        <div className="spotlight">
-            
-            <h2>Giới thiệu sản phẩm</h2>
-            
             <DetailProduct state={state} ViewProductDetail={ViewProductDetail} />
-        </div>
     );
 }
 
@@ -53,8 +48,10 @@ function DetailProduct({ state, ViewProductDetail }) {
         setStart((prev) => Math.max(prev - 4, 0));
         setEnd((prev) => Math.max(prev - 4, 4));
     };
-    return (<>
-    <span onClick={handlePrevious}>&#x2B05;</span><span onClick={handleNext}>&#x27A1;</span>
+    return (<div className="spotlight">
+        <h2><span className='item'></span>Giới thiệu sản phẩm 
+            <span className='click left' onClick={handlePrevious}>&#x2B05;</span>
+            <span className='click' onClick={handleNext}>&#x27A1;</span></h2>
             <div className="spotlight-list">
                 {sortedItems
                     ? sortedItems.slice(start, end).map((row, index) => {
@@ -101,7 +98,7 @@ function DetailProduct({ state, ViewProductDetail }) {
                       })
                     : null}
             </div>
-            </>
+            </div>
     );
 }
 

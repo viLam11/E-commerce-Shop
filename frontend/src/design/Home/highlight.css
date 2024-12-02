@@ -8,10 +8,8 @@
     margin-top: 50px;
     height: 500px;
 }
-.spotlight span{
-    cursor: pointer;
-    margin-left: 10px;
-}
+
+
 .spotlight .spot-head{
     width: 10px;
     background-color: #d32f2f;
@@ -21,6 +19,21 @@
     font-weight:600;
     font-family: 'Roboto', sans-serif;
 }
+
+.spotlight h2.item{
+    width: 10px;
+    background-color: #d9534f;
+}
+
+.spotlight h2 .click{
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.spotlight h2 .click.left{
+    margin-left: 900px;
+}
+
 .spotlight .view-all-container{
     display: inline-flex;
     align-items: left;

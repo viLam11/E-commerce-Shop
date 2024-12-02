@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function ProductByCategory({cate_id,state, ViewProductDetail, NavigateTo}){
+function ProductByCategory({cate_name,cate_id,state, ViewProductDetail, NavigateTo}){
     const productData = state.productData;
     if (!productData) throw ("No product defined")
     const sortProductByCategory = productData?productData.filter(item => item.cate_id == cate_id):null;
@@ -41,7 +41,13 @@ function ProductByCategory({cate_id,state, ViewProductDetail, NavigateTo}){
     };
     return (
         <>
-            <span onClick = {handlePrevious}>&#x2B05;</span><span onClick={handleNext}>&#x27A1;</span>
+        <div className="view-all-container">
+                            <h3>{cate_name}</h3>
+                            <button className="view-all-button" onClick={(e)=>{e.preventDefault();ViewCategories(token.cate_id)}}>Xem tất cả sản phẩm</button>
+                        </div>
+
+                        <div className='spotlight-list'>
+            
             {sortProductByCategory?sortProductByCategory.slice(start,end).map((row, index) => {
                 const productImage = images[row.product_id];
                 return (
@@ -75,6 +81,7 @@ function ProductByCategory({cate_id,state, ViewProductDetail, NavigateTo}){
                     </div>
                 );
             }):null}
+            </div>
         </>
         
     )
@@ -91,14 +98,8 @@ function Shopping({state, ViewProductDetail, NavigateTo, ViewCategories}){
                 return(
                     <div key={index} className="spotlight">
                     
-                        <div className="view-all-container">
-                            <h3>{token.cate_name}</h3>
-                            <button className="view-all-button" onClick={(e)=>{e.preventDefault();ViewCategories(token.cate_id)}}>Xem tất cả sản phẩm</button>
-                        </div>
-
-                        <div className='spotlight-list'>
-                            <ProductByCategory cate_id = {token.cate_id} state = {state} ViewProductDetail = {ViewProductDetail} NavigateTo = {NavigateTo}/>
-                        </div>
+                        
+                            <ProductByCategory cate_name = {token.cate_name} cate_id = {token.cate_id} state = {state} ViewProductDetail = {ViewProductDetail} NavigateTo = {NavigateTo}/>
                     </div>
                 );
             })}

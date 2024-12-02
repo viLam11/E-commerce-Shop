@@ -1,17 +1,62 @@
 import Product from "./Product";
 import { useState, useEffect } from "react";
-function Banner(){
+function Banner() {
+    const [activeIndex, setActiveIndex] = useState(1);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex((prevIndex) => (prevIndex + 1) % 5); // Có 5 vòng tròn, nên dùng % 5
+        }, 3000);
+
+        return () => clearInterval(interval); // Dọn dẹp khi component unmount
+    }, []);
+    const images = ['../../../public/img/ads8.jpg',
+        '../../../public/img/ads13.jpg',
+        '../../../public/img/maxresdefault (1).jpg',
+        '../../../public/img/ads10.png',
+        '../../../public/img/banner1.jpg']
+    const pickAds = (index) => {
+        setActiveIndex(index)
+    }
     return (
         <div className="banner">
-            <iframe width="560" height="315" 
-            src="https://www.youtube.com/embed/k_y_7Ro8-VQ??autoplay=1&loop=1&playlist=k_y_7Ro8-VQ" 
-            title="YouTube video player" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-            referrerpolicy="strict-origin-when-cross-origin" 
-            allowfullscreen></iframe>        
+            <div className="side">
+                <div className="item">
+                    <h2>Điện thoại</h2>
+                    <div className="underline"></div>
+                </div>
+                <div className="item">
+                    <h2>Laptop</h2>
+                    <div className="underline"></div>
+                </div>
+                <div className="item">
+                    <h2>Máy tính bảng</h2>
+                    <div className="underline"></div>
+                </div>
+                <div className="item">
+                    <h2>Đồng hồ thông minh</h2>
+                    <div className="underline"></div>
+                </div>
+                <div className="item">
+                    <h2>Phụ kiện</h2>
+                    <div className="underline"></div>
+                </div>
+            </div>
+            <div className="horizon"></div>
+            <div className="ads">
+                <img src={images[activeIndex]} alt="ADS" />
+            </div>
+            <div className="pagination">
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <span
+                        key={index}
+                        className={`circle ${index === activeIndex ? "active" : ""}`}
+                        onClick={() => pickAds(index)}
+                    ></span>
+                ))}
+            </div>
         </div>
-    )
+    );
 }
 function Pagination(){
     return(
@@ -110,9 +155,10 @@ function FlashProduct({ state, ViewProductDetail }) {
             {/* <h2>Tháng này</h2> */}
             <h2 className="view-all-container">
                 Các sản phẩm đang bán chạy
-                
+                <span className='click left' onClick = {handlePrevious}>&#x2B05;</span>
+                <span className='click' onClick={handleNext}>&#x27A1;</span>
             </h2>
-            <span onClick = {handlePrevious}>&#x2B05;</span><span onClick={handleNext}>&#x27A1;</span>
+            
             <div className="spotlight-list">
                 {sortedItems
                     ? sortedItems.slice(start, end).map((row, index) => {

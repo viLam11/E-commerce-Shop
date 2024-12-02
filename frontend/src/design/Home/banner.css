@@ -7,28 +7,107 @@ body {
 .container{
     padding: 20px;
     border-radius: 8px;
-    margin-left: 90px;
-    margin-right: 90px;
+    /* margin-left: 0px;
+    margin-right: 0px; */
     width: 1330px;
 }
 
 .banner {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100%; /* Adjust the width as needed */
+    justify-content: center; /* Adjust the width as needed */
     height: 500px;
     /* background-color: #f0f0f0; */
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-family: Arial, sans-serif;
-    margin-top: 80px;
+    margin-top: 90px;
+    display: inline-flex;
+    width: 1390px;
+}
+.banner .side{
+    margin-left: -620px;
+    margin-top: -190px;
 }
 
-.banner iframe{
-    height: 100%;
-    width: 100%;
+.banner .side .item{
+    margin-bottom: 15px;
+    margin-top: 15px;
+    width: 300px;
+}
+
+.banner .side .item:hover{
+    color:#ccc;
+    cursor: pointer;
+    content:none;
+}
+
+.banner .side .item .underline{
+    height: 1.5px;
+    background-color:#000;
+    width: 270px;
+    margin-left: -15px;
+}
+
+.banner .side .item:hover .underline{
+    height: 4px;
+    background-color:#666;
+    width: 280px;
+    margin-left: -15px;
+}
+
+.banner .horizon{
+    width: 1px;
+    height: 1200px;
+    background-color:#666;
+    margin-top: -1000px;
+    margin-left: -30px;
+}
+
+.banner .ads{
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
+     border-radius: 20px;
+}
+.banner .ads img{
+    margin-left: 60px;
+    margin-right: -800px;
+    width: 1200px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.banner .pagination .circle{
+    width: 12px; /* Đường kính của hình tròn */
+    height: 12px;
+    background-color:aliceblue; /* Màu hex */
+    border-radius: 50%; /* Biến thành hình tròn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng */
+    cursor: pointer;
+}
+
+.banner .pagination .circle.active{
+    width: 12px; /* Đường kính của hình tròn */
+    height: 12px;
+    background-color:#ff4b2b; /* Màu hex */
+    border-radius: 50%; /* Biến thành hình tròn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color:#ff4b2b;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Thêm bóng */
+}
+.banner .pagination{
+    margin-right: -170px;
+    margin-left: 100px;
+    margin-top: 300px;
 }
 
 .banner .banner-content p img{
