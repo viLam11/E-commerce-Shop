@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 
 router.get('/getOneCategory', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, categoryController.getOneCategory);
-router.get('/getAll', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, categoryController.getAllCategory);
+router.get('/getAll', categoryController.getAllCategory);
 
 
 module.exports = router;

@@ -8,7 +8,7 @@ router.post('/CreateProduct', authMiddleware.authMiddleWare, authMiddleware.auth
 router.put('/UpdateProduct/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.updateProduct);
 router.delete('/DeleteProduct/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.deleteProduct);
 router.get('/get-detail/:id', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.getDetailProduct);
-router.get('/getAll', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.getAllProduct);
+router.get('/getAll', productController.getAllProduct);
 router.delete('/delete-many', authMiddleware.authMiddleWare, authMiddleware.authProductMiddleWare, productController.deleteMany);
 
 //image
