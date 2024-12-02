@@ -2,7 +2,7 @@ export default function Footer() {
 
 
     return (
-        <div className="h-52 bg-black w-full">
+        <div className="h-52 bg-black w-full text-sm">
             <div className="grid grid-cols-5 h-full">
                 <div className="h-full flex justify-center items-center ">
                     <div className="w-full h-2/3  border-r-2 border-white" >

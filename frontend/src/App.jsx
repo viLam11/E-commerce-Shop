@@ -10,7 +10,8 @@ import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
 import AllPromotion from "./pages/AllPromotion";
-import Payment from "./pages/Payment";
+import Checkout from "./pages/Checkout";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -30,10 +31,11 @@ function App() {
           <Route path="/product-update" element={<ProductUpdate />} />
           <Route path="/edit-product/:id" element={<ProductUpdate />} />
           <Route path="/user/history" element={<TransactionHist />} />
-          <Route path="/customer/pay" element={<Payment />} />
+          <Route path="/customer/pay" element={<Checkout />} />
           <Route path="/admin/new-promotion" element={<NewPromotion />} />
           <Route path="/admin/user-management" element={<UsersManagement />} />
           <Route path="/admin/all-promo" element={<AllPromotion />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
           
         </Routes>
       </AuthProvider>

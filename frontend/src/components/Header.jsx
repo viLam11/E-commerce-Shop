@@ -3,7 +3,7 @@ export default function Header({ page, role }) {
 
     if (role == "admin") {
         return (
-            <header className="h-20 bg-black text-white w-full">
+            <header className="h-16 bg-black text-white w-full">
                 <div className="w-full h-full flex items-center">
                     <div className={"w-1/6 text-2xl font-bold tex-white flex justify-start pl-20"}>EXCLUSIVE</div>
                     <div className="menu w-4/6 justify-center text-center flex flex-row">
@@ -42,7 +42,7 @@ export default function Header({ page, role }) {
         )
     }
     return (
-        <header className="h-20 bg-black text-white w-full">
+        <header className="h-16 bg-black text-white w-full">
             <div className="w-full h-full flex items-center">
                 <div className="w-1/6 text-2xl font-bold tex-white flex justify-start pl-20">EXCLUSIVE</div>
                 <div className="menu w-4/6 justify-center text-center flex flex-row">
