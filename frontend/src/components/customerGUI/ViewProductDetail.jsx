@@ -1,14 +1,16 @@
 import React, {useState,useEffect} from "react";
 import RatingBar from "../format/ratingBar";
 
-function Detail({ state, NavigateTo, ViewCategories }) {
+function Detail({reviews, state, NavigateTo, ViewCategories }) {
     const product = state.productData ? state.productData.find(item => item.product_id === state.currentProduct) : null;
     if (!product) return null;
 
     const [images, setImages] = useState([]);
     const [mainImage, setMainImage] = useState(null);
     const [otherImages, setOtherImages] = useState([]);
-
+    const averageRate = reviews.length > 0 
+        ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
+        : "0.0";
     useEffect(() => {
         const fetchImages = async () => {
             try {
@@ -42,6 +44,17 @@ function Detail({ state, NavigateTo, ViewCategories }) {
         setOtherImages(newOther);
     };
     const category = state.categoryData.find(item => item.cate_id === product.cate_id);
+    const [buyQuantity, setBuy] = useState(1)
+    const changeQuantity = (charge)=>{
+        if (charge == 1) setBuy(buyQuantity + 1 < product.quantity?buyQuantity+1:product.quantity)
+        else setBuy(buyQuantity - 1 > 0?buyQuantity -1:0)
+    }
+    const handleInputChange = (e) => {
+        const value = parseInt(e.target.value, 10) || 0; // Chuyển chuỗi thành số hoặc mặc định là 0
+        if (value >= 0 && value <= product.quantity) {
+            setBuy(value);
+        }
+    };
     return (
         <>
             <div className="breadcrumbs">
@@ -67,24 +80,37 @@ function Detail({ state, NavigateTo, ViewCategories }) {
                     <div className="product-details">
                         <h1>{product.pname}</h1>
                         <div className="rating-stock">
-                            <p>★★★★★ ( Reviews) | <span className="stock-status">In Stock</span></p>
+                            <p><span style={{color: "red"}}>{averageRate}</span>/5.0 ({reviews.length} đánh giá) | <span className="stock-status">{product.quantity>0?"Còn "+product.quantity+" sản phẩm":"Hiện sản phẩm đã hết"}</span></p>
                         </div>
                         <p className="price">{formatPrice(product.price)}</p>
                         <div className="purchase-options">
                             <div className="quantity">
-                                <input id="quantity-val" type="number" defaultValue="1" min="1" max={product.quantity} />
+                                <button class="btn decrement" onClick={(e) => {e.preventDefault(); changeQuantity(0)}}>-</button>
+                                <input
+                                    type="text"
+                                    value={buyQuantity}
+                                    onChange={handleInputChange}
+                                    style={{ width: "40px", textAlign: "center" }}
+                                />
+                                <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
                             </div>
-                            <button className="buy-now">Buy Now</button>
-                            <button className="add-to-cart">Add to cart</button>
+                            <button className="buy-now">Mua ngay</button>
+                            <button className="add-to-cart">Thêm vào giỏ hàng</button>
                         </div>
                         <div className="info-box">
                             <div className="info-item">
-                                <p><strong>Giao hàng nhanh chóng</strong></p>
-                                <p>Giao hàng trong vòng 7 ngày kể từ khi thanh toán*</p>
+                                <div className="icon">&#128666; </div>
+                                <div>
+                                    <p><strong>Giao hàng nhanh chóng</strong></p>
+                                    <p>Giao hàng trong vòng 7 ngày kể từ khi thanh toán*</p>
+                                </div>
                             </div>
                             <div className="info-item">
-                                <p><strong>Chính sách đổi trả</strong></p>
-                                <p>Miễn phí trả hàng trong vòng 30 ngày. <a href="#">Chi tiết</a></p>
+                            <div className="icon">&#128209; </div>
+                                <div>
+                                    <p><strong>Chính sách đổi trả</strong></p>
+                                    <p>Miễn phí trả hàng trong vòng 30 ngày. <a href="#">Chi tiết</a></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -104,26 +130,8 @@ function Description({ product }) {
     );
 }
 
-function Review({ state, product }) {
-    const [reviews, setReviews] = useState([]);
-    useEffect(() => {
-        const fetchReviews = async () => {
-            let newReviews = [];
-            try {
-                const response = await fetch(`http://localhost:8000/api/product/GetReview/${product.product_id}`);
-                if (!response.ok) throw new Error("Failed to fetch image");
-                const data = await response.json();
-                newReviews = data.data||[];
-
-            } catch (error) {
-                console.error("Error fetching image:", error);
-                newReviews = []; // Fallback if image fetch fails
-            }
-            setReviews(newReviews); // Update images state once all images are fetched
-        };
-
-        fetchReviews();
-    }, []);
+function Review({ reviews,state, product }) {
+    
     const averageRate = reviews.length > 0 
         ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
         : "0.0";
@@ -181,10 +189,10 @@ function Review({ state, product }) {
                         <div><b>Comment:</b> {review.comment}</div>
                     </div>
                 ))}
-                {/* <form>
+                <form>
                     <input type="text" placeholder="Thêm đánh giá" />
-                    <input type="image" src="../../public/icon/arrow_right_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" />
-                </form> */}
+                    <input type = "submit"/>
+                </form>
             </div>
         </div>
     );
@@ -192,11 +200,30 @@ function Review({ state, product }) {
 
 function ViewDetail({ state, ViewProductDetail, NavigateTo, ViewCategories }) {
     const product = state.productData ? state.productData.find(item => item.product_id === state.currentProduct) : null;
+    const [reviews, setReviews] = useState([]);
+    useEffect(() => {
+        const fetchReviews = async () => {
+            let newReviews = [];
+            try {
+                const response = await fetch(`http://localhost:8000/api/product/GetReview/${product.product_id}`);
+                if (!response.ok) throw new Error("Failed to fetch image");
+                const data = await response.json();
+                newReviews = data.data||[];
+
+            } catch (error) {
+                console.error("Error fetching image:", error);
+                newReviews = []; // Fallback if image fetch fails
+            }
+            setReviews(newReviews); // Update images state once all images are fetched
+        };
+
+        fetchReviews();
+    }, []);
     return (
         <div className="viewpage">
-            <Detail state={state} NavigateTo={NavigateTo} />
+            <Detail state={state} NavigateTo={NavigateTo} reviews = {reviews}/>
             <Description product={product} />
-            <Review product={product} state={state}/>
+            <Review product={product} state={state} reviews={reviews}/>
         </div>
     );
 }
