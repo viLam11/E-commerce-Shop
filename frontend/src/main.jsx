@@ -1,10 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import PageComponent from './components/customerHomePage.jsx'
-import App from './components/App.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import PageComponent from './components/customerGUI/CustomerPageComponent.jsx';
+// import PageComponent from './components/customerHomePage.jsx';
+import { useData,DataProvider} from './components/customerGUI/FetchData';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <PageComponent />
+    <DataProvider>
+        <PageComponent />
+    </DataProvider>
 );
-// reportWebVitals();

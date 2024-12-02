@@ -24,7 +24,7 @@ export class PageComponent extends React.Component {
         this.Header = this.Header.bind(this);
         this.Footer = this.Footer.bind(this);
         this.Login = this.Login.bind(this);
-        // this.LogOut = this.LogOut.bind(this);
+        this.LogOut = this.LogOut.bind(this);
         this.navigateToHomePage = this.navigateToHomePage.bind(this);
         this.navigateToShoppingPage = this.navigateToShoppingPage.bind(this);
         this.navigateToPromotionPage = this.navigateToPromotionPage.bind(this);
@@ -35,7 +35,7 @@ export class PageComponent extends React.Component {
     }
 
     componentDidMount() {
-        fetch('http://localhost:3000/api/users') // Replace with actual backend API URL
+        fetch('http://localhost:8000/api/user') // Replace with actual backend API URL
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -44,7 +44,7 @@ export class PageComponent extends React.Component {
             })
             .then(data => this.setState({ users: data }))
             .catch(error => console.error('Error fetching data:', error));
-        fetch('http://localhost:3000/api/product') // Replace with actual backend API URL
+        fetch('http://localhost:8000/api/product') // Replace with actual backend API URL
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -132,6 +132,12 @@ export class PageComponent extends React.Component {
         })
     }
 
+    LogOut(){
+        this.setState({
+            currentPage: 'Login'
+        })
+    }
+
     renderPage() {
         const { currentPage, currentProduct } = this.state;
         switch (currentPage) {
@@ -139,6 +145,7 @@ export class PageComponent extends React.Component {
                 return <HomePage 
                     navigateToByCategory = {this.navigateToByCategory} 
                     navigateToViewProduct={this.navigateToViewProduct} 
+                    navigateToShoppingPage = {this.state.navigateToShoppingPage}
                     productData={this.state.productData} 
                     imageData={this.state.imageData}
                     cateData = {this.state.categoryData}
@@ -255,7 +262,7 @@ export class PageComponent extends React.Component {
                         <a href="#"><span>&#128276;</span></a> 
                         <a href="#" onClick={this.navigateToCartPage}><span>&#128722;</span></a>
                         <div className="dropdown-container">
-                            <a href="#" className="dropdown" id="dropdownButton" onClick={this.actionMenu}>
+                            <a href="#" className="dropdown" id="dropdownButton" onClick={() => actionMenu()}>
                                 <span>&#128100;</span>
                             </a>
                             <div className="action-menu" id="actionMenu">
@@ -263,7 +270,7 @@ export class PageComponent extends React.Component {
                                 <div><span>&#128230;</span> My Orders</div>
                                 <div><span>&#10060;</span> My Cancellations</div>
                                 <div><span>&#11088;</span> My Reviews</div>
-                                <div><span>&#x1F512;</span> Log out</div>
+                                <div onClick={this.LogOut}><span>&#x1F512;</span> Log out</div>
                             </div>
                         </div>
                     </div>
@@ -272,7 +279,6 @@ export class PageComponent extends React.Component {
         );
     }
     
-
     Footer(){
         return(
             <footer className="footer">
@@ -298,7 +304,7 @@ export class PageComponent extends React.Component {
             
                 <div className="footer-section">
                     <h3>Sản phẩm</h3>
-                    <a href="#" onClick={this.navigateToHomePage}>Trang chủ</a><br />
+                    <a href="#">Trang chủ</a><br />
                     <a href="#">Điện thoại</a><br />
                     <a href="#">Laptop</a><br />
                     <a href="#">Máy tính bảng</a><br />
@@ -325,6 +331,7 @@ export class PageComponent extends React.Component {
             </footer>
         )
     }
+    
 
     //-------View Product-------------
     Product(){
@@ -473,7 +480,7 @@ class LogIn extends PageComponent {
                     </div>
                     <button type="button" className="google-login">
                         <img
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
+                            src="../../public/img/logo GG.png"
                             alt="Google Logo"
                             className="google-logo"
                         />
@@ -510,7 +517,7 @@ class HomePage extends PageComponent{
             {this.Product()}
             
             <div className="view-all-container">
-                <button className="view-all-button">Xem tất cả sản phẩm</button>
+                <button className="view-all-button" >Xem tất cả sản phẩm</button>
                 <div className="underline"></div>
             </div>
             

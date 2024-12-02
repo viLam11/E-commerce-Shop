@@ -2,26 +2,44 @@
     background-color: #f5e9e6;
     padding: 20px;
     border-radius: 8px;
-    margin-left: 50px;
-    margin-right: 50px;
+    margin-left: 100px;
+    margin-right: 100px;
+    width: 1310px;
     margin-top: 50px;
+    height: 500px;
 }
-
+.spotlight span{
+    cursor: pointer;
+    margin-left: 10px;
+}
+.spotlight .spot-head{
+    width: 10px;
+    background-color: #d32f2f;
+}
 .spotlight h2{
     color: #d32f2f;
-    font-weight: bold;
+    font-weight:600;
+    font-family: 'Roboto', sans-serif;
 }
-
 .spotlight .view-all-container{
     display: inline-flex;
     align-items: left;
     margin: -20px;
+    width: 1300px;
 }
+.spotlight .view-all-container h3{
+    color: #d32f2f;
+    font-weight:600;
+    font-family: 'Roboto', sans-serif;
+    box-sizing: content-box;
+    margin-right: 600px;
+}
+
 
 .spotlight .view-all-container h3{
     text-align: left;
     box-sizing: content-box;
-    width: 400px;
+    width: 500px;
 }
 
 .spotlight .view-all-container .view-all-button{
@@ -34,53 +52,74 @@
     border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
-    margin-top: -20px;
+    margin-top: -5px;
 }
 .spotlight .spotlight-list{
+    margin-left: 50px;
     display: inline-flex;
     display: flex;
-    overflow-x: scroll;
-    gap: 16px;
-    height: 250px;
+    gap: 4px;
+    height: 400px;
 }
 
 .spotlight .spotlight-list .spotlight-product{
-    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-top: 10px;
+    margin-top: 40px;
     margin-bottom: 10px;
-    padding: 10px;
-    width: 200px;
-    height: 100%;
+    padding: 0px;
+    width: 450px;
+    height: 400 px;
     text-align: center;
     cursor: pointer;
 }
-.spotlight .spotlight-list .spotlight-product{
-    margin-top: 10px;
+
+.spotlight .spotlight-list .spotlight-product .product-view{
+    background-color: white;
+    padding: 4px;
+    border-radius: 8px;
+    width: 250px;
+    height: 300px;
+}
+
+.spotlight .spotlight-list .spotlight-product .product-view .product-img{
+    margin-top: 30px;
+    width: 230px;
+    height: auto;
+    justify-items:center;
+    align-items: center;
+}
+
+.spotlight .spotlight-list .spotlight-product .product-view .heading{
+    gap: 15px
+}
+.spotlight .spotlight-list .spotlight-product .product-data{
+    padding: 4px;
+    border-radius: 8px;
+    box-sizing: content-box;
+    width: 230px;
+    padding: 5px;
 }
 
 .spotlight .spotlight-list .spotlight-product .product-name{
     color: #000;
-    margin-left: -10px;
     margin-top: 10px;
+    margin-bottom: 5px;
     text-align: left;
-    font-weight: bold;
-    font-family:'Courier New', Courier, monospace;
+    font-weight:500;
+    font-family: 'Roboto', sans-serif;
+    width: 250px;
 }
 
 .spotlight .spotlight-list .spotlight-product .product-cash{
     color: #d32f2f;
-    margin-left: -10px;
     font-size: small;
     text-align: left;
     font-weight: bold;
-    font-family:'Courier New', Courier, monospace;
+    font-family: 'Roboto', sans-serif;
 }
 
 .spotlight .spotlight-list .spotlight-product .product-rating{
     color: #ffab40;
-    margin-left: -10px;
     font-size: small;
     text-align: left;
 }
@@ -98,10 +137,9 @@
 
 .spotlight .spotlight-list .spotlight-product div img{
     width: 100px;
-    
 }
 
-.spotlight .spotlight-list .spotlight-product div .discount {
+.spotlight .spotlight-list .spotlight-product .product-view .discount {
     background-color: #ff6d6d;
     color: white;
     border-radius: 20px;
@@ -110,6 +148,7 @@
     align-items: left;
     font-size: 0.8em;
     margin-top: -10px;
+    margin-right: 60px;
 }
 
 .spotlight .spotlight-list .spotlight-product div .addcart{
@@ -151,8 +190,9 @@
     padding: 20px 0;
     padding: 20px;
     border-radius: 8px;
-    margin-left: 300px;
-    margin-right: 300px;
+    margin-left: 550px;
+    margin-right: 700px;
+    width: 400px;
 }
 
 .view-all-button {
@@ -164,7 +204,23 @@
     font-size: 0.9em;
     cursor: pointer;
 }
-
+.view-all{
+    text-align: center;
+    padding: 20px 0;
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 550px;
+    margin-right: 700px;
+    margin-top: 50px;
+    width: 400px;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
 .view-all-button:hover {
     background-color: #d32f2f;
 }

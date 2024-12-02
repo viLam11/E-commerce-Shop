@@ -2,13 +2,15 @@
     background-color: #f5e9e6;
     padding: 20px;
     border-radius: 8px;
-    margin-left: 50px;
-    margin-right: 50px;
+    margin-left: 100px;
+    margin-right: 100px;
+    width: 1310px;
 }
 
 .searching h3{
     color: #d32f2f;
-    font-weight: bold;
+    font-weight:600;
+    font-family: 'Roboto', sans-serif;
     margin-bottom: 10px;
 }
 
@@ -49,14 +51,15 @@
     cursor: pointer;
     color: #333;
     font-size: 1em;
+    
 }
 
 .searching .category-buttons{
     display: inline-flex;
     display: flex;
-    overflow-x: scroll;
-    gap: 60px;
+    gap: 30px;
     justify-items: center;
+    margin-left: 45px;
 }
 .searching .category-type div{
     background-color: white;
@@ -65,21 +68,25 @@
     margin-top: 10px;
     margin-bottom: 10px;
     padding: 10px;
-    width: 240px;
+    width: 200px;
     height: 150px;
     text-align: center;
-    
+    margin-left: 8px;
 }
 
 .searching .category-type{
     color: #333;
     text-decoration: none;
+    font-weight:500;
+    font-family: 'Roboto', sans-serif;
 }
 
 .searching .category-type:hover{
     color: #888;
     text-decoration: none;
     font-size: 1em;
+    font-weight: lighter bolder;
+    font-family:'Times New Roman', Times, serif;
 }
 
 .searching .category-type img{

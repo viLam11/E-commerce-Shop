@@ -1,16 +1,22 @@
 
-/* body {
+body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    color: white;
-    background-color: #121212;
-} */
+
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    margin-top: 0px;
+}
 .footer {
     display: flex;
     justify-content: space-between;
     padding: 20px;
     background-color: #000;
     margin-top: 50px;
+    width: 100%;
+    position: absolute;
 }
 .footer-section {
     flex: 1;

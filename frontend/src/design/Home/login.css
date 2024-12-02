@@ -4,15 +4,10 @@ body {
     box-sizing: border-box;
     margin-top: 0px;
 }
-.Shopping{
+.Login-log{
     padding: 20px;
     border-radius: 8px;
     margin-left: 20px;
     margin-right: 20px;
-}
-.Shopping .spotlight{
-    margin-top: 100px;
-}
-.Shopping.view-all-container{
-    margin-top: 110px;
+    
 }

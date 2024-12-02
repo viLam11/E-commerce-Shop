@@ -99,6 +99,7 @@ body {
     width: 60px;
     height: auto;
     border: 1px solid #ddd;
+    background-color: #888;
     border-radius: 4px;
     cursor: pointer;
     transition: border-color 0.3s ease;
@@ -113,6 +114,7 @@ body {
     height: auto;
     border: 2px solid #0077ff;
     border-radius: 8px;
+    
 }
 
 .product-details {
@@ -135,7 +137,7 @@ body {
 
 .price {
     font-size: 1.8em;
-    color: #333;
+    color: #ff4747;
     margin-bottom: 15px;
 }
 
@@ -160,7 +162,7 @@ body {
 .prod-description div{
     border: solid #888 ;
     border-radius: 8px;
-    color: #888;
+    color: #000;
     padding: 10px;
     text-align: justify;
 }
@@ -323,3 +325,104 @@ body {
     margin-bottom: 10px;
     border-radius: 4px;
 }
+
+/*STAR RATING*/
+.rating-container {
+    display: flex;
+    gap: 2rem;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Left Section */
+  .rating-left {
+    text-align: center;
+  }
+  
+  .average-rating {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .total-ratings {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  .stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .star-wrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .star {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ccc;
+    clip-path: polygon(
+      50% 0%,
+      63% 38%,
+      100% 38%,
+      69% 59%,
+      82% 100%,
+      50% 75%,
+      18% 100%,
+      31% 59%,
+      0% 38%,
+      37% 38%
+    ); /* Star shape */
+  }
+  
+  .star-fill {
+    position: absolute;
+    width: 0;
+    height: 100%;
+    background: #f39c12;
+    clip-path: inherit; /* Matches the star shape */
+    transition: width 0.3s ease;
+  }
+  
+  /* Right Section */
+  .rating-right {
+    flex: 1;
+  }
+  
+  .rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .star-level {
+    width: 50px;
+    text-align: right;
+  }
+  
+  .bar {
+    flex: 1;
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .bar-fill {
+    height: 100%;
+    background: #e74c3c;
+    border-radius: 5px 0 0 5px;
+    transition: width 0.3s ease;
+  }
+  
+  .count {
+    width: 30px;
+    text-align: right;
+  }
+  
