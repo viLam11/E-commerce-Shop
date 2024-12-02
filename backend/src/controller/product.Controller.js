@@ -11,6 +11,8 @@ class ProductController {
                     data: null
                 })
             }
+            let file = (req.file) ? req.file : req.files;
+            req.body.image = file
             const response = await ProductService.createProduct(req.body)
             return res.status(200).json(response)
         }
@@ -115,7 +117,7 @@ class ProductController {
     async getAllProduct(req, res) {
         try {
             const { limit, page, filter, sort } = req.query
-            const response = await ProductService.getAllProduct(Number(limit) || 1000, Number(page) || 0, filter, sort)
+            const response = await ProductService.getAllProduct(Number(limit) || 5, Number(page) || 0, filter, sort)
             return res.status(200).json(response)
         }
         catch (err) {
@@ -131,16 +133,19 @@ class ProductController {
 
     async addImage(req, res) {
         try {
-            const image = req.body
-            const productId = req.params.id
-            if (!image || !productId) {
+            let file = (req.file) ? req.file : req.files;
+            const body = req.body;
+            const product_id = req.params.id
+            console.log(file);
+            if (!(file && product_id)) {
                 return res.status(400).json({
                     status: 400,
                     msg: 'The input is required',
                     data: null
                 })
             }
-            const response = await ProductService.addImage(productId, req.body);
+            const response = await ProductService.addImage(product_id, body, file);
+            //let response = null;
             return res.status(200).json(response)
         }
         catch (err) {
@@ -175,15 +180,16 @@ class ProductController {
 
     async deleteImage(req, res) {
         try {
-            const imageID = req.params.id
-            if (!imageID) {
+            const imageURL = req.query.image_url;
+            const productID = req.query.product_id;
+            if (!imageURL || !productID) {
                 return res.status(400).json({
                     status: 400,
-                    msg: 'The imageID is required',
+                    msg: 'The input is required',
                     data: null
                 })
             }
-            const response = await ProductService.deleteImage(imageID);
+            const response = await ProductService.deleteImage(productID, imageURL);
             return res.status(200).json(response)
         }
         catch (err) {
@@ -219,15 +225,28 @@ class ProductController {
 
     async updateImage(req, res) {
         try {
-            const imageID = req.params.id
-            if (!imageID && !req.body) {
+            let file = (req.file) ? req.file : req.files;
+            let body = req.body;
+            if (file) body.image = file; // => lúc nào cũng có image
+            const product_id = req.params.id;
+            console.log(body);
+            // body chứa file, image_url, ismain
+            // có những trường hợp nào xảy ra khi điều chỉnh hình ảnh
+            /*
+            - có tác động lên ảnh:
+                + vài ảnh dạng như ấn dấu x trên ảnh thì sẽ xoá riêng ảnh đó thôi
+                + toàn bộ
+                + chỉ sửa ismain (có gửi kèm immage_url và không gừi kèm file)
+            - không tác động lên ảnh => ko làm gì
+            */
+            if (!product_id) {
                 return res.status(400).json({
                     status: 400,
-                    msg: 'The imageID is required',
+                    msg: 'The input is required',
                     data: null
                 })
             }
-            const response = await ProductService.updateImage(imageID, req.body);
+            const response = await ProductService.updateImage(product_id, req.body);
             return res.status(200).json(response)
         }
         catch (err) {
@@ -238,6 +257,95 @@ class ProductController {
             })
         }
     }
+
+    async CreateReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.CreateReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async UpdateReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.UpdateReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async DeleteReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.DeleteReview(product_id, req.body);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async GetReview(req, res) {
+        try {
+            const product_id = req.params.id;
+            if (!product_id) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: 'The input is required',
+                    data: null
+                })
+            }
+            const response = await ProductService.GetReview(product_id);
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                mstatus: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
 }
 
 module.exports = new ProductController;
