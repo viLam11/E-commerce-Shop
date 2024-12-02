@@ -101,11 +101,11 @@ export default function Login() {
 
   if (mode == "login") {
     return (
-      <div className="">
+      <div className="flex flex-col min-h-screen">
         <Header role="customer" />
 
-        <div className="flex w-full">
-          <div className="w-7/12 p-4 flex items-center justify-center">
+        <div className="flex-grow flex">
+          <div className="w-6/12 p-4 flex items-center justify-center">
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
 
@@ -184,7 +184,7 @@ export default function Login() {
         <Header role="customer" />
 
         <div className="flex w-full">
-          <div className="w-7/12 p-4 flex items-center justify-center">
+          <div className="w-6/12 p-4 flex items-center justify-center">
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
 
