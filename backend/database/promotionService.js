@@ -1,5 +1,5 @@
 const client = require('./database');
-const { v4: uuidv4 } = require('uuid')
+const CreateID = require('../createID')
 
 class PromotionService {
     constructor() { };
@@ -25,7 +25,7 @@ class PromotionService {
                     } else {
                         // Đợi getCount hoàn thành trước khi tiếp tục
                         //const promotionId = "PID" + await getCount(); // Đảm bảo getCount trả về một Promise hoặc là một hàm async
-                        const promotionId = uuidv4();
+                        const promotionId = CreateID.generateID("promotion");
                         // Sau khi getCount hoàn tất, tiếp tục thực hiện chèn dữ liệu
                         client.query(
                             `INSERT INTO promotion(promotion_id, name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id) 

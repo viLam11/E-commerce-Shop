@@ -243,7 +243,7 @@ create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
 	product_id 	varchar(255)	not null,
-	promotion_id	varchar(255)	not null,
+	promotion_id	varchar(255),
 	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
