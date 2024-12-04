@@ -1,4 +1,5 @@
-const client = require('./database')
+const client = require('./database');
+const { updateOrder } = require('./orderService');
 const image_url = require('./productService')
 class CartService {
 
@@ -155,10 +156,13 @@ class CartService {
                             data: null
                         });
                     } else if (resCart.rowCount > 0) {// khong biet lieu se nhu vay hay khi tim duoc thi se update nua
-                        reject({
-                            status: 404,
-                            msg: 'The product is exist in cart',
-                            data: null
+                        let addcart = await client.query(`SELECT * FROM cart WHERE product_id = $1 AND uid = $2`, [body.product_id, uid])
+                        body.quantity += addcart.rows[0].quantity
+                        addcart = this.UpdateCart(body, uid)
+                        resolve({
+                            status: 200,
+                            msg: 'Add to cart success',
+                            data: addcart.data
                         });
                     }
                     else {

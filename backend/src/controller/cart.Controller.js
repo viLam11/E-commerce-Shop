@@ -18,6 +18,7 @@ class CartController {
                     data: null
                 })
             }
+            req.body.quantity = Number(req.body.quantity)
             const response = await CartService.AddToCart(req.body, req.params.id)
             return res.status(200).json(response)
         }
@@ -99,6 +100,7 @@ class CartController {
                     data: null
                 })
             }
+            req.body.quantity = Number(req.body.quantity)
             const response = await CartService.UpdateCart(req.body, req.params.id)
             return res.status(200).json(response)
         }

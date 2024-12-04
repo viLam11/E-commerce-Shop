@@ -22,13 +22,15 @@ class OrderController {
 
     async createOrder(req, res) {
         try {
-            const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, final_price } = req.body
-            if (!orderItems || !status || !shipping_address || !shipping_fee || !shipping_co || !quantity || !total_price || !final_price) {
+            const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price } = req.body
+            if (!orderItems || !status || !shipping_address || !shipping_fee || !shipping_co || !quantity || !total_price) {
                 return res.status(200).json({
                     status: 'ERR',
                     message: 'The input is required'
                 })
             }
+            req.body.shipping_fee = Number(req.body.shipping_fee)
+            req.body.total_price = Number(req.body.total_price)
             const response = await OrderService.createOrder(req.body, req.params.id)
             return res.status(200).json(response)
         }
