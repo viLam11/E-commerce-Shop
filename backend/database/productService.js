@@ -930,13 +930,18 @@ class ProductService {
         })
     }
 
+
     async GetReview(product_id) {
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`SELECT * FROM reviews WHERE product_id = $1`
+                client.query(`
+                    SELECT r.*, u.username
+                    FROM reviews r
+                    JOIN users u ON r.uid = u.uid
+                    WHERE product_id = $1`
                     , [product_id], async (err, res) => {
                         if (err) {
-                            reject({
+                            reject({    
                                 status: 400,
                                 msg: err.message,
                                 data: null
