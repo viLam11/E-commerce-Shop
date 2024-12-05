@@ -174,7 +174,7 @@ create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
 	product_id 	varchar(255)	not null,
-	promotion_id	varchar(255)	not null,
+	promotion_id	varchar(255),
 	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
@@ -185,4 +185,119 @@ create table order_include(
 	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
 );
 
-create type action_type as enum ('add', 'delete', 'update');
+select * from promotion;
+select * from orders;
+select * from product;
+select * from users;
+select * from image;
+alter table promotion
+drop column endtime,
+add column endtime date default now()
+COPY promotion (promotion_id, promotion_name, quantity,description, starttime, endtime, minspent, product_type, promotion_type,discount_value, percentage, max_price_discount)
+FROM 'C:\Program Files\PostgreSQL\17\promo.csv'
+DELIMITER ',' 
+CSV HEADER;
+\copy product (pname, price) FROM 'C:\Program Files\PostgreSQL\17\[HTTT] Đồ án tổng hợp - Sheet4 (1).csv' DELIMITER ',' CSV HEADER;
+
+
+--TEST--
+-- TRUY VẤN SQL -- 
+-- 1. TẠO USER
+INSERT INTO users(user_id, user_name, user_password, first_name, last_name, email, gender, useType, birthday, id_no) 
+VALUES('2212254','ngoc', '123456', 'Ngọc', 'Huỳnh', 'ngoc@gmail.com', 'female', 'customer', DATE('03-07-2004') ,'083304003958');
+
+-- 2. Cập nhật user
+UPDATE users
+SET email = 'newemail@example.com', user_name = 'new_username', birthday = DATE('03-07-2004') 
+WHERE user_id = '2212254';
+
+-- 3. Xóa user
+DELETE FROM users
+WHERE user_id = '2212254';
+
+-- 4. Liệt kê users
+SELECT user_name, first_name, last_name, email, gender, birthday, id_No from users;
+
+-- SẢN PHẨM --
+-- 2.1 Tạo sản phẩm
+select* from product
+INSERT INTO product
+VALUES ('prod001', 'Điện thoại Samsung galaxy note 10', 'Smartphone', 'Samsung', '1 sản phẩm đến từ Samsung', 10000000, 115);
+
+-- 2.2 Cập nhật sản phẩm
+UPDATE product
+SET	description = 'mô tả mới'
+WHERE product_id = 'p0000001';
+
+-- 2.3 Xóa sản phẩm
+
+-- 2.4 Liệt kê sản phẩm
+SELECT * FROM product;
+
+
+-- ORDER
+-- 3.1 Tìm kiếm đơn đặt hàng theo userID
+SELECT * FROM orders
+WHERE orders.user_id = 'user000010';
+
+-- 3.2 Tính số tiền userID đã chi
+CREATE OR REPLACE FUNCTION check_expense(
+    userID varchar(255)
+)
+RETURNS INTEGER AS $$
+DECLARE
+    totalAmount INTEGER := 0;
+    coursePrice INTEGER;
+BEGIN
+    FOR coursePrice IN 
+        SELECT price
+        FROM orders o
+        WHERE o.user_id = userID
+    LOOP
+        totalAmount := totalAmount + coursePrice;
+    END LOOP;
+
+    RETURN totalAmount;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT check_expense('user000001');
+
+-- create table carts(
+-- 	uid			varchar(255)	not null,
+-- 	rating		integer			not null check(rating >= 1 and rating <=5),
+-- 	comment	text,
+-- 	time		timestamp 		default now(),
+-- 	primary key(product_id, uid),
+-- 	constraint fk_review_prod foreign key(product_id) references product(product_id),
+-- 	constraint fk_cus_review	foreign key(uid) references users(uid)
+-- )
+
+CREATE TABLE cart (
+    uid          VARCHAR(255) NOT NULL,
+    product_id   VARCHAR(255) NOT NULL,
+    quantity     INTEGER      NOT NULL DEFAULT 1 CHECK(quantity > 0),
+
+    PRIMARY KEY (uid,product_id),
+    CONSTRAINT fk_addtocart_productid FOREIGN KEY (product_id) REFERENCES product(product_id),
+    CONSTRAINT fk_addtocart_uid FOREIGN KEY (uid) REFERENCES users(uid)
+);
+INSERT INTO cart(uid, product_id, quantity) 
+VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
+-- INSERT INTO cart(uid, product_id, quantity) 
+-- VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
+
+CREATE TABLE notification (
+    uid         VARCHAR(255) 	NOT NULL,
+    content   	TEXT 			NOT NULL,
+    create_date TIMESTAMP  	NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (uid,content),
+    CONSTRAINT fk_uid_notify FOREIGN KEY (uid) REFERENCES users(uid)
+);
+INSERT INTO users(uid, username, upassword, fname, lname, email, gender, usertype, birthday, id_no) 
+VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'admin', DATE('03-07-2004') ,'ALL');
+INSERT INTO notification(uid, content) 
+VALUES('ALL','thông báo toàn sàn ngày 4/12/2024');
+INSERT INTO notification(uid, content) 
+VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','thông báo ngày 12 tháng 12');

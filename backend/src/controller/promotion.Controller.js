@@ -90,6 +90,26 @@ class PromotionController {
             next(err);
         }
     }
+
+    async Apply(req, res, next){
+        try {
+            const promotionId = req.body.uid
+            if (!promotionId) {
+                return res.status(400).json({
+                    status: 'ERR',
+                    msg: 'The promotionID is required',
+                    data: null
+                })
+            } else {
+                const response = await PromotionService.apply(req.body)
+                return res.status(200).json(response)
+            }
+        }
+        catch (err) {
+            console.error(err);
+            next(err);
+        }
+    }
 }
 
 module.exports = new PromotionController;

@@ -1,11 +1,11 @@
 const client = require('./database');
-const { v4: uuidv4 } = require('uuid')
+const CreateID = require('../createID')
 class UserService {
     constructor() { };
 
     async createCustomer(username, password, data) {
         return new Promise((resolve, reject) => {
-            const userId = uuidv4();
+            const userId = generateID('uid');
             const { lname, fname, gender, email, userType, birthday } = data
             client.query(
                 `INSERT INTO users( uid, username, upassword, email, userType, lname, fname, gender, birthday, ranking) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
@@ -32,7 +32,7 @@ class UserService {
 
     async createAdmin(username, password, data) {
         return new Promise((resolve, reject) => {
-            const userId = uuidv4();
+            const userId = CreateID.generateID('uid');
             const { lname, fname, gender, email, userType, id_no } = data
             client.query(
                 `INSERT INTO users( uid, username, upassword, email, userType, lname, fname, gender, id_no) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -464,6 +464,7 @@ class UserService {
             })
         })
     }
+
     async createAddress(userId, body) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -526,16 +527,8 @@ class UserService {
             }
         })
     }
-    /*
-    create table user_address(
-        uid			varchar(100)	not null,
-        address		text			not null,
-        isdefault	bool			not null,
-        primary key(uid, address),
-        constraint fk_user_address	foreign key(uid)
-                                    references users(uid)
-    );
-    */
+
+
     async updateAddress(uid, body) {
         return new Promise(async (resolve, reject) => {
             client.query(`SELECT * FROM user_address WHERE uid = $1`,
