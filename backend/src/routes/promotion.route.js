@@ -10,5 +10,6 @@ router.put('/UpdatePromotion/:id', authMiddleware.authUserMiddleWare, promotionC
 router.delete('/DeletePromotion/:id', authMiddleware.authUserMiddleWare, promotionController.deletePromotion);
 router.get('/GetPromotion/:id', promotionController.getPromotion);
 router.get('/GetAll', promotionController.getAll);
+router.get('/Apply', promotionController.Apply);
 
 module.exports = router;

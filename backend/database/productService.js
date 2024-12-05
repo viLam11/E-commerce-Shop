@@ -1,6 +1,6 @@
 const client = require('./database');
-const { v4: uuidv4 } = require('uuid')
-const path = require('path');
+const CreateID = require('../createID')
+//const path = require('path');
 const fs = require('fs');
 class ProductService {
     constructor() { };
@@ -24,13 +24,12 @@ class ProductService {
                     });
                 } else {
                     try {
-                        const productId = uuidv4();
+                        const productId = CreateID.generateID('product');
                         client.query(
                             `INSERT INTO product( product_id, pname, price, brand, description, quantity, cate_id) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                             [productId, pname, price, brand, description, quantity, cate_id],
                             async (err, res) => {
                                 if (err) {
-                                    console.log(err)
                                     reject({
                                         status: 400,
                                         msg: err.message,
@@ -44,7 +43,6 @@ class ProductService {
                                         try {
                                             await this.addImage(productId, obj, obj.image);  // ensure this is an async function
                                         } catch (error) {
-                                            console.log(error);
                                             reject({
                                                 status: 400,
                                                 msg: "Error adding image",
@@ -311,8 +309,8 @@ class ProductService {
     async sortProducts(sort, limit, offset) {
         return new Promise((resolve, reject) => {
             const allowedColumns = ['product_id', 'pname', 'price', 'brand', 'quantity', 'cate_id', 'create_time', 'rating', 'sold']
-            let order = 'ASC';
-            let column = 'product_id';
+            let order = 'DESC';
+            let column = 'create_time';
 
             if (Array.isArray(sort)) {
                 const upperSort0 = sort[0].toUpperCase();
@@ -350,7 +348,7 @@ class ProductService {
                     } else {
                         for (let i = 0; i < res.rowCount; i++) {
                             const image = await this.getImageByProduct(res.rows[i].product_id);
-                            res.rows[i].image = image.data.map(item => item.image_url);
+                            if (image.data) res.rows[i].image = image.data.map(item => item.image_url);
                         }
                         resolve({
                             status: 200,
@@ -362,42 +360,6 @@ class ProductService {
             );
         });
     }
-
-    // async filterProducts(filter) {// chỉ tìm được chuỗi liền kề
-    //     return new Promise((resolve, reject) => {
-    //         client.query(`SELECT * FROM product WHERE ${filter[0]} ILIKE $1`, [`%${filter[1]}%`], (err, res) => {
-    //             if (err) {
-    //                 reject({
-    //                     status: 400,
-    //                     msg: err.message,
-    //                     data: null
-    //                 });
-    //             } else {
-    //                 resolve(res);
-    //             }
-    //         });
-    //     });
-    // }
-
-    // async filterProducts1(filter) { //của chatgpt giúp tìm kí tự bất kì có trong chuỗi
-    //     return new Promise((resolve, reject) => {
-    //         const searchChars = filter[1].split('');
-    //         const likeConditions = searchChars.map(char => `${filter[0]} ILIKE '%${char}%'`).join(' AND ');
-    //         const query = `SELECT * FROM product WHERE ${likeConditions}`;
-
-    //         client.query(query, (err, res) => {
-    //             if (err) {
-    //                 reject({
-    //                     status: 400,
-    //                     msg: err.message,
-    //                     data: null
-    //                 });
-    //             } else {
-    //                 resolve(res);
-    //             }
-    //         });
-    //     });
-    // }
 
     // cần filter kiểu theo 1 string
     async filterProduct(filter, limit, offset) { //của chatgpt giúp tìm kí tự bất kì có trong chuỗi
@@ -447,7 +409,7 @@ class ProductService {
                 } else {
                     for (let i = 0; i < res.rowCount; i++) {
                         const image = await this.getImageByProduct(res.rows[i].product_id);
-                        res.rows[i].image = image.data.map(item => item.image_url);
+                        if (image.data) res.rows[i].image = image.data.map(item => item.image_url);
                     }
                     resolve({
                         status: 200,
@@ -488,9 +450,8 @@ class ProductService {
                     });
                 }
                 client.query(
-                    `SELECT * FROM product LIMIT $1 OFFSET $2`,
-                    [limit, limit * page],
-                    (err, res) => {
+                    `SELECT * FROM product ORDER BY create_time DESC LIMIT $1 OFFSET $2`,
+                    [limit, limit * page], async (err, res) => {
                         if (err) {
                             reject({
                                 status: 400,
@@ -498,6 +459,10 @@ class ProductService {
                                 data: null
                             });
                         } else {
+                            for (let i = 0; i < res.rowCount; i++) {
+                                const image = await this.getImageByProduct(res.rows[i].product_id);
+                                if (image.data) res.rows[i].image = image.data.map(item => item.image_url);
+                            }
                             resolve({
                                 status: 200,
                                 msg: 'SUCCESS',
@@ -547,7 +512,6 @@ class ProductService {
         try {
             const images = file.map(obj => obj.path)
             const isArray = Array.isArray(images);
-            console.log(images);
 
             // Check if product exists
             const checkProduct = await this.findsomethingExist("product_id", productId);
@@ -964,13 +928,18 @@ class ProductService {
         })
     }
 
+
     async GetReview(product_id) {
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`SELECT * FROM reviews WHERE product_id = $1`
+                client.query(`
+                    SELECT r.*, u.username
+                    FROM reviews r
+                    JOIN users u ON r.uid = u.uid
+                    WHERE product_id = $1`
                     , [product_id], async (err, res) => {
                         if (err) {
-                            reject({
+                            reject({    
                                 status: 400,
                                 msg: err.message,
                                 data: null

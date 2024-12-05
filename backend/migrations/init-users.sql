@@ -243,7 +243,7 @@ create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
 	product_id 	varchar(255)	not null,
-	promotion_id	varchar(255)	not null,
+	promotion_id	varchar(255),
 	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
@@ -333,3 +333,42 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT check_expense('user000001');
+
+-- create table carts(
+-- 	uid			varchar(255)	not null,
+-- 	rating		integer			not null check(rating >= 1 and rating <=5),
+-- 	comment	text,
+-- 	time		timestamp 		default now(),
+-- 	primary key(product_id, uid),
+-- 	constraint fk_review_prod foreign key(product_id) references product(product_id),
+-- 	constraint fk_cus_review	foreign key(uid) references users(uid)
+-- )
+
+CREATE TABLE cart (
+    uid          VARCHAR(255) NOT NULL,
+    product_id   VARCHAR(255) NOT NULL,
+    quantity     INTEGER      NOT NULL DEFAULT 1 CHECK(quantity > 0),
+
+    PRIMARY KEY (uid,product_id),
+    CONSTRAINT fk_addtocart_productid FOREIGN KEY (product_id) REFERENCES product(product_id),
+    CONSTRAINT fk_addtocart_uid FOREIGN KEY (uid) REFERENCES users(uid)
+);
+INSERT INTO cart(uid, product_id, quantity) 
+VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
+-- INSERT INTO cart(uid, product_id, quantity) 
+-- VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
+
+CREATE TABLE notification (
+    uid         VARCHAR(255) 	NOT NULL,
+    content   	TEXT 			NOT NULL,
+    create_date TIMESTAMP  	NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (uid,content),
+    CONSTRAINT fk_uid_notify FOREIGN KEY (uid) REFERENCES users(uid)
+);
+INSERT INTO users(uid, username, upassword, fname, lname, email, gender, usertype, birthday, id_no) 
+VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'admin', DATE('03-07-2004') ,'ALL');
+INSERT INTO notification(uid, content) 
+VALUES('ALL','thông báo toàn sàn ngày 4/12/2024');
+INSERT INTO notification(uid, content) 
+VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','thông báo ngày 12 tháng 12');
