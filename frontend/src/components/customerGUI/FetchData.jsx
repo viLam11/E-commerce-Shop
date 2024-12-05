@@ -4,10 +4,11 @@ export const DataContext = createContext(null);
 
 export function DataProvider({ children }) {
     const [state, setState] = useState({
-        currentPage: "HomePage",
+        currentPage: "Login",
         productData: [],
         categoryData: [],
-        currentUser: null,
+        currentUser: [],
+        searchData: [],
         currentProduct: null,
         currentCategory: null,
         currentImage: null,
@@ -15,7 +16,12 @@ export function DataProvider({ children }) {
 
     const [loading, setLoading] = useState(true); // Loading state for data fetching
     const [error, setError] = useState(null);     // Error state for handling fetch errors
-
+    const handleUserData = (loadedUser) =>{
+        setState(prevState => ({
+            ...prevState,
+            currentUser: loadedUser
+        }))
+    }
     // Navigate to a specific page
     const NavigateTo = (page) => {
         if (state.currentPage != page) {
@@ -47,6 +53,13 @@ export function DataProvider({ children }) {
         }));
         window.history.pushState({ page: "Categories" }, "", `#Categories`);
     };
+
+    const Search = (data) =>{
+        setState((prev) => ({
+            ...prev,
+            productData: data
+        }))
+    }
 
     // Fetch product and category data
     useEffect(() => {
@@ -112,7 +125,7 @@ export function DataProvider({ children }) {
 
     return (
         <DataContext.Provider
-            value={{ state, NavigateTo, ViewCategories, ViewProductDetail }}
+            value={{ state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search }}
         >
             {children}
         </DataContext.Provider>

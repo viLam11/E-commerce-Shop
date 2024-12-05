@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function ProductByCategory({cate_name,cate_id,state, ViewProductDetail, NavigateTo}){
+function ProductByCategory({cate_name,cate_id,state, ViewProductDetail, NavigateTo, ViewCategories}){
     const productData = state.productData;
     if (!productData) throw ("No product defined")
     const sortProductByCategory = productData?productData.filter(item => item.cate_id == cate_id):null;
@@ -43,7 +43,7 @@ function ProductByCategory({cate_name,cate_id,state, ViewProductDetail, Navigate
         <>
         <div className="view-all-container">
                             <h3>{cate_name}</h3>
-                            <button className="view-all-button" onClick={(e)=>{e.preventDefault();ViewCategories(token.cate_id)}}>Xem tất cả sản phẩm</button>
+                            <button className="view-all-button" onClick={(e)=>{e.preventDefault();ViewCategories(cate_id)}}>Xem tất cả sản phẩm</button>
                         </div>
 
                         <div className='spotlight-list'>
@@ -94,12 +94,14 @@ function Shopping({state, ViewProductDetail, NavigateTo, ViewCategories}){
     if(!categoryData) throw("No cate data defined")
     return (
         <>
+            <div style={{marginTop:"80px"}}><span style={{color:"gray",cursor:"pointer"}} onClick={() => NavigateTo('HomePage')}>Trang chủ</span> / <span style={{color: "black"}}>Mua sắm</span></div>
             {categoryData.map((token, index)=>{
                 return(
+
                     <div key={index} className="spotlight">
                     
                         
-                            <ProductByCategory cate_name = {token.cate_name} cate_id = {token.cate_id} state = {state} ViewProductDetail = {ViewProductDetail} NavigateTo = {NavigateTo}/>
+                            <ProductByCategory cate_name = {token.cate_name} cate_id = {token.cate_id} state = {state} ViewProductDetail = {ViewProductDetail} NavigateTo = {NavigateTo} ViewCategories={ViewCategories}/>
                     </div>
                 );
             })}

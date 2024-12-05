@@ -318,17 +318,17 @@ class UserService {
                         SELECT * FROM users
                         WHERE email = $1
                     `, [data.email], async (err, res) => {
+                        // else if (res.rows.length !== 0) {
+                        //     resolve({
+                        //         status: 404,
+                        //         msg: 'The Pname is already exist',
+                        //         data: null
+                        //     });
+                        // }
                         if (err) {
                             reject({
                                 status: 400,
                                 msg: err.message,
-                                data: null
-                            });
-                        }
-                        else if (res.rows.length !== 0) {
-                            resolve({
-                                status: 404,
-                                msg: 'The Pname is already exist',
                                 data: null
                             });
                         }

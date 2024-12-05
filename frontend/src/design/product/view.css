@@ -12,7 +12,7 @@ body {
     font-family: 'Roboto',sans-serif;
 }
 .product-page {
-    max-width: 1200px;
+    width: 1200px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
@@ -131,7 +131,8 @@ body {
 }
 
 .product-details {
-    max-width: 500px;
+    width: 1200px;
+    margin-left: 40px;
 }
 
 .product-details h1 {
@@ -373,6 +374,7 @@ body {
     margin-bottom: 10px;
     border-radius: 4px;
     display: inline-flex;
+    width: 500px;
 }
 .info-item .icon{
     width: 50px;

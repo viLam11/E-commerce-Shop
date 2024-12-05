@@ -26,14 +26,50 @@
 }
 
 .spotlight h2 .click{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:#fff;
+    border-radius: 50%;
     cursor: pointer;
-    margin-left: 10px;
+    transition: background-color 0.3s ease;
 }
 
 .spotlight h2 .click.left{
-    margin-left: 900px;
+    margin-left: 800px;
+}
+.spotlight h2 .click.right{
+    margin-left: 5px;
+}
+.spotlight h2 .click.left::before{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: #333;
 }
 
+.spotlight h2 .click.right::before{
+    content: '>';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: #333;
+}
+.spotlight h2 .click.left:hover{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color:#fff;
+    background-color: #d9534f;
+}
+.spotlight h2 .click.right:hover{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color:#fff;
+    background-color: #d9534f;
+}
 .spotlight .view-all-container{
     display: inline-flex;
     align-items: left;
@@ -72,9 +108,12 @@
     display: inline-flex;
     display: flex;
     gap: 4px;
+    margin-top: -30px;
     height: 400px;
 }
-
+.spotlight h2{
+    display: inline-flex;
+}
 .spotlight .spotlight-list .spotlight-product{
     border-radius: 8px;
     margin-top: 40px;
@@ -152,26 +191,97 @@
     width: 100px;
 }
 
-.spotlight .spotlight-list .spotlight-product .product-view .discount {
-    background-color: #ff6d6d;
-    color: white;
-    border-radius: 20px;
-    padding: 2px 8px;
-    margin-left: -10px;
-    align-items: left;
-    font-size: 0.8em;
-    margin-top: -10px;
-    margin-right: 60px;
-}
-
-.spotlight .spotlight-list .spotlight-product div .addcart{
-    background-color: #000;
-    color:#ddd;
-    width: 200px;
-    margin-left: -10px;
-    align-items: center;
-}
-
+/* Container chính */
+.spotlight-cate {
+    background-color: #f5e9e6;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 50px auto; /* Căn giữa */
+    /* Tự điều chỉnh kích thước theo màn hình */
+    width: 1310px;
+    height: 1200px;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Khu vực danh sách sản phẩm */
+  .spotlight-cate .spotlight-seed {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Khoảng cách giữa các dòng */
+    /* justify-content: center;  */
+    margin-top: -90px;
+    margin-left: 5px;
+  }
+  
+  /* Hàng sản phẩm */
+  .spotlight-cate .spotlight-seed .row {
+    display: flex;
+    gap: 20px;
+    /* justify-content: center; */
+    width: 100%;
+    margin-bottom: -10px;
+  }
+  
+  /* Thẻ sản phẩm */
+  .spotlight-cate .spotlight-seed .row .product-card {
+    border-radius: 8px;
+    width: 300px; /* Kích thước card sản phẩm */
+    height: 250px;
+    padding: 15px;
+    /* text-align: center; */
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .spotlight-cate .spotlight-seed .row .product-card:hover {
+    transform: scale(1.05); /* Phóng to khi hover */
+ /* Hiệu ứng đổ bóng khi hover */
+  }
+  
+  /* Khu vực hình ảnh sản phẩm */
+  .spotlight-cate .spotlight-seed .row .product-card .product-view {
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    height: 100px;
+    /* background-color: #fff; */
+    
+  }
+  
+  .spotlight-cate .spotlight-seed .row .product-card .product-view img {
+    width: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    height: 200px;
+    margin-top: -60px;
+  }
+  
+  /* Khu vực thông tin sản phẩm */
+  .spotlight-cate .spotlight-seed .row .product-card .prod-data {
+    margin-top: 10px;
+  }
+  
+  .spotlight-cate .spotlight-seed .row .product-card .prod-data .product-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 80px;
+    color: #333333;
+    text-align: left;
+    /* margin-bottom: 5px; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Cắt tên sản phẩm nếu quá dài */
+  }
+  
+  .spotlight-cate .spotlight-seed .row .product-card .prod-data .product-cash {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e74c3c; /* Màu đỏ nổi bật */
+    margin-top: 0px;
+    text-align: left;
+  }
+  
 .price {
     display: flex;
     justify-content: center;

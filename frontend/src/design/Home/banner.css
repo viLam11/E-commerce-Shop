@@ -37,7 +37,7 @@ body {
 }
 
 .banner .side .item:hover{
-    color:#ccc;
+    color:#cd3d3d;
     cursor: pointer;
     content:none;
 }
@@ -50,8 +50,8 @@ body {
 }
 
 .banner .side .item:hover .underline{
-    height: 4px;
-    background-color:#666;
+    height: 4.5px;
+    background-color:#cd3d3d;
     width: 280px;
     margin-left: -15px;
 }
@@ -67,6 +67,7 @@ body {
 .banner .ads{
     /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
      border-radius: 20px;
+
 }
 .banner .ads img{
     margin-left: 60px;

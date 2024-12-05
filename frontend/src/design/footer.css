@@ -16,7 +16,7 @@ body {
     background-color: #000;
     margin-top: 50px;
     width: 100%;
-    position: absolute;
+    position:static;
 }
 .footer-section {
     flex: 1;

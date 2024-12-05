@@ -39,7 +39,7 @@ class AuthMiddleWare {
                 })
             }
             //if (user.userType === 'admin' || user.userId === userid) {
-            if (user.userType === 'admin') {
+            if (user.userType === 'customer') {
                 next()
             } else {
                 return res.status(404).json({

@@ -4,17 +4,23 @@ import Footer from "../Footer";
 import HomePage from "./HomePage";
 import ViewDetail from "./ViewProductDetail";
 import UserAccountManagement from "./UserAccount";
-import Login from "../Login"
+import Login from "../guest/Login"
 import { useData } from "./FetchData";
 import ShoppingPage from "./Shopping";
 import Categories from "./Category";
 
 function PageComponent() {
-    const { state, NavigateTo, ViewCategories, ViewProductDetail } = useData();
+    const { state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search } = useData();
     const RenderPage = () => {
         switch (state.currentPage) {
             case 'Login':
-                return <Login/>
+                return <Login
+                    handleUserData = {handleUserData}
+                    NavigateTo={NavigateTo} 
+                    ViewCategories={ViewCategories}
+                    ViewProductDetail={ViewProductDetail}
+                    state={state}
+                />
             case "HomePage":
                 return <HomePage  
                     NavigateTo={NavigateTo} 
@@ -65,6 +71,7 @@ function PageComponent() {
                 ViewCategories={ViewCategories}
                 ViewProductDetail={ViewProductDetail}
                 state={state}
+                Search={Search}
             />
             <RenderPage 
                 NavigateTo={NavigateTo} 

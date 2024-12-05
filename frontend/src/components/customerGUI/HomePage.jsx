@@ -1,6 +1,6 @@
 import Product from "./Product";
 import { useState, useEffect } from "react";
-function Banner() {
+function Banner({ViewCategories}) {
     const [activeIndex, setActiveIndex] = useState(1);
 
     useEffect(() => {
@@ -22,23 +22,23 @@ function Banner() {
         <div className="banner">
             <div className="side">
                 <div className="item">
-                    <h2>Điện thoại</h2>
+                    <h2 onClick={()=>ViewCategories('c01')}>Điện thoại</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2>Laptop</h2>
+                    <h2 onClick={()=>ViewCategories('c02')}>Laptop</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2>Máy tính bảng</h2>
+                    <h2 onClick={()=>ViewCategories('c03')}>Máy tính bảng</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2>Đồng hồ thông minh</h2>
+                    <h2 onClick={()=>ViewCategories('c04')}>Đồng hồ thông minh</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2>Phụ kiện</h2>
+                    <h2 onClick={()=>ViewCategories('c05')}>Phụ kiện</h2>
                     <div className="underline"></div>
                 </div>
             </div>
@@ -112,10 +112,11 @@ function FlashProduct({ state, ViewProductDetail }) {
     const [images, setImages] = useState({}); // Store images for products by ID
 
     // Sort products by `sold` property
-    const sortedItems = state.productData
-        ? [...state.productData].sort((a, b) => (b.sold || 0) - (a.sold || 0))
-        : null;
-
+    const [sortedItems, setProduct] = useState([])
+    useEffect(()=>{
+        setProduct(state.productData
+            ? [...state.productData].sort((a, b) => (b.sold || 0) - (a.sold || 0)):[])
+    },[]) 
     // Fetch images for products in sortedItems
     useEffect(() => {
         const fetchImages = async () => {
@@ -135,17 +136,39 @@ function FlashProduct({ state, ViewProductDetail }) {
         };
 
         fetchImages();
+    }, [sortedItems]);
+
+    const [reviews, setReviews] = useState({}); 
+    useEffect(() => {
+        const fetchReviews = async () => {
+            const newReviews = {};
+            for (let row of sortedItems || []) {
+                try {
+                    const response = await fetch(`http://localhost:8000/api/product/GetReview/${row.product_id}`);
+                    if (!response.ok) throw new Error("Failed to fetch image");
+                    const data = await response.json();
+                    newReviews[row.product_id] = data.data ? data.data : [];
+                } catch (error) {
+                    console.error("Error fetching review:", error);
+                    newReviews[row.product_id] = []; // Fallback if image fetch fails
+                }
+            }
+            setReviews(newReviews); // Update images state once all images are fetched
+        };
+
+        fetchReviews();
     }, []);
+
     const [start, setStart] = useState(0); // Quản lý điểm bắt đầu
     const [end, setEnd] = useState(4); // Quản lý điểm kết thúc
     const handleNext = () => {
-        console.log("Next")
+        //console.log("Next")
         setStart((prev) => Math.min(prev + 4, sortedItems.length - 4));
         setEnd((prev) => Math.min(prev + 4, sortedItems.length));
     };
     
     const handlePrevious = () => {
-        console.log("Prev")
+        //console.log("Prev")
         setStart((prev) => Math.max(prev - 4, 0));
         setEnd((prev) => Math.max(prev - 4, 4));
     };
@@ -155,8 +178,8 @@ function FlashProduct({ state, ViewProductDetail }) {
             {/* <h2>Tháng này</h2> */}
             <h2 className="view-all-container">
                 Các sản phẩm đang bán chạy
-                <span className='click left' onClick = {handlePrevious}>&#x2B05;</span>
-                <span className='click' onClick={handleNext}>&#x27A1;</span>
+                <span className='click left' onClick = {handlePrevious}></span>
+                <span className='click right' onClick={handleNext}></span>
             </h2>
             
             <div className="spotlight-list">
@@ -166,7 +189,11 @@ function FlashProduct({ state, ViewProductDetail }) {
                           const productCate = state.categoryData
                               ? state.categoryData.find(item => item.cate_id === row.cate_id)
                               : null;
-
+                           const review = reviews[row.product_id]
+                              //console.log("Review: " + review)
+                           const averageRate = review && review.length > 0 
+                                ? (review.reduce((sum, rev) => sum + parseFloat(rev.rating), 0) / review.length).toFixed(1) 
+                                : -1;
                           return (
                               <div
                                   className="spotlight-product"
@@ -197,8 +224,18 @@ function FlashProduct({ state, ViewProductDetail }) {
 
                                               return token;
                                           })()}{" "}
-                                          <span>({row.sold})</span>
                                       </div>
+                                      <div className='stars'>{averageRate === -1 ? "" : (
+                                            <span style={{textAlign: "left",marginLeft:"-210px"}}>
+                                                <span style={{ color: "#FFD700"}}>
+                                                {"★".repeat(Math.round(averageRate))}
+                                                </span>
+                                                <span style={{ color: "#ddd" }}>
+                                                {"★".repeat(5 - Math.round(averageRate))}
+                                                </span>
+                                            </span>
+                                            )}<span style={{textAlign: "left",fontWeight:"500", fontFamily:" 'Roboto', sans-serif",fontSize: "12px",justifyItems:"center",alignItems:"center",marginTop:"4.3px"}}>{review && review.length > 0?"("+ review.length + ")":""}</span>
+                                        </div>
                                   </div>
                               </div>
                           );
@@ -251,11 +288,11 @@ function NewProduct(){
         </div>
     )
 }
-function HomePage({state,ViewProductDetail,NavigateTo}){
-    console.log("Home Data: " + state.productData)
+function HomePage({state,ViewProductDetail,NavigateTo,ViewCategories}){
+    //console.log("Home Data: " + state.productData)
     return(<div id ='home'>
         <div className="container">
-            <Banner />
+            <Banner ViewCategories={ViewCategories}/>
         </div>
         <Product state = {state} ViewProductDetail = {ViewProductDetail}/>
         <div className="view-all-container">

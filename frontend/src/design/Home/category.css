@@ -86,10 +86,41 @@
     text-decoration: none;
     font-size: 1em;
     font-weight: lighter bolder;
-    font-family:'Times New Roman', Times, serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 .searching .category-type img{
     align-items: center;
     width: 40%;
+}
+
+.category .mar{
+    height: 20px;
+}
+
+.category .breadcrumbs .detail{
+    margin-top: 20px;
+}
+
+.breadcrumbs .detail .sort-bar{
+    margin-top: 5px;
+    gap: 15px;
+    display: inline-flex;
+}
+
+.breadcrumbs .detail .sort-bar select{
+    border-radius: 8px;
+    height: 30px;
+    width: 150px;
+    text-align: center;
+    border: #333 2px solid;
+}
+
+.breadcrumbs .detail .sort-bar input{
+    border-radius: 8px;
+    height: 30px;
+    width: 150px;
+    text-align: center;
+    margin-top: 5px;
+    border: #333 2px solid;
 }
