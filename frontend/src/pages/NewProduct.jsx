@@ -121,7 +121,7 @@ export default function NewProduct() {
         formData.append('brand', brand)
         formData.append('description', description );
         formData.append('quantity', quantity);
-        formData.append('cate_id', "c01");
+        formData.append('cate_id', selectCat);
         formData.append('price', price);
 
         fileImg.forEach((image, index) => {
@@ -172,11 +172,11 @@ export default function NewProduct() {
                             <label>Phân loại<span className="text-red-600">*</span></label>
                             <select name="category" className={`block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100 ${selectCat? 'bg-blue-100': 'bg-gray-100'} `} onChange={(e) => handleSelectCat(e)}>
                                 <option value="" disabled>Chọn loại sản phẩm</option>
-                                <option value="smartphone" onClick={(e) => {setBrand("c01")}}>Điện thoại</option>
-                                <option value="laptop" onClick={(e) => {setBrand("c02")}}>Laptop</option>
-                                <option value="tablet" onClick={(e) => {setBrand("c03")}}>Máy tính bảng</option>
-                                <option value="swatch" onClick={(e) => {setBrand("c04")}}>Đồng hồ</option>
-                                <option value="other" onClick={(e) => {setBrand("c05")}}>Phụ kiện</option>
+                                <option value="smartphone" onClick={(e) => {setSelectCat("c01")}}>Điện thoại</option>
+                                <option value="laptop" onClick={(e) => {setSelectCat("c02")}}>Laptop</option>
+                                <option value="tablet" onClick={(e) => {setSelectCat("c03")}}>Máy tính bảng</option>
+                                <option value="swatch" onClick={(e) => {setSelectCat("c04")}}>Đồng hồ</option>
+                                <option value="other" onClick={(e) => {setSelectCat("c05")}}>Phụ kiện</option>
                             </select>
                         </div>
 

@@ -13,7 +13,7 @@ export default function NewPromotion() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Header role="admin" />
             <main className="flex-grow">
                 <div className="m-4 pl-20">
                     <span className="text-gray-600">Shop /</span>

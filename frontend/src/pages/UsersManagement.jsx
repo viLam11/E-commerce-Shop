@@ -1,153 +1,193 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import axios from "axios";
 import Pagination from "../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
-const userData = [{
-    "uid": "2212254",
-    "username": "ngoc",
-    "upassword": "123456",
-    "fname": "Ngọc",
-    "lname": "Huỳnh",
-    "email": "ngoc@gmail.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": "083304003958"
-},
-{
-    "uid": "2212254",
-    "username": "ngoc",
-    "upassword": "123456",
-    "fname": "Ngọc",
-    "lname": "Huỳnh",
-    "email": "ngoc@gmail.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": "083304003958"
-},
-{
-    "uid": "2212254",
-    "username": "ngoc",
-    "upassword": "123456",
-    "fname": "Ngọc",
-    "lname": "Huỳnh",
-    "email": "ngoc@gmail.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": "083304003958"
-}, {
-    "uid": "2212254",
-    "username": "ngoc",
-    "upassword": "123456",
-    "fname": "Ngọc",
-    "lname": "Huỳnh",
-    "email": "ngoc@gmail.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": "083304003958"
-},
-{
-    "uid": "323322afdsfa",
-    "username": "anhthu",
-    "upassword": "12345",
-    "fname": "Bui",
-    "lname": "Thu",
-    "email": "thu@gmail.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "1999-12-31T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-},
-{
-    "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
-    "username": "thu",
-    "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
-    "fname": "Thu",
-    "lname": "Bui",
-    "email": "thu@gmai.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-},
-{
-    "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
-    "username": "thu",
-    "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
-    "fname": "Thu",
-    "lname": "Bui",
-    "email": "thu@gmai.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-},
-{
-    "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
-    "username": "thu",
-    "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
-    "fname": "Thu",
-    "lname": "Bui",
-    "email": "thu@gmai.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-},
-{
-    "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
-    "username": "thu",
-    "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
-    "fname": "Thu",
-    "lname": "Bui",
-    "email": "thu@gmai.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-},
-{
-    "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
-    "username": "thu",
-    "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
-    "fname": "Thu",
-    "lname": "Bui",
-    "email": "thu@gmai.com",
-    "gender": "female",
-    "usertype": "customer",
-    "ranking": "silver",
-    "birthday": "2004-07-02T17:00:00.000Z",
-    "total_payment": 0,
-    "id_no": null
-}
+// const userData = [{
+//     "uid": "2212254",
+//     "username": "ngoc",
+//     "upassword": "123456",
+//     "fname": "Ngọc",
+//     "lname": "Huỳnh",
+//     "email": "ngoc@gmail.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": "083304003958"
+// },
+// {
+//     "uid": "2212254",
+//     "username": "ngoc",
+//     "upassword": "123456",
+//     "fname": "Ngọc",
+//     "lname": "Huỳnh",
+//     "email": "ngoc@gmail.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": "083304003958"
+// },
+// {
+//     "uid": "2212254",
+//     "username": "ngoc",
+//     "upassword": "123456",
+//     "fname": "Ngọc",
+//     "lname": "Huỳnh",
+//     "email": "ngoc@gmail.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": "083304003958"
+// }, {
+//     "uid": "2212254",
+//     "username": "ngoc",
+//     "upassword": "123456",
+//     "fname": "Ngọc",
+//     "lname": "Huỳnh",
+//     "email": "ngoc@gmail.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": "083304003958"
+// },
+// {
+//     "uid": "323322afdsfa",
+//     "username": "anhthu",
+//     "upassword": "12345",
+//     "fname": "Bui",
+//     "lname": "Thu",
+//     "email": "thu@gmail.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "1999-12-31T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// },
+// {
+//     "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
+//     "username": "thu",
+//     "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
+//     "fname": "Thu",
+//     "lname": "Bui",
+//     "email": "thu@gmai.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// },
+// {
+//     "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
+//     "username": "thu",
+//     "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
+//     "fname": "Thu",
+//     "lname": "Bui",
+//     "email": "thu@gmai.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// },
+// {
+//     "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
+//     "username": "thu",
+//     "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
+//     "fname": "Thu",
+//     "lname": "Bui",
+//     "email": "thu@gmai.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// },
+// {
+//     "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
+//     "username": "thu",
+//     "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
+//     "fname": "Thu",
+//     "lname": "Bui",
+//     "email": "thu@gmai.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// },
+// {
+//     "uid": "0180b798-3e88-4ff4-978a-9e402df8ca89",
+//     "username": "thu",
+//     "upassword": "$2a$12$SiNbtnQEloPKFV4B/QWpxe/UZu3dEbQXzbycJLaLMjQ3v.WNxaYwu",
+//     "fname": "Thu",
+//     "lname": "Bui",
+//     "email": "thu@gmai.com",
+//     "gender": "female",
+//     "usertype": "customer",
+//     "ranking": "silver",
+//     "birthday": "2004-07-02T17:00:00.000Z",
+//     "total_payment": 0,
+//     "id_no": null
+// }
 
-]
+// ]
 
 export default function UsersManagement() {
+    const [totalUser, setTotalUser] = useState(null);
+    const [userData, setUserData] = useState({});
+    const [page, setTotalPage] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+
+    useEffect(() => {
+        axios.get("http://localhost:8000/api/user/users?limit=10")
+            .then((response) => {
+                const userData = response.data.data;
+                console.log(userData);
+                setUserData(userData);
+                setTotalUser(response.data[totalUser]);
+                setTotalPage(response.data["totalPage"]);
+                console.log(page, currentPage)
+            })
+            .catch((err) => {
+                alert(err.msg);
+            });
+    }, [])
+
+
+    function handlePageClick(pageNum) {
+        const index = Number(pageNum);
+        axios.get(`http://localhost:8000/api/user/users?page=${index}&limit=10`,)
+            .then((response) => {
+                console.log(response);
+                setCurrentPage(pageNum)
+                const users = response.data.data;
+                // console.log(JSON.stringify(products));
+                setUserData(users);
+            })
+            .catch((error) => {
+                if (error.response) {
+                    alert(error.response.data.msg);
+                } else {
+                    console.error('Error:', error.message);
+                }
+            })
+    }
 
     return (
         <div className="flex flex-col min-h-screen w-full">
@@ -166,7 +206,7 @@ export default function UsersManagement() {
                         </div>
                         <div className="col-2 p-0 w-2/3 text-xs">
                             <div className="w-ful text-gray-500">Tổng người dùng</div>
-                            <div className="w-ful text-xl font-bold">5,423</div>
+                            <div className="w-ful text-xl font-bold">{totalUser}</div>
                             <div className="w-ful flex flex-row items-center">
                                 <span>
                                     <img src="/arrow-up.png" alt="" width={20} />
@@ -198,7 +238,7 @@ export default function UsersManagement() {
                                     <span>
                                         <select name="sort-user" id="sort" className="bg-blue-50 font-semibold rounded-2xl border-none outline-none">
                                             <option value="newest">Mới nhất</option>
-                                            <option value="expense">Chi tiêu</option>
+                                            {/* <option value="expense">Chi tiêu</option> */}
                                         </select>
                                     </span>
                                 </div>
@@ -216,9 +256,8 @@ export default function UsersManagement() {
                                     <td className="w-10 block ">STT</td>
                                     <td className="w-3/12 ">Tên khách hàng</td>
                                     <td className="w-1/6 ">Chi tiêu</td>
-                                    <td className="w-1/6 ">Số điện thoại</td>
                                     <td className="w-1/6 ">Email</td>
-                                    <td className="w-1/6 ">Địa chỉ</td>
+                                    <td className="w-2/6 text-center">Địa chỉ</td>
                                     <td className="w-1/12 text-center">Thông tin</td>
                                     
                                 </tr>
@@ -226,26 +265,26 @@ export default function UsersManagement() {
 
                             </thead>
                             <tbody>
-                                {userData.map((user, index) => {
+                                
+                                {userData.length > 0 ?  userData.map((user, index) => {
                                     return( 
                                         <>
-                                            <tr className="h-3"></tr>
+                                            <tr className="h-3" ></tr>
                                             <tr className="w-full h-6">
                                                 <td className="w-10 block ">{index + 1}</td>
                                                 <td className="w-3/12 ">{user.lname + " " + user.fname}</td>
                                                 <td className="w-1/6 ">{user.total_payment}</td>
-                                                <td className="w-1/6 ">{user.id_no}</td>
                                                 <td className="w-1/6 ">{user.email}</td>
-                                                <td className="w-1/6 ">{user.ranking}</td>
+                                                <td className="w-2/6"></td>
                                                 <td className="w-1/12 text-center ">
-                                                    <a href="/user/info" className=" border-2 border-green-500 px-3 rounded-md bg-green-100 font-semibold text-green-700 py-1">Chi tiết</a>
+                                                    <a href={`/admin/history/${user.uid}`}className=" border-2 border-green-500 px-3 rounded-md bg-green-100 font-semibold text-green-700 py-1">Chi tiết</a>
                                                 </td>
                                             </tr>
                                             <tr className="border-b border-zinc-300 my-10 h-3"></tr>
                                         </>
                                         
                                     )
-                                })}
+                                }) : null}
                             </tbody>
                         </table>
 
@@ -253,7 +292,19 @@ export default function UsersManagement() {
                     </div>
                     <div className="h-16 flex flex-end justify-end items-end">    
                         <div className="mb-4 mr-10">
-                            <Pagination />
+                        <div className="flex justify-end mr-20">
+                        {/* <Pagination /> */}
+                            {Array.from({ length: page }, (_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => handlePageClick(i)} // Pass the page number to the handler
+                                    className={`px-3 py-1 mx-1 hover:bg-blue-300 ${currentPage === i ? "bg-blue-500 text-white" : "bg-gray-200"
+                                        } rounded`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                        </div>
                         </div>
                     </div>
                 </div>

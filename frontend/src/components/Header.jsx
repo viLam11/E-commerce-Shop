@@ -14,10 +14,15 @@ export default function Header({ page, role }) {
                                 
                             </li>
                             <li className={`${page === "product-manage" ? "border-b" : null} w-20`}>
-                                <a href="/product-manage">Quản lý sản phẩm</a>
+                                <a href="/admin/product-manage">Quản lý sản phẩm</a>
                             </li>
-                            <li className={`${page === "promotion-manage" ? "border-b" : null} w-24`}>Quản lý khuyến mãi</li>
-                            <li className={`${page === "user-manage" ? "border-b" : null} w-24`}>Quản lý người dùng</li>
+                            <li className={`${page === "promotion-manage" ? "border-b" : null} w-24`}>
+                                <a href="/admin/all-promo">Quản lý khuyến mãi</a>
+                            </li>
+                            <li className={`${page === "user-manage" ? "border-b" : null} w-24`}>
+                                
+                                <a href="/admin/user-management">Quản lý người dùng</a>    
+                            </li>
                         </ul>
                     </div>
                     <div className="w-1/6 flex justify-end pr-20">

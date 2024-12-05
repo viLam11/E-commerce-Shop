@@ -26,10 +26,11 @@ function App() {
           <Route path="/test" element={<Test />} />
           <Route path="/" element={<Login />} />
 
-          <Route path="/customer/history" element={<TransactionHist />} />
+          
           <Route path="/customer/pay" element={<Checkout />} />
           <Route path="/customer/homepage" element={<Homepage />} />
  
+          <Route path="/admin/history/:id" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
           <Route path="/admin//product-update" element={<ProductUpdate />} />

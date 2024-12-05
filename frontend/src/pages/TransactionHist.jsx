@@ -1,21 +1,36 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CustomerPie from "../components/CustomerPie";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 
 
 export default function TransactionHist() {
+    const {id} = useParams();
+    const [userDetail, setUserDetail] = useState({});
     useEffect(() => {
-
+        axios.get(`http://localhost:8000/api/user/get-detail/${id}`)
+            .then((response) => {
+                const detail = response.data.data;
+                setUserDetail(detail);
+            })
+            .catch((error) => {
+                if (error.response) {
+                    alert(error.response.data.msg);
+                } else {
+                    console.error('Error:', error.message);
+                }
+            })
     }, [])
 
     return (
         <>
-            <Header />
+            <Header role="admin" page="user-manage" />
 
             <div className="m-4 mb-10 pl-6">
-                <spane className="text-grey-500">User / </spane>
+                <span className="text-grey-500">User / </span>
                 <span className=" font-medium">Transaction History</span>
             </div>
             <main className="min-h-screen">
@@ -25,13 +40,13 @@ export default function TransactionHist() {
                             <div className="space-y-1">
                                 <label htmlFor="name">Tên</label>
                                 <div className="pl-2 bg-gray-100 rounded-ms p-1 text-gray-600">
-                                    Huynh Bao Ngoc
+                                    {userDetail.lname + " " + userDetail.fname}
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <label htmlFor="name">Số điện thoại</label>
+                                <label htmlFor="name">Email</label>
                                 <div className="pl-2 bg-gray-100 rounded-ms p-1 text-gray-600">
-                                    0942047xxx
+                                    {userDetail.email}
                                 </div>
                             </div>
                             <div className="space-y-1">
@@ -50,10 +65,10 @@ export default function TransactionHist() {
                             <div className="sta space-y-1 p-4 ">
                                 <div>Tổng chi tiêu</div>
                                 <div className="font-bold text-2xl">
-                                    50.000.000 VND
+                                    {new Intl.NumberFormat('vi-VN').format(userDetail.total_payment)}
                                 </div>
                                 <div className="text-gray-700">12 sản phẩm</div>
-                                <div className="text-gray-700">Thẻ thành viên: BẠC</div>
+                                <div className="text-gray-700">Thẻ thành viên: {userDetail.ranking}</div>
                             </div>
                             <div className="graph pr-4">
                                   <CustomerPie />       
