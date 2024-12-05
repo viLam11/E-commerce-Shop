@@ -45,8 +45,8 @@ export default function Login() {
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);
           localStorage.setItem("role", userType);
-          if(userType == "customer") navigate("/homepage")
-          else navigate("/product-manage")
+          if(userType == "customer") navigate("/customer/homepage")
+          else navigate("/admin/product-manage")
         }
       })
       .catch((error) => {

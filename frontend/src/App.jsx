@@ -23,15 +23,17 @@ function App() {
     >
       <AuthProvider >
         <Routes>
-        <Route path="/test" element={<Test />} />
+          <Route path="/test" element={<Test />} />
           <Route path="/" element={<Login />} />
-          <Route path="/homepage" element={<Homepage />} />
-          <Route path="/product-manage" element={<ProductsManagement />} />
-          <Route path="/product-new" element={<NewProduct />} />
-          <Route path="/product-update" element={<ProductUpdate />} />
-          <Route path="/edit-product/:id" element={<ProductUpdate />} />
-          <Route path="/user/history" element={<TransactionHist />} />
+
+          <Route path="/customer/history" element={<TransactionHist />} />
           <Route path="/customer/pay" element={<Checkout />} />
+          <Route path="/customer/homepage" element={<Homepage />} />
+ 
+          <Route path="/admin/product-manage" element={<ProductsManagement />} />
+          <Route path="/admin/product-new" element={<NewProduct />} />
+          <Route path="/admin//product-update" element={<ProductUpdate />} />
+          <Route path="/admin/edit-product/:id" element={<ProductUpdate />} />
           <Route path="/admin/new-promotion" element={<NewPromotion />} />
           <Route path="/admin/user-management" element={<UsersManagement />} />
           <Route path="/admin/all-promo" element={<AllPromotion />} />

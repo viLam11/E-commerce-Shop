@@ -2,19 +2,20 @@ import { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function NewProduct() {
+    const navigate = useNavigate();
     // IMAGE
     const [fileImg, setFileImg] = useState([
         null, null, null, null, null, null
     ])
-    const [img1, setImg1] = useState("../../public/img_upload.svg");
-    const [img2, setImg2] = useState("../../public/img_upload.svg");
-    const [img3, setImg3] = useState("../../public/img_upload.svg");
-    const [img4, setImg4] = useState("../../public/img_upload.svg");
-    const [img5, setImg5] = useState("../../public/img_upload.svg");
-    const [img6, setImg6] = useState("../../public/img_upload.svg");
+    const [img1, setImg1] = useState(null);
+    const [img2, setImg2] = useState(null);
+    const [img3, setImg3] = useState(null);
+    const [img4, setImg4] = useState(null);
+    const [img5, setImg5] = useState(null);
+    const [img6, setImg6] = useState(null);
     
     // PRODUCT VALUE
     const [productName, setProductName] =  useState("");
@@ -88,6 +89,22 @@ export default function NewProduct() {
         }
     }
 
+    function handleDeleteImage(index) {
+        if(index == 1) {
+            setImg1(null);
+        } else if(index == 2) {
+            setImg2(null);
+        } else if(index == 3) {
+            setImg3(null);
+        } else if(index == 4) {
+            setImg4(null);
+        } else if(index == 5) {
+            setImg5(null);
+        } else if(index == 6) {
+            setImg6(null);
+        }
+    }
+
     function handleSelectCat(e) {
         setSelectCat(e.target.value != "");
     }
@@ -119,7 +136,7 @@ export default function NewProduct() {
             .then((response) => {
                 console.log(response)
                 alert("New product is created!");
-                navigate
+                navigate("/admin/product-manage")
             })
             .catch((error) => {
                 console.log(error);
@@ -193,49 +210,81 @@ export default function NewProduct() {
 
                     <div>
                         <h2 className="font-medium text-3xl pb-4" >Thêm hình ảnh</h2>
-                        {/* <div class="flex items-center space-x-2 my-5">
-                            <span class="text-sm font-semibold">Màu</span>
-                            <span class="inline-block w-6 h-6 rounded-full bg-yellow-400"></span>
-                            <span class="inline-block w-6 h-6 rounded-full bg-indigo-300"></span>
-                        </div> */}
 
                         <div class="grid grid-cols-3 gap-2 mr-8">
                             <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img1} alt="" name="img1" onClick={() => {document.getElementById('img1').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img1 ? img1 : "../../public/img_upload.svg"} alt="" name="img1" onClick={() => {document.getElementById('img1').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(1)}}
+                                        className={ `${img1 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                <input id="img1" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 1)}} />
+                                <input id="img1" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 1)}} />
                             </div>
                             <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img2} alt="" name="img2" onClick={() => {document.getElementById('img2').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img2 ? img2 : "../../public/img_upload.svg"} alt="" name="img2" onClick={() => {document.getElementById('img2').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(2)}}
+                                        className={ `${img2 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                <input id="img2" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 2)}} />
+                                <input id="img2" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 2)}} />
                             </div>
                             <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img3} alt="" name="img3" onClick={() => {document.getElementById('img3').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img3 ? img3 : "../../public/img_upload.svg"} alt="" name="img3" onClick={() => {document.getElementById('img3').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(3)}}
+                                        className={ `${img3 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                <input id="img3" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 3)}} />
+                                <input id="img3" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 3)}} />
                             </div>
                             <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img4} alt="" name="img4" onClick={() => {document.getElementById('img4').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img4 ? img4 : "../../public/img_upload.svg"} alt="" name="img4" onClick={() => {document.getElementById('img4').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(4)}}
+                                        className={ `${img4 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                <input id="img4" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 4)}} />
-                            </div>
-                            <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img5} alt="" name="img5" onClick={() => {document.getElementById('img5').click()}} className="w-72 h-80 block object-contain rounded-lg" />
-                                </div>
-                                <input id="img5" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 5)}} />
+                                <input id="img4" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 4)}} />
                             </div>
 
                             <div>
-                                <div class="block m-auto h-auto rounded-lg justify-center">
-                                    <img src={img6} alt="" name="img6" onClick={() => {document.getElementById('img6').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img5 ? img5 : "../../public/img_upload.svg"} alt="" name="img5" onClick={() => {document.getElementById('img5').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(5)}}
+                                        className={ `${img5 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
                                 </div>
-                                <input id="img6" type="file" accept="image/*" class="hidden" onChange={(e) => {onChangeImg(e, 6)}} />
+                                <input id="img5" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 5)}} />
+                            </div>
+
+                            <div>
+                                <div className="relative block m-auto h-auto rounded-lg justify-center">
+                                    <img src={img6 ? img6 : "../../public/img_upload.svg"} alt="" name="img6" onClick={() => {document.getElementById('img6').click()}} className="w-72 h-80 block object-contain rounded-lg" />
+                                    <button 
+                                        onClick={() => { handleDeleteImage(6)}}
+                                        className={ `${img6 ? "" : "hidden" }  absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 items-center justify-center hover:bg-red-800 `}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                                <input id="img6" type="file" accept="image/*" className="hidden" onChange={(e) => {onChangeImg(e, 6)}} />
                             </div>
                         </div>
 

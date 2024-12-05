@@ -50,7 +50,7 @@ export default function ProductsManagement() {
     }
 
     function handleUpdateProduct(prodID) {
-        navigate(`/edit-product/${prodID}`);
+        navigate(`/admin/edit-product/${prodID}`);
     }
 
     function handlePageClick(pageNum) {
@@ -156,7 +156,7 @@ export default function ProductsManagement() {
                             </div>
 
                         </div>
-                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => {navigate("/product-new")}}>
+                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => {navigate("/admin/product-new")}}>
                             <div className="font-bold ">Thêm sản phẩm</div>
                         </div>
 
