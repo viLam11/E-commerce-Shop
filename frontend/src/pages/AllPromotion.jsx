@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function AllPromotion() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [promotionData, setPromotionData] = useState([]);
 
     useEffect(() => {
