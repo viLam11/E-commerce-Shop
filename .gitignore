@@ -1,4 +1,5 @@
 backend/node_modules
 backend/.vscode
+backend/.env
 frontend/node_modules
 .vercel
