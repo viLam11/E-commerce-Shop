@@ -7,7 +7,7 @@ const UserService = require('../../database/userService');
 class AuthController {
     async postSignUp(req, res) {
         // console.log('CHECK authData: ', req.body)
-        //const userId = uuidv4();
+        // const userId = uuidv4();
         const { email, password, confirmPassword } = req.body;
         let username = req.body.username;
         if (!username) {
