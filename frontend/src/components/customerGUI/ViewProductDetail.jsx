@@ -56,6 +56,29 @@ function Detail({reviews, state, NavigateTo, ViewCategories }) {
             setBuy(value);
         }
     };
+
+    const handleAddCart = async () => {
+        console.log(state.currentProduct.product_id)
+        try {
+            const response = await axios.post(
+                `http://localhost:8000/api/cart/AddToCart/${state.currentUser.uid}`,
+                {
+                    product_id: product.product_id,
+                    quantity: buyQuantity,
+                }
+            );
+    
+            if (response.status !== 200) {
+                throw new Error("Lỗi khi thêm sản phẩm vào giỏ hàng");
+            }
+    
+            alert('Đã thêm sản phẩm vào giỏ hàng');
+        } catch (e) {
+            console.error("Error:", e.message || "Thêm vào giỏ hàng thất bại");
+            alert("Thêm vào giỏ hàng thất bại: " + (e.message || "Lỗi không xác định"));
+        }
+    };
+    
     return (
         <>
             <div className="breadcrumbs">
@@ -96,7 +119,7 @@ function Detail({reviews, state, NavigateTo, ViewCategories }) {
                                 <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
                             </div>
                             <button className="buy-now">Mua ngay</button>
-                            <button className="add-to-cart">Thêm vào giỏ hàng</button>
+                            <button className="add-to-cart" onClick={handleAddCart}>Thêm vào giỏ hàng</button>
                         </div>
                         <div className="info-box">
                             <div className="info-item">

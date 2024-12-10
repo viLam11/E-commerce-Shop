@@ -68,36 +68,36 @@ function Pagination(){
         </div>
     )
 }
-function CategoryBar(){
+function CategoryBar({ViewCategories}){
     return(
         <div className="searching">
             <h3>Phân loại</h3>
             <div className="category-buttons">
-                <a className="category-type" href="#" onClick={() => this.navigateToByCategory('c01')}>
+                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c01')}}>
                     <div>
                         <img src="../../public/img/s-l960 (1).webp" alt='Phone' style={{marginBottom: '6px' ,marginTop: '3px'}}/>
                         <br /> <span>Điện thoại</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={() => this.navigateToByCategory('c04')}>
+                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c04')}}>
                     <div>
                         <img src="../../public/img/s-l960.webp" style={{marginBottom: '12px' }}/>
                         <br /> <span>Đồng hồ thông minh</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={() => this.navigateToByCategory('c02')}>
+                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c02')}}>
                     <div>
                         <img src= "../../public/img/s-l960 (2).webp" style={{marginBottom: '23px',marginTop: '15px'}}/>
                         <br /> <span>Laptop</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={() => this.navigateToByCategory('c03')}>
+                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c03')}}>
                     <div>
                         <img src="../../public/img/s-l960 (3).webp" style={{marginBottom: '26px' ,marginTop: '8px'}}/>
                         <br /> <span>Tablet</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={() => this.navigateToByCategory('c05')}>
+                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c05')}}>
                     <div>
                         <img src="../../public/img/mobile-phone-accessories-for-sell-e-commerce-portal.jpg"style={{marginBottom: '16px' ,marginTop: '8px'}}/>
                         <br /> <span>Phụ kiện</span>
@@ -300,7 +300,7 @@ function HomePage({state,ViewProductDetail,NavigateTo,ViewCategories}){
             <div className="underline"></div>
         </div>
         
-        <CategoryBar />
+        <CategoryBar ViewCategories={ViewCategories}/>
         <FlashProduct state ={state} ViewProductDetail={ViewProductDetail}/>
         <button className="view-all" onClick={()=>NavigateTo('Shopping')}>Xem tất cả sản phẩm</button>
         <div className="underline"></div>

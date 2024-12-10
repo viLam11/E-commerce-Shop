@@ -8,6 +8,7 @@ import Login from "../guest/Login"
 import { useData } from "./FetchData";
 import ShoppingPage from "./Shopping";
 import Categories from "./Category";
+import Cart from "./Cart";
 
 function PageComponent() {
     const { state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search } = useData();
@@ -50,11 +51,17 @@ function PageComponent() {
                     ViewProductDetail={ViewProductDetail}
                 />;
             case "User":
-                alert(state.currentPage)
                 return <UserAccountManagement 
                     NavigateTo={NavigateTo}
                     state={state}
                 />;
+            case "Cart":
+                return <Cart 
+                    state={state}
+                    NavigateTo={NavigateTo} 
+                    ViewCategories={ViewCategories}
+                    ViewProductDetail={ViewProductDetail}
+                />
             default:
                 return <HomePage  
                     NavigateTo={NavigateTo} 

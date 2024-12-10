@@ -45,9 +45,9 @@ export default function Header({state,NavigateTo,Search}) {
             </div>
                 <div className="icons">
                     <a href="#" ><span>&#128276;</span></a> 
-                    <a href="#" ><span>&#128722;</span></a>
+                    <a href="#" onClick={(e)=>{e.preventDefault(); NavigateTo('Cart')}}><span>&#128722;</span></a>
                     <div className="dropdown-container">
-                        <a href="#" className="dropdown" id="dropdownButton" onClick={() => actionMenu()}>
+                        <a href="#" className="dropdown" id="dropdownButton" onClick={(e) =>{e.preventDefault(); actionMenu()}}>
                             <span>&#128100;</span>
                         </a>
                         <div className="action-menu" id="actionMenu">

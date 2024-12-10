@@ -94,7 +94,7 @@ body {
 .full-width button{
     width: 100px;
     align-items:end;
-    margin-left: 160px;
+    margin-left: 0px;
     border-radius: 8px;
     border: #666 1px solid;
 }
@@ -152,15 +152,58 @@ body {
   .address-table td button {
     background: none;
     border: none;
-    font-size: 18px;
+    font-size: 13px;
     cursor: pointer;
     color: red;
     background-color: #ccc;
     border: #333 solid 3px;
     border-radius: 6px;
-    height: 25px;
-    width: 25px;
+    height: 30px;
+    width: 40px;
     justify-content: center;  /* Horizontal center */
     align-items: center; 
   }
   
+  .date-range-picker {
+    position: relative;
+    display: inline-block;
+}
+
+.date-picker-button {
+    border: 1px solid #ddd;
+    background-color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.date-picker-button:hover {
+    border-color: #aaa;
+}
+
+.date-picker-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+.history-hook{
+    border-radius: 10px;
+    background-color: #f4f4f4;
+    padding: 6px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+.history-hook.hooked{
+    background-color: #d32f2f;
+    color: #f4f4f4;
+}
