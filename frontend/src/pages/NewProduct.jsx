@@ -33,20 +33,6 @@ export default function NewProduct() {
         document.getElementById(`img${index}`).click();
     }
 
-        // function onChangeImg1(e) {
-        //     const file = e.target.files[0];
-        //     if (file) {
-        //         const reader = new FileReader();
-        //         reader.onloadend = () => {
-        //             const base64String = reader.result;
-        //             setImg1(base64String);
-        //             localStorage.setItem('img1', base64String);
-        //         };
-        //         setFileImg((prevFile) => ({...prevFile, i1: file}));
-        //         reader.readAsDataURL(file); 
-        //         setImg1(base64String);
-        //     }
-        // }
 
 
     function onChangeImg(e, index) {
