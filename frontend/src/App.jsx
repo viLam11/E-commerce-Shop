@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import ProductsManagement from "./pages/ProductsManagement";
 import NewProduct from "./pages/NewProduct";
 import ProductUpdate from "./pages/ProductUpdate";
-import Homepage from "./pages/Homepage";
+import Homepage2 from "./pages/Homepage2";
 import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
@@ -12,6 +12,7 @@ import UsersManagement from "./pages/UsersManagement";
 import AllPromotion from "./pages/AllPromotion";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
+import Homepage from "./pages/Homepage";
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
     >
       <AuthProvider >
         <Routes>
-          <Route path="/test" element={<Test />} />
+          <Route path="/test" element={<Homepage />} />
           <Route path="/" element={<Login />} />
 
           
