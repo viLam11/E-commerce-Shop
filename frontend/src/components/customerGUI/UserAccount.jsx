@@ -42,13 +42,14 @@ const fixPrice = (price) =>{
     return token;
 }
 
-const PieChart = () => {
+const PieChart = ({chartData, total}) => {
   // Dữ liệu biểu đồ
+  const rdata = chartData?chartData.map(i => i*100/total):[0,0,0,0,0]
   const data = {
-    labels: ['c01', 'c02', 'c03', 'c04', 'c05'],
+    labels: ['Điện thoại', 'Laptop', 'Máy tính bảng', 'Đồng hồ thông minh', 'Phụ kiện'],
     datasets: [
       {
-        data: [50, 20, 10, 13, 7], // Tỉ lệ phần trăm
+        data: rdata, // Tỉ lệ phần trăm
         backgroundColor: ['#1f77b4', '#aec7e8', '#2ca02c', '#ff7f0e', '#ffbb78'],
         borderWidth: 1,
       },
@@ -80,7 +81,7 @@ const PieChart = () => {
   };
 
   return (
-    <div style={{ width: '250px', margin: '0 auto' }}>
+    <div style={{ width: '250px'}}>
       <Pie data={data} options={options} />
     </div>
   );
@@ -99,6 +100,10 @@ const theme = createTheme({
     },
   });
 
+function History_Detail({state, order}){
+    
+}
+
 function History({state}){
     const [count, setCnt] = useState(0)
     const [totalPaid, setPaid] = useState(0)
@@ -110,7 +115,7 @@ function History({state}){
     useEffect(()=>{
         const fetchOrder = async()=>{
             const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${state.currentUser.uid}?limit=1000`)
-            if (!temp.ok){
+            if (temp.status != 200){
                 throw new Error("Lỗi khi lấy dữ liệu")
             }
             setList(temp.data.data?temp.data.data:[])
@@ -118,8 +123,8 @@ function History({state}){
         fetchOrder()
     },[state.currentUser])
     useEffect(()=>{
-        setPaid(orderList.filter(item => item.status == "success").reduce((sum, current) => sum + current.final_price, 0))
-        setTotal(orderList.filter(item => item.status == "success").reduce((sum, current) => sum + current.quantity, 0))
+        setPaid(orderList.reduce((sum, current) => sum + current.final_price, 0))
+        setTotal(orderList.reduce((sum, current) => sum + current.quantity, 0))
     },[orderList])
     useEffect(()=>{
         setCnt(orderList.length)
@@ -137,37 +142,93 @@ function History({state}){
         setStart((prev) => Math.max(prev - 5, 0));
         setEnd((prev) => Math.max(prev - 5, 5));
     };
+
+    const [type, setType] =useState("")
+    const [sortOrder, setSort] = useState(orderList)
+    useEffect(()=>{
+        setSort(orderList)
+        let temp = [...orderList]
+        if (type !== ''){
+            temp = temp.filter(item => item.status == type)
+            setSort(temp)
+        }
+        if (startDate && startDate !== ''){
+            temp = temp.filter(item => item.create_time >= startDate)
+            setSort(temp)
+        }
+        if (endDate && endDate !== ''){
+            temp = temp.filter(item => item.done_time <= endDate)
+            setSort(temp)
+        }
+    },[type, startDate, endDate, orderList])
+
+    const [chartData, setData] = useState([0,0,0,0,0])
+    useEffect(() => {
+        const fetchOrderDetails = async () => {
+            const tempChartData = [0, 0, 0, 0, 0];
+
+            for (const order of orderList) {
+                try {
+                    const response = await axios.get(`http://localhost:8000/api/order/getDetailOrder/${order.oid}`);
+                    if (response.data.status !== 200) {
+                        console.error("Error fetching order details");
+                        continue;
+                    }
+
+                    for (const item of response.data.data) {
+                        switch (item.cate_id) {
+                            case 'c01':
+                                tempChartData[0] += item.quantity;
+                                break;
+                            case 'c02':
+                                tempChartData[1] += item.quantity;
+                                break;
+                            case 'c03':
+                                tempChartData[2] += item.quantity;
+                                break;
+                            case 'c04':
+                                tempChartData[3] += item.quantity;
+                                break;
+                            case 'c05':
+                                tempChartData[4] += item.quantity;
+                                break;
+                            default:
+                                console.warn("Unknown category ID:", item.cate_id);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching order detail:", error.message);
+                }
+            }
+
+            setData(tempChartData);
+        };
+
+        if (orderList.length > 0) {
+            fetchOrderDetails();
+        }
+    }, [orderList]);
+
     return(
         <div className="profile-form">
+            <h2>Lịch sử mua hàng của khách hàng {state.currentUser.lname}</h2>
             <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px"}}>
-                <div style={{marginRight:"50px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
+                <div style={{marginLeft:"-10px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {state.currentUser.ranking}</div>
                 </div>
-                <PieChart />
+                <PieChart chartData={chartData} total={totalQuantity}/>
             </div>
             <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px", marginLeft:"40px"}}>
-                <div style={{marginRight:"50px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
+                <div style={{marginRight:"-20px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
                     <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {state.currentUser.ranking}</div>
                 </div>
-                <PieChart />
-            </div>
-            <h2>Lịch sử mua hàng của khách hàng {state.currentUser.lname}</h2>
-            <div className="overall" style={{backgroundColor: "white", padding: "10px", display: "inline-flex", width: "940px"}}>
-                <div style={{textAlign: "center", marginLeft: "200px", marginRight: "-200px"}}>
-                    <div style={{fontSize: "30px", fontWeight: "bold"}}>{count}</div>
-                    <div>Đơn hàng</div>
-                </div>
-                <div style={{backgroundColor: "black", width:"2px", marginLeft: "400px"}}></div>
-                <div style={{textAlign: "center", marginLeft: "200px"}}>
-                    <div style={{fontSize: "30px", fontWeight: "bold"}}>{totalPaid}</div>
-                    <div>Tổng chi tiêu</div>
-                </div>
+                <PieChart chartData={chartData} total={totalQuantity}/>
             </div>
             <div style={{display: "inline-flex", gap: "40px", marginTop: "20px", height: "60px"}}>
             <FormControl fullWidth sx={{ marginBottom: 2 , height: "40px"}}>
@@ -199,12 +260,12 @@ function History({state}){
                 </FormControl>
             </div>
             <div style={{width: "100%", gap:"20px", display:"inline-flex"}}>
-                <div className={`history-hook ${hook == 0?"hooked":""}`} onClick={()=>setHook(0)}>Tất cả</div>
-                <div className={`history-hook ${hook == 1?"hooked":""}`} onClick={()=>setHook(1)}>Chờ xác nhận</div>
-                <div className={`history-hook ${hook == 2?"hooked":""}`} onClick={()=>setHook(2)}>Đã xác nhận</div>
-                <div className={`history-hook ${hook == 3?"hooked":""}`} onClick={()=>setHook(3)}>Đang vận chuyển</div>
-                <div className={`history-hook ${hook == 4?"hooked":""}`} onClick={()=>setHook(4)}>Đã giao hàng</div>
-                <div className={`history-hook ${hook == 5?"hooked":""}`} onClick={()=>setHook(5)}>Đã hủy</div>
+                <div className={`history-hook ${hook == 0?"hooked":""}`} onClick={()=>{setHook(0); setType("")}}>Tất cả</div>
+                <div className={`history-hook ${hook == 1?"hooked":""}`} onClick={()=>{setHook(1); setType("Pending")}}>Chờ xác nhận</div>
+                <div className={`history-hook ${hook == 2?"hooked":""}`} onClick={()=>{setHook(2); setType("Paid")}}>Đã xác nhận</div>
+                <div className={`history-hook ${hook == 3?"hooked":""}`} onClick={()=>{setHook(3); setType("Shipped")}}>Đang vận chuyển</div>
+                <div className={`history-hook ${hook == 4?"hooked":""}`} onClick={()=>{setHook(4); setType("Completed")}}>Đã giao hàng</div>
+                <div className={`history-hook ${hook == 5?"hooked":""}`} onClick={()=>{setHook(5);setType("Cancelled")}}>Đã hủy</div>
             </div>
             <div
                     style={{
@@ -225,62 +286,30 @@ function History({state}){
                     <div>Tình trạng</div>
                     <div></div>
                 </div>
-            {orderList && orderList.length > 0 ? (
-                    orderList.slice(start,end).map((item, index) => (
+            {sortOrder && sortOrder.length > 0 ? (
+                    sortOrder.slice(start,end).map((item, index) => (
                     <div
                         key={index}
                         style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 150px 150px 150px 150px",
+                        gridTemplateColumns: "1fr 150px 200px 150px 150px",
                         backgroundColor: index % 2 === 0 ? "#A0C4FF" : "#A0C4FF",
                         padding: "10px",
                         textAlign: "center",
                         marginTop: "20px",
                         borderRadius: "8px",
-                        width: "1200px",
+                        width: "100%",
                         height: "55px",
                         justifyContent: "center"
                         }}
                     >
-                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}>{item.name}</div>
-                        <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.price)}</div>
-                        <div style={{display: "inline-flex", width: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
-                            <input type='number' value={item.pquantity} style={{width: "20px", height: "30px", border: "none", backgroundColor: "transparent", cursor: "pointer"}} 
-                            onChange={(e)=>{
-                                    const tempArr = [...prodList]
-                                    tempArr[index] = {
-                                        ...tempArr[index],
-                                        pquantity: Math.min(e.target.value, item.quantity),
-                                    };
-                                    setList(tempArr);
-                                    handleUpdate(item, Math.min(e.target.value, item.quantity))
-                                }}/>
-                            <div style={{fontSize: "10px", cursor: "pointer"}}>
-                                <div onClick={()=>{
-                                    const tempArr = [...prodList]
-                                    tempArr[index] = {
-                                        ...tempArr[index],
-                                        pquantity: Math.min(item.pquantity + 1,item.quantity),
-                                    };
-                                    setList(tempArr);
-                                    handleUpdate(item, Math.min(item.pquantity + 1,item.quantity))
-                                }}>⮝</div>
-                                <div onClick={()=>{
-                                    const tempArr = [...prodList]
-                                    tempArr[index] = {
-                                        ...tempArr[index],
-                                        pquantity: Math.max(item.pquantity - 1, 0),
-                                    };
-                                    setList(tempArr);
-                                    handleUpdate(item, Math.max(item.pquantity - 1, 0))
-                                }}>⮟</div>
-                            </div>
-                        </div>
-                        <div style={{paddingTop: "10px"}}>{fixPrice(item.price * item.pquantity)}</div>
+                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"100px", justifyItems:"center", textAlign:"center"}}>{item.oid}</div>
+                        <div style={{paddingTop: "10px",alignItems:"center"}}>{formatToDDMMYYYY(item.create_time)}</div>
+                        <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.final_price)}</div>
+                        <div style={{paddingTop: "10px"}}>{item.status}</div>
                         <div style={{paddingTop: "0px"}}>
                         {/* Lựa chọn button */}
-                        <button style={{ padding: "5px 10px" }} onClick={()=> handleDelete(item.product_id)}>Xóa</button>
-
+                        <button style={{ padding: "5px 10px" }} onClick={()=> handleDelete(item.product_id)}>Chi tiết đơn hàng</button>
                         </div>
                     </div>
                     ))

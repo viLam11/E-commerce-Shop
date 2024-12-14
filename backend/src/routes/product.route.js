@@ -25,7 +25,7 @@ router.delete('/delete-many', authMiddleware.authUserMiddleWare, productControll
 
 //image
 router.post('/AddImage/:id', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.addImage);
-router.get('/GetImageByProduct/:id', authMiddleware.authUserMiddleWare, productController.getImageByProduct);
+router.get('/GetImageByProduct/:id', productController.getImageByProduct);
 router.delete('/DeleteImage', authMiddleware.authUserMiddleWare, productController.deleteImage);
 router.delete('/DeleteImageByProduct/:id', authMiddleware.authUserMiddleWare, productController.deleteImageByProduct);
 router.put('/UpdateImage/:id', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.updateImage);

@@ -1,8 +1,7 @@
 import React, {useState,useEffect} from "react";
 import RatingBar from "../format/ratingBar";
 import axios from 'axios'
-function Detail({reviews, state, NavigateTo, ViewCategories }) {
-    const product = state.productData ? state.productData.find(item => item.product_id === state.currentProduct) : null;
+function Detail({reviews, state, NavigateTo, ViewCategories, product }) {
     if (!product) return null;
 
     const [images, setImages] = useState([]);
@@ -325,7 +324,21 @@ function Review({ reviews,state, product }) {
 }
 
 function ViewDetail({ state, ViewProductDetail, NavigateTo, ViewCategories }) {
-    const product = state.productData ? state.productData.find(item => item.product_id === state.currentProduct) : null;
+    const [product, setProd]= useState({});
+    useEffect(()=>{
+        const fetchProduct = async() =>{
+            try{
+                const response = await axios.get(`http://localhost:8000/api/product/get-detail/${state.currentProduct}`)
+                console.log(response)
+                if (response.status !== 200) throw new Error("Bug data")
+                setProd(response.data.data)
+            }
+            catch(err){
+                console.log(err.message)
+            }
+        }
+        fetchProduct()
+    },[])
     const [reviews, setReviews] = useState([]);
     useEffect(() => {
         const fetchReviews = async () => {
@@ -347,7 +360,7 @@ function ViewDetail({ state, ViewProductDetail, NavigateTo, ViewCategories }) {
     }, []);
     return (
         <div className="viewpage">
-            <Detail state={state} NavigateTo={NavigateTo} reviews = {reviews} ViewCategories={ViewCategories}/>
+            <Detail state={state} NavigateTo={NavigateTo} reviews = {reviews} ViewCategories={ViewCategories} product={product}/>
             <Description product={product} />
             <Review product={product} state={state} reviews={reviews}/>
         </div>

@@ -73,11 +73,12 @@ class OrderService {
             const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, promotion_id } = newOrder
             const orderId = CreateID.generateID("order");
             await client.query('BEGIN');
+            console.log(newOrder)
             try {
                 await client.query(
                     `INSERT INTO orders( oid, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, final_price, promotion_id)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-                    [orderId, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, shipping_fee + total_price, promotion_id]);
+                    [orderId, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, shipping_fee + total_price, promotion_id || null]);
                 if (promotion_id) {
                     await client.query(`UPDATE promotion SET quantity = quantity-1 WHERE promotion_id = $1`, [promotion_id])
                 }
@@ -85,6 +86,7 @@ class OrderService {
                 const errorProducts = [];
                 for (const order of orderItems) {
                     try {
+                        console.log("checkup: " + order.product_id)
                         // Kiểm tra và cập nhật số lượng sản phẩm
                         const productData = await this.updateProductStock(order.product_id, order.quantity);
                         iid += 1;
@@ -95,6 +97,7 @@ class OrderService {
                          VALUES ($1, $2, $3, $4, $5, $6)`,
                             [iid, orderId, order.product_id, order.quantity, order.subtotal, productData.data.cate_id]
                         );
+                        console.log("checkout: " + order.product_id)
                     } catch (err) {
                         errorProducts.push(order.product_id); // Lưu sản phẩm không đủ số lượng
                     }
