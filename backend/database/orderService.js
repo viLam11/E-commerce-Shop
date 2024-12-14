@@ -75,9 +75,9 @@ class OrderService {
             await client.query('BEGIN');
             try {
                 await client.query(
-                    `INSERT INTO orders( oid, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, final_price)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-                    [orderId, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, shipping_fee + total_price]);
+                    `INSERT INTO orders( oid, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, final_price, promotion_id)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+                    [orderId, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, shipping_fee + total_price, promotion_id]);
                 if (promotion_id) {
                     await client.query(`UPDATE promotion SET quantity = quantity-1 WHERE promotion_id = $1`, [promotion_id])
                 }
@@ -91,9 +91,9 @@ class OrderService {
 
                         // Thêm sản phẩm vào bảng order_include
                         await client.query(
-                            `INSERT INTO order_include (iid, oid, product_id, quantity, paid_price, cate_id, promotion_id)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                            [iid, orderId, order.product_id, order.quantity, order.subtotal, productData.data.cate_id, promotion_id]
+                            `INSERT INTO order_include (iid, oid, product_id, quantity, paid_price, cate_id)
+                         VALUES ($1, $2, $3, $4, $5, $6)`,
+                            [iid, orderId, order.product_id, order.quantity, order.subtotal, productData.data.cate_id]
                         );
                     } catch (err) {
                         errorProducts.push(order.product_id); // Lưu sản phẩm không đủ số lượng
