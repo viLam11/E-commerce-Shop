@@ -1,5 +1,4 @@
 const client = require('./database')
-const { v4: uuidv4 } = require('uuid')
 
 class CategoryService {
 

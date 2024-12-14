@@ -2,7 +2,6 @@ const CartService = require('../../database/cartService');
 
 class CartController {
     async AddToCart(req, res) {
-        console.log(req.body)
         try {
             const { product_id, quantity } = req.body
             if (!product_id || !quantity) {
@@ -19,7 +18,7 @@ class CartController {
                     data: null
                 })
             }
-            //req.body.quantity = Number(req.body.quantity)
+            req.body.quantity = Number(req.body.quantity)
             const response = await CartService.AddToCart(req.body, req.params.id)
             return res.status(200).json(response)
         }

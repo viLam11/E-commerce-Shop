@@ -146,7 +146,7 @@ class AuthController {
                 res.status(200).json({
                     status: 200,
                     msg: 'Authentication successful',
-                    data: { token: token, user: loadedUser }
+                    data: { token: token }
                 });
             })
             .catch(err => {
@@ -247,21 +247,16 @@ class AuthController {
             })
         }
     }
-
-    // async logout(req, res) {
-    //     localStorage.removeItem('token');
-    //     localStorage.removeItem('userType');
-    // }
     async logout(req, res) {
-        const token = req.cookies.token;
-        if (!token) {
-            return res.status(401).json({
-                status: 401,
-                msg: 'No active session found',
-                data: null
-            });
-        }
-        res.clearCookie('token'); // Xóa cookie chứa token
+        // const token = req.cookies.token;
+        // if (!token) {
+        //     return res.status(401).json({
+        //         status: 401,
+        //         msg: 'No active session found',
+        //         data: null
+        //     });
+        // }
+        // res.clearCookie('token'); // Xóa cookie chứa token
         return res.status(200).json({
             status: 200,
             msg: 'Logged out successfully',

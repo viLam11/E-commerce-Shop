@@ -12,7 +12,7 @@ app.use(cookieParser());
 
 app.use(cors({
   origin: '*', // Allow all origins (adjust for production)
-  methods: 'GET, POST, DELETE,PUT, PATCH, OPTIONS', // Allow specific methods
+  methods: 'GET, POST, DELETE, PATCH, OPTIONS', // Allow specific methods
   allowedHeaders: ['Content-Type', 'Authorization'] // Allow specific headers, including Content-Type
 }));
 app.use(express.json());
