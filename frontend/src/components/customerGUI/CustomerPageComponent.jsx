@@ -9,9 +9,10 @@ import { useData } from "./FetchData";
 import ShoppingPage from "./Shopping";
 import Categories from "./Category";
 import Cart from "./Cart";
+import MakeOrder from "./MakeOrder";
 
 function PageComponent() {
-    const { state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search } = useData();
+    const { state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search , CartToOrder } = useData();
     const RenderPage = () => {
         switch (state.currentPage) {
             case 'Login':
@@ -61,6 +62,15 @@ function PageComponent() {
                     NavigateTo={NavigateTo} 
                     ViewCategories={ViewCategories}
                     ViewProductDetail={ViewProductDetail}
+                    CartToOrder={CartToOrder}
+                />
+            case "Order":
+                return <MakeOrder 
+                    state={state}
+                    NavigateTo={NavigateTo} 
+                    ViewCategories={ViewCategories}
+                    ViewProductDetail={ViewProductDetail}
+                    CartToOrder={CartToOrder}
                 />
             default:
                 return <HomePage  

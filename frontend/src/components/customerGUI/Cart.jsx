@@ -41,7 +41,21 @@ function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
     },[])
     //buyList.map(i => i.product_id).includes(item.apply_id) || buyList.map(i => i.cate_id).includes(item.apply_id) ||
     useEffect(()=>{
-        setFit([...vouchers].filter(item => buyList.map(i => i.product_id).includes(item.apply_id) || buyList.map(i => i.cate_id).includes(item.apply_id) || item.apply_range == 'all'))
+        const product_con = (item)=>{
+            return (item.apply_range == "product" 
+            && buyList.map(i => i.product_id).includes(item.apply_id) 
+            && item.minspent <= buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
+        }   
+
+        const category_con = (item)=>{
+            return (item.apply_range == "category_id"
+                && buyList.map(i => i.cate_id).includes(item.apply_id)
+                && minspent <= buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
+            )
+        }
+        
+        setFit([...vouchers].filter(item => item.quantity > 0 
+            && (product_con(item) || category_con(item) || item.apply_range == "all")))
     },[vouchers])
     return (
         <div style={{width: "450px", height:"500px"}}>
@@ -71,7 +85,7 @@ function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
         </div>
     )
 }
-export default function Cart({state, NavigateTo}){
+export default function Cart({state, NavigateTo, CartToOrder}){
     const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     const openPopup = () => {
@@ -200,7 +214,19 @@ export default function Cart({state, NavigateTo}){
             }
         }
     }
-
+    const [start, setStart] = useState(0); // Quản lý điểm bắt đầu
+    const [end, setEnd] = useState(5); // Quản lý điểm kết thúc
+    const handleNext = () => {
+        //console.log("Next")
+        setStart((prev) => Math.min(prev + 5, prodList.length - 1));
+        setEnd((prev) => Math.min(prev + 5, prodList.length));
+    };
+    
+    const handlePrevious = () => {
+        //console.log("Prev")
+        setStart((prev) => Math.max(prev - 5, 0));
+        setEnd((prev) => Math.max(prev - 5, 5));
+    };
     return (
         <div className='cart'>
             <div className='breadcrumb'><span onClick={()=> NavigateTo('HomePage')} style={{color: "gray", cursor: "pointer"}}>Trang chủ</span> / <span>Giỏ hàng</span></div>
@@ -236,7 +262,7 @@ export default function Cart({state, NavigateTo}){
 
                 {/* Body */}
                 {prodList && prodList.length > 0 ? (
-                    prodList.map((item, index) => (
+                    prodList.slice(start,end).map((item, index) => (
                     <div
                         key={index}
                         style={{
@@ -254,14 +280,14 @@ export default function Cart({state, NavigateTo}){
                     >
                         <div style={{paddingTop: "10px"}}><input type="checkbox" checked={item.chose} onChange={(e)=>{
                             const tempArr = [...prodList]
-                            tempArr[index] = {
-                                ...tempArr[index],
+                            tempArr[index + start] = {
+                                ...tempArr[index + start],
                                 chose: e.target.checked,
                             };
                             setList(tempArr)
                         }}/></div>
-                        <div style={{paddingTop: "10px"}}>{item.pname}</div>
-                        <div style={{paddingTop: "10px"}}>{fixPrice(item.price)}</div>
+                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}><img src={item.image[0]} style={{height: "40px", marginTop: "0px"}}/> <div style={{paddingBottom:"0px", marginLeft:"10px"}}>{item.pname}</div></div>
+                        <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.price)}</div>
                         <div style={{display: "inline-flex", width: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
                             <input type='number' value={item.pquantity} style={{width: "20px", height: "30px", border: "none", backgroundColor: "transparent", cursor: "pointer"}} 
                             onChange={(e)=>{
@@ -307,7 +333,12 @@ export default function Cart({state, NavigateTo}){
                     Không có sản phẩm nào.
                     </div>
                 )}
-                <div className='btn-css' style={{padding: "10px 15px 10px 15px", border: "1px solid #696D5D", borderRadius: "6px", cursor: "pointer", marginTop: "20px", width: "80px" }}>Trở về</div>
+                <div style={{display: "inline-flex"}}>
+                <div className='btn-css' style={{padding: "10px 15px 10px 15px", border: "1px solid #696D5D", borderRadius: "6px", cursor: "pointer", marginTop: "20px", width: "80px", height: "40px" }}>Trở về</div>
+                <span className='click left' onClick = {handlePrevious}></span>
+                <span className='click right' onClick={handleNext}></span>
+                </div>
+                
                 <style>{`
                     .btn-css{
                         padding: 5px;
@@ -413,7 +444,7 @@ export default function Cart({state, NavigateTo}){
                             <div>Tổng cộng: </div>
                             <div style={{marginLeft: "180px"}}>{fixPrice(total-discount)}</div>
                         </div>
-                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}}>Mua hàng</div>
+                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}} onClick={() => CartToOrder(buyList)}>Mua hàng</div>
                     </div>
                 </div>
                 </div>

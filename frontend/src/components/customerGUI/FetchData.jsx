@@ -9,6 +9,7 @@ export function DataProvider({ children }) {
         categoryData: [],
         currentUser: [],
         searchData: [],
+        currentOrder:[],
         currentProduct: null,
         currentCategory: null,
         currentImage: null,
@@ -58,6 +59,17 @@ export function DataProvider({ children }) {
         window.history.pushState({ page: "Categories" }, "", `#Categories`);
         localStorage.setItem("currentPage", "Categories");
     };
+
+    const CartToOrder = (order) =>{
+        setState((prevState) => ({
+            ...prevState,
+            currentPage: "Order",
+            currentOrder: order,
+        }));
+        window.history.pushState({ page: "Order" }, "", `#Order`);
+        localStorage.setItem("currentPage", "Order");
+    }
+
     useEffect(() => {
         const savedUser = localStorage.getItem("currentUser");
         const savedPage = localStorage.getItem("currentPage");
@@ -227,7 +239,7 @@ export function DataProvider({ children }) {
 
     return (
         <DataContext.Provider
-            value={{ state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search }}
+            value={{ state, NavigateTo, ViewCategories, ViewProductDetail, handleUserData, Search, CartToOrder }}
         >
             {children}
         </DataContext.Provider>

@@ -7,12 +7,84 @@ import "react-date-range/dist/theme/default.css"; // Theme CSS file
 import { format } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { TextField, Button, Box, Container, Typography, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { TextField, Button, Box, Container, Typography, MenuItem, Select, InputLabel, FormControl, linkClasses } from '@mui/material';
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 //const bcrypt = require('bcryptjs');
 
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
+// Đăng ký các thành phần cần thiết của Chart.js
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+function formatToDDMMYYYY(isoString) {
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+const fixPrice = (price) =>{
+    const format = String(price);
+    let token = " VND";
+    let checkpoint = 0;
+    for (let i = format.length - 1; i >= 0; i--) {
+        token = format[i] + token;
+        checkpoint++;
+        if (checkpoint === 3 && i !== 0) {
+            token = "." + token;
+            checkpoint = 0;
+        }
+    }
+    return token;
+}
+
+const PieChart = () => {
+  // Dữ liệu biểu đồ
+  const data = {
+    labels: ['c01', 'c02', 'c03', 'c04', 'c05'],
+    datasets: [
+      {
+        data: [50, 20, 10, 13, 7], // Tỉ lệ phần trăm
+        backgroundColor: ['#1f77b4', '#aec7e8', '#2ca02c', '#ff7f0e', '#ffbb78'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Cấu hình biểu đồ
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          font: {
+            size: 8,
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            let label = context.label || '';
+            let value = context.raw || 0;
+            return `${label}: ${value}%`;
+          },
+        },
+      },
+    },
+  };
+
+  return (
+    <div style={{ width: '250px', margin: '0 auto' }}>
+      <Pie data={data} options={options} />
+    </div>
+  );
+};
 const theme = createTheme({
     palette: {
       primary: {
@@ -26,10 +98,11 @@ const theme = createTheme({
       fontFamily: "Roboto, Arial, sans-serif",
     },
   });
-  
+
 function History({state}){
     const [count, setCnt] = useState(0)
     const [totalPaid, setPaid] = useState(0)
+    const [totalQuantity, setTotal] = useState(0)
     const [orderList, setList] = useState([])
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -45,18 +118,53 @@ function History({state}){
         fetchOrder()
     },[state.currentUser])
     useEffect(()=>{
+        setPaid(orderList.filter(item => item.status == "success").reduce((sum, current) => sum + current.final_price, 0))
+        setTotal(orderList.filter(item => item.status == "success").reduce((sum, current) => sum + current.quantity, 0))
+    },[orderList])
+    useEffect(()=>{
         setCnt(orderList.length)
     },[orderList])
+    const [start, setStart] = useState(0); // Quản lý điểm bắt đầu
+    const [end, setEnd] = useState(5); // Quản lý điểm kết thúc
+    const handleNext = () => {
+        //console.log("Next")
+        setStart((prev) => Math.min(prev + 5, prodList.length - 1));
+        setEnd((prev) => Math.min(prev + 5, prodList.length));
+    };
+    
+    const handlePrevious = () => {
+        //console.log("Prev")
+        setStart((prev) => Math.max(prev - 5, 0));
+        setEnd((prev) => Math.max(prev - 5, 5));
+    };
     return(
         <div className="profile-form">
+            <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px"}}>
+                <div style={{marginRight:"50px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {state.currentUser.ranking}</div>
+                </div>
+                <PieChart />
+            </div>
+            <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px", marginLeft:"40px"}}>
+                <div style={{marginRight:"50px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
+                    <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {state.currentUser.ranking}</div>
+                </div>
+                <PieChart />
+            </div>
             <h2>Lịch sử mua hàng của khách hàng {state.currentUser.lname}</h2>
             <div className="overall" style={{backgroundColor: "white", padding: "10px", display: "inline-flex", width: "940px"}}>
-                <div style={{textAlign: "center"}}>
+                <div style={{textAlign: "center", marginLeft: "200px", marginRight: "-200px"}}>
                     <div style={{fontSize: "30px", fontWeight: "bold"}}>{count}</div>
                     <div>Đơn hàng</div>
                 </div>
-                <div style={{backgroundColor: "black", width:"2px"}}></div>
-                <div style={{textAlign: "center"}}>
+                <div style={{backgroundColor: "black", width:"2px", marginLeft: "400px"}}></div>
+                <div style={{textAlign: "center", marginLeft: "200px"}}>
                     <div style={{fontSize: "30px", fontWeight: "bold"}}>{totalPaid}</div>
                     <div>Tổng chi tiêu</div>
                 </div>
@@ -98,12 +206,94 @@ function History({state}){
                 <div className={`history-hook ${hook == 4?"hooked":""}`} onClick={()=>setHook(4)}>Đã giao hàng</div>
                 <div className={`history-hook ${hook == 5?"hooked":""}`} onClick={()=>setHook(5)}>Đã hủy</div>
             </div>
-            <table className="address-table">
-                <thead>
-                    <th>STT</th>
-                    <th>Mã đơn hàng</th>
-                </thead>
-            </table>
+            <div
+                    style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 150px 200px 150px 150px",
+                    backgroundColor: "#A0C4FF",
+                    fontWeight: "bold",
+                    padding: "10px",
+                    textAlign: "center",
+                    borderRadius: "8px",
+                    width: "100%",
+                    marginTop: "20px"
+                    }}
+                >
+                    <div>Mã đơn hàng</div>
+                    <div>Ngày mua</div>
+                    <div>Tổng tiền</div>
+                    <div>Tình trạng</div>
+                    <div></div>
+                </div>
+            {orderList && orderList.length > 0 ? (
+                    orderList.slice(start,end).map((item, index) => (
+                    <div
+                        key={index}
+                        style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 150px 150px 150px 150px",
+                        backgroundColor: index % 2 === 0 ? "#A0C4FF" : "#A0C4FF",
+                        padding: "10px",
+                        textAlign: "center",
+                        marginTop: "20px",
+                        borderRadius: "8px",
+                        width: "1200px",
+                        height: "55px",
+                        justifyContent: "center"
+                        }}
+                    >
+                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}>{item.name}</div>
+                        <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.price)}</div>
+                        <div style={{display: "inline-flex", width: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
+                            <input type='number' value={item.pquantity} style={{width: "20px", height: "30px", border: "none", backgroundColor: "transparent", cursor: "pointer"}} 
+                            onChange={(e)=>{
+                                    const tempArr = [...prodList]
+                                    tempArr[index] = {
+                                        ...tempArr[index],
+                                        pquantity: Math.min(e.target.value, item.quantity),
+                                    };
+                                    setList(tempArr);
+                                    handleUpdate(item, Math.min(e.target.value, item.quantity))
+                                }}/>
+                            <div style={{fontSize: "10px", cursor: "pointer"}}>
+                                <div onClick={()=>{
+                                    const tempArr = [...prodList]
+                                    tempArr[index] = {
+                                        ...tempArr[index],
+                                        pquantity: Math.min(item.pquantity + 1,item.quantity),
+                                    };
+                                    setList(tempArr);
+                                    handleUpdate(item, Math.min(item.pquantity + 1,item.quantity))
+                                }}>⮝</div>
+                                <div onClick={()=>{
+                                    const tempArr = [...prodList]
+                                    tempArr[index] = {
+                                        ...tempArr[index],
+                                        pquantity: Math.max(item.pquantity - 1, 0),
+                                    };
+                                    setList(tempArr);
+                                    handleUpdate(item, Math.max(item.pquantity - 1, 0))
+                                }}>⮟</div>
+                            </div>
+                        </div>
+                        <div style={{paddingTop: "10px"}}>{fixPrice(item.price * item.pquantity)}</div>
+                        <div style={{paddingTop: "0px"}}>
+                        {/* Lựa chọn button */}
+                        <button style={{ padding: "5px 10px" }} onClick={()=> handleDelete(item.product_id)}>Xóa</button>
+
+                        </div>
+                    </div>
+                    ))
+                ) : (
+                    <div style={{ textAlign: "center", marginTop: "20px" }}>
+                    Không có sản phẩm nào.
+                    </div>
+                )}
+                <div style={{display: "inline-flex"}}>
+                <div className='btn-css' style={{padding: "10px 15px 10px 15px", border: "1px solid #696D5D", borderRadius: "6px", cursor: "pointer", marginTop: "20px", width: "80px", height: "40px" }}>Trở về</div>
+                <span className='click left' onClick = {handlePrevious}></span>
+                <span className='click right' onClick={handleNext}></span>
+                </div>
         </div>
     )
 }
@@ -506,7 +696,7 @@ function UpdateAdress({active,state,setActive}){
                 </label>
                 <div className="form-actions">
                     <button className="btn-cancel">Hủy</button>
-                    <button className="btn-save" onClick={handleSubmit}>Lưu thay đổi</button>
+                    <button className="btn-save" onClick={handleSubmit}>Thêm địa chỉ</button>
                 </div>
             </div>
             </>
@@ -515,13 +705,13 @@ function UpdateAdress({active,state,setActive}){
 
 function UpdateData({state, active, setActive}){
     const [magnet, setMag] =useState(1)
-    const [defPhone, setPhone] = useState("")
     const [user, setUser] = useState({
         fname: state.currentUser.fname,
         lname: state.currentUser.lname,
         username: state.currentUser.username,
         email: state.currentUser.email
     })
+    const [defPhone, setPhone] = useState("")
     const [defAdress, setAddress] = useState("")
     useEffect(() => {
         const fetchAdress = async () => {
@@ -552,6 +742,11 @@ function UpdateData({state, active, setActive}){
     const handleUpdate = async() =>{
         try{
             const { fname, lname, email, username } = user;  // Object destructuring for clarity
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)){
+                alert('Định dạng email không hợp lệ vui lòng nhập lại')
+                return;
+            }
         const { uid } = state.currentUser;  // Destructure currentUser to get uid
             const response = await axios.put(`http://localhost:8000/api/user/update-user/${uid}`,{
                 fname,

@@ -8,3 +8,54 @@ body {
     padding-top: 100px;
     margin-left: 50px;
 }
+
+.cart .click{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:#fff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 50px;
+    background-color: #A0C4FF;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    font-weight:900;
+}
+
+.cart .click.left{
+    margin-left: 850px;
+}
+.cart .click.right{
+    margin-left: 5px;
+}
+.cart .click.left::before{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: #333;
+}
+
+.cart .click.right::before{
+    content: '>';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color: #333;
+}
+.cart .click.left:hover{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color:#fff;
+    background-color: #d9534f;
+}
+.cart .click.right:hover{
+    content: '<';
+    font-size: 20px;
+    /* font-weight: bold; */
+    color:#fff;
+    background-color: #d9534f;
+}
