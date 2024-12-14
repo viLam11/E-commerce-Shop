@@ -366,7 +366,9 @@ CREATE TABLE notification (
     PRIMARY KEY (uid,content),
     CONSTRAINT fk_uid_notify FOREIGN KEY (uid) REFERENCES users(uid)
 );
-INSERT INTO users(user_id, user_name, user_password, first_name, last_name, email, gender, useType, birthday, id_no) 
-VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'customer', DATE('03-07-2004') ,'ALL');
+INSERT INTO users(uid, username, upassword, fname, lname, email, gender, usertype, birthday, id_no) 
+VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'admin', DATE('03-07-2004') ,'ALL');
+INSERT INTO notification(uid, content) 
+VALUES('ALL','thông báo toàn sàn ngày 4/12/2024');
 INSERT INTO notification(uid, content) 
 VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','thông báo ngày 12 tháng 12');
