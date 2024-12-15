@@ -25,7 +25,7 @@ router.post('/config', async (req, res) => {
     //(mở cmd với lệnh "ngrok http <PORT cần gọi phía backend>"), cần cài ngrok trước khi sdung lệnh
     //lấy link từ Forwarding ./callback
     var requestType = "payWithMethod";
-    var amount = '50000';
+    var amount = '200000';
     var orderId = partnerCode + new Date().getTime();
     var requestId = orderId;
     var extraData = '';

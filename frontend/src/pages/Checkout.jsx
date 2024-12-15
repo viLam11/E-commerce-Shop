@@ -1,7 +1,15 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 export default function Checkout() {
+    const {prodID} = useParams();
+    console.log(prodID);
+
+    useEffect(() => {
+        
+    }, [])
 
     return (
         <div className="flex flex-col min-h-screen">

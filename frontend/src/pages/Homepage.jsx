@@ -9,16 +9,16 @@ export default function Homepage() {
     const [role, setRole] = useState("customer");
     const [token, setToken] = useState(null);
 
-    useEffect(() => {
-        const loadRole = localStorage.getItem("role");
-        const loadToken = localStorage.getItem("token");
-        if (loadRole) {
-            setRole(loadRole)
-        }
-        if (loadToken) {
-            setToken(loadToken)
-        }
-    })
+    // useEffect(() => {
+    //     const loadRole = localStorage.getItem("role");
+    //     const loadToken = localStorage.getItem("token");
+    //     if (loadRole) {
+    //         setRole(loadRole)
+    //     }
+    //     if (loadToken) {
+    //         setToken(loadToken)
+    //     }
+    // })
 
     {
         return (
@@ -50,9 +50,9 @@ export default function Homepage() {
                             <span className="w-4 h-8 bg-red-500 inline-block"></span>
                             <span className="px-4">Sản phẩm nổi bật</span>
                         </div>
-                        <div className="grid grid-cols-4 gap-6 py-6 ">
+                        <div className="grid grid-cols-4 gap-6 py-6 w-full">
                             {Array.from({ length: 4 }, (_, i) => (
-                                <ProductCard />
+                                <ProductCard  prodName={"Tên sản phẩm"} prodID={"prod001"} prodImage={""} prodRating={"4"} prodPrice={"2000"} />
                             ))}
                         </div>
                     </div>
@@ -77,7 +77,7 @@ export default function Homepage() {
                             ))}
                         </div> */}
 
-                        <div className="searching">
+                        <div className="">
                             <div className="flex flex-row  justify-between w-11/12 m-auto">
                                 <a className="category-type" href="#" onClick={(e) => { e.preventDefault(); ViewCategories('c01') }}>
                                     <div className="bg-white flex flex-col justify-center items-center w-48 h-48 rounded-lg">

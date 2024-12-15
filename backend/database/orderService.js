@@ -24,6 +24,7 @@ class OrderService {
 
                         // Nếu số lượng tồn kho không đủ
                         if (currentQuantity < amount) {
+                            console.log('Not enough stock');
                             return reject({
                                 status: 400,
                                 msg: 'Not enough stock',
@@ -103,6 +104,7 @@ class OrderService {
                 // Nếu có sản phẩm lỗi, rollback và trả về thông báo
                 if (errorProducts.length > 0) {
                     await client.query('ROLLBACK');
+                    console.log(errorProducts);
                     return resolve({
                         status: 'ERR',
                         msg: `Sản phẩm với id ${errorProducts.join(', ')} không đủ hàng`

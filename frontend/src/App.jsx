@@ -13,6 +13,9 @@ import AllPromotion from "./pages/AllPromotion";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";
+import ViewDetail from "./pages/ViewDetail";
+import ProductByCat from "./pages/ProductByCat";
+import ProductDetail from "./pages/ProductDetail";
 
 function App() {
   return (
@@ -24,13 +27,19 @@ function App() {
     >
       <AuthProvider >
         <Routes>
-          <Route path="/test" element={<Homepage />} />
+          <Route path="/test" element={<Test />} />
           <Route path="/" element={<Login />} />
 
           
-          <Route path="/customer/pay" element={<Checkout />} />
+          <Route path="/customer/pay/:prodID" element={<Checkout />} />
           <Route path="/customer/homepage" element={<Homepage />} />
- 
+          {/* <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} /> */}
+          <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
+
+          <Route path="/customer/category/:catSlug" element={<ProductByCat />} />
+
+
+
           <Route path="/admin/history/:id" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
