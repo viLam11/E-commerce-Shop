@@ -173,15 +173,14 @@ create table reviews(
 create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
-	product_id 	varchar(255)	not null,
+	product_id 	varchar(255),
 	promotion_id	varchar(255),
 	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
-	discount	integer	not null,
+	discount	integer,
 	constraint fk_order_prod foreign key(oid) references orders(oid),
 	constraint fk_prod_of_order	foreign key(product_id) references product(product_id),
-	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
 	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
 );
 

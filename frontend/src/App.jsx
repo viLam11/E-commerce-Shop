@@ -31,7 +31,7 @@ function App() {
           <Route path="/" element={<Login />} />
 
           
-          <Route path="/customer/pay/:prodID" element={<Checkout />} />
+          <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<Homepage />} />
           {/* <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} /> */}
           <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />

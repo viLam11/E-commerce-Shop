@@ -1,15 +1,84 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import ProductInCheckout from "../components/ProductInCheckout";
+
+
+// definition of productList: [ {prodName, prodID: , quantity: , img: , price: ..}]
+// request to createOrder:  "orderItems": [ {
+//     "product_id":"13cf029b-44b4-41db-a59c-d8126f3e5787",
+//     "quantity": 1,
+//     "subtotal": "10000"
+//   }], 
+const productList =[ {
+    prodName: "Iphone",
+    prodID: "#prod01",
+    quantity: 1,
+    img: "https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0",
+    price: 1000
+}]
 export default function Checkout() {
-    const {prodID} = useParams();
-    console.log(prodID);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [errors, setErrors]  = useState([]);
+    // const [productList, setProductList] = useState(null);
+    // const {productList} = location.state || {};
+    const [userID, setUserID] = useState(null);
+    const [orderItems, setOrderItems] = useState([]);
+    const [userData, setUserData] = useState({});
 
     useEffect(() => {
+        if (!productList || productList.length === 0) {
+            setErrors(["Chưa có sản phẩm để thanh toán"]);
+        }
+
+        // const storedUserID = localStorage.getItem("userID");
+        const storedUserID = "7ea46d0d-0d9c-470f-9d05-50535c2f6cc0";    
         
-    }, [])
+        if (!storedUserID) {
+            alert("Vui lòng đăng nhập để tiếp tục");
+            navigate("/");
+        }
+        setUserID(storedUserID);
+
+    }, [productList]);
+
+    useEffect(() => {
+        if (!userID) {
+            return;
+        }
+
+        console.log(productList);
+
+        axios.get(`http://localhost:8000/api/user/get-detail/${userID}`)
+            .then((response) => {
+                if (response.status === 200) {
+                    console.log(response.data.data);
+                    setUserData(response.data.data);
+                }
+            })
+            .catch((error) => {
+                if (error.response && error.response.data) {
+                    alert(error.response.data.msg);
+                } else {
+                    console.log(error);
+                }
+            });
+
+        const ordersData = productList.map((product, index) => {
+            return {
+                product_id: product.prodID,
+                quantity: product.quantity,
+                subtotal: product.price * product.quantity
+            }
+        })
+        console.log("CHECK PRODUCT LIST: ", productList);
+        setOrderItems(ordersData);
+    }, [userID]);
+
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -33,9 +102,9 @@ export default function Checkout() {
                                             type="text"
                                             id="name"
                                             name="lastName"
-                                            className={`mt-1 p-2  w-4/5 bg-gray-100 text-gray-600 outline-none disabled`}
+                                            className={`mt-1 p-2  w-4/5 bg-gray-100 text-gray-600 outline-none readOnly`}
                                             value={"Huynh Bao Ngoc"}
-                                            disabled
+                                            readOnly
                                         />
                                     </div>
 
@@ -48,7 +117,7 @@ export default function Checkout() {
                                         name="email"
                                         className={`mt-1 p-2  w-4/5 bg-gray-100 text-gray-600 `}
                                         value={"ngoc@gmail.com"}
-                                        disabled
+                                        readOnly
                                     />
 
                                 </div>
@@ -95,7 +164,7 @@ export default function Checkout() {
                         </div>
                         <div className="col-2  w-1/2">
                             <div className="products w-8/12 space-y-4 m-auto">
-                                <div className="flex flex-row items-center ">
+                                {/* <div className="flex flex-row items-center ">
                                     <div className=" w-2/5 flex items-center space-x-2">
                                         <span>
                                             <img src="https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0" alt="" width={"50px"} />
@@ -115,10 +184,11 @@ export default function Checkout() {
                                     </div>
                                     <div className=" w-2/5 text-right ">100.000.000 VND</div>
                                     <div className=" w-1/5 text-right mr-20">x 1</div>
-                                </div>
+                                </div> */}
+                                { productList.map((product, index) => 
 
-
-
+                                    ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} />)
+                                )}
                                 <div className="flex justify-between mr-20">
                                     <div>Thành tiền</div>
                                     <div>100.000 VND</div>

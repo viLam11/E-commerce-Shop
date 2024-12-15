@@ -20,10 +20,15 @@ class OrderService {
                             });
                         }
 
-                        const currentQuantity = res.rows[0].quantity;
+                        console.log("prodID: ", productId);
+                        console.log("Check response: ", res.rows[0].quantity);
+                        console.log("amount: ", amount);
 
+                        const currentQuantity = res.rows[0].quantity;
+                        // const currentQuantity = 10;
                         // Nếu số lượng tồn kho không đủ
                         if (currentQuantity < amount) {
+
                             console.log('Not enough stock');
                             return reject({
                                 status: 400,
@@ -36,9 +41,9 @@ class OrderService {
                         //         , selled = selled + $1)
                         client.query(
                             `UPDATE product 
-                         SET quantity = quantity - $1
-                         WHERE product_id = $2
-                         RETURNING *`,
+                                SET quantity = quantity - $1
+                                WHERE product_id = $2
+                                RETURNING *`,
                             [amount, productId],
                             (err, res) => {
                                 if (err) {
@@ -97,6 +102,7 @@ class OrderService {
                             [iid, orderId, order.product_id, order.quantity, order.subtotal, productData.data.cate_id, promotion_id]
                         );
                     } catch (err) {
+                        console.log(err);
                         errorProducts.push(order.product_id); // Lưu sản phẩm không đủ số lượng
                     }
                 }
@@ -104,7 +110,8 @@ class OrderService {
                 // Nếu có sản phẩm lỗi, rollback và trả về thông báo
                 if (errorProducts.length > 0) {
                     await client.query('ROLLBACK');
-                    console.log(errorProducts);
+                    
+                    console.log("HERE !!! ", errorProducts);
                     return resolve({
                         status: 'ERR',
                         msg: `Sản phẩm với id ${errorProducts.join(', ')} không đủ hàng`

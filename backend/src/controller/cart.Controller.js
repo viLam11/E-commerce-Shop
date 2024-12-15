@@ -54,6 +54,20 @@ class CartController {
         }
     }
 
+    // async GetCartByUserID(req, res, next) {
+    //     try {
+    //         const {userID}  = req.body;
+            
+    //     }
+    //     catch(err) {
+    //         return res.status(404).json({
+    //             status: 404,
+    //             msg: err,
+    //             data: null
+    //         })
+    //     }
+    // }
+
     async DeleteCart(req, res) {
         try {
             const { product_id } = req.body
