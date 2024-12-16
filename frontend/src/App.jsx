@@ -13,6 +13,7 @@ import AllPromotion from "./pages/AllPromotion";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Homepage from "./pages/Homepage";
+import Shopping from "./pages/Shopping";
 import ViewDetail from "./pages/ViewDetail";
 import ProductByCat from "./pages/ProductByCat";
 import ProductDetail from "./pages/ProductDetail";
@@ -33,6 +34,7 @@ function App() {
           
           <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<Homepage />} />
+          <Route path="/customer/shopping" element={<Shopping />} />
           {/* <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} /> */}
           <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
 

@@ -104,7 +104,9 @@ class CategoryService {
                             });
                         }
                         client.query(
-                            `SELECT * FROM product WHERE cate_id = $1 LIMIT $2 OFFSET $3`,
+                            `SELECT p.*, i.image_url 
+                            FROM (SELECT * FROM product WHERE cate_id = $1 LIMIT $2 OFFSET $3) p
+                            LEFT JOIN image i ON p.product_id = i.product_id`,
                             [resCate.rows[0].cate_id, limit, limit * page],
                             (errPro, resPro) => {
                                 if (errPro) {
@@ -114,10 +116,31 @@ class CategoryService {
                                         data: null
                                     });
                                 } else {
+                                    const products = {};
+                                    resPro.rows.forEach(row => {
+                                        if (!products[row.product_id]) {
+                                            products[row.product_id] = {
+                                                product_id: row.product_id,
+                                                pname: row.pname,
+                                                brand: row.brand,
+                                                description: row.description,
+                                                price: row.price,
+                                                quantity: row.quantity,
+                                                create_time: row.create_time,
+                                                cate_id: row.cate_id,
+                                                sold: row.sold,
+                                                rating: row.rating,
+                                                img: []
+                                            };
+                                        }
+                                        if (row.image_url) {
+                                            products[row.product_id].img.push(row.image_url);
+                                        }
+                                    });
                                     resolve({
                                         status: 200,
                                         msg: 'SUCCESS',
-                                        data: resPro.rows,
+                                        data: Object.values(products),
                                         totalProduct: countPro.data,
                                         currentPage: page + 1,
                                         totalPage: Math.ceil(countPro.data / limit)
