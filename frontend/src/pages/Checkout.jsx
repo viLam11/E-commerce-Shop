@@ -13,23 +13,23 @@ import ProductInCheckout from "../components/ProductInCheckout";
 //     "quantity": 1,
 //     "subtotal": "10000"
 //   }], 
-const productList =[ {
-    prodName: "Iphone",
-    prodID: "#prod01",
-    quantity: 1,
-    img: "https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0",
-    price: 1000
-}]
+// const productList =[ {
+//     prodName: "Iphone",
+//     prodID: "#prod01",
+//     quantity: 1,
+//     img: "https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0",
+//     price: 1000
+// }]
 export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
     const [errors, setErrors]  = useState([]);
     // const [productList, setProductList] = useState(null);
-    // const {productList} = location.state || {};
+    const {productList} = location.state || [];
     const [userID, setUserID] = useState(null);
     const [orderItems, setOrderItems] = useState([]);
     const [userData, setUserData] = useState({});
-
+    console.log(productList);
     useEffect(() => {
         if (!productList || productList.length === 0) {
             setErrors(["Chưa có sản phẩm để thanh toán"]);
@@ -187,7 +187,7 @@ export default function Checkout() {
                                 </div> */}
                                 { productList.map((product, index) => 
 
-                                    ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} />)
+                                    ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} img={product.img} />)
                                 )}
                                 <div className="flex justify-between mr-20">
                                     <div>Thành tiền</div>

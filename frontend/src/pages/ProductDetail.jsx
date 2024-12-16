@@ -98,9 +98,16 @@ export default function ProductDetail() {
         setDisplayImg(imgList[index]);
     }
 
-    function handleCheckout(productID, productQuantity) {
-        console.log("CHECKOUT: ", productID, productQuantity);
-        navigate(`/customer/pay/${productID}`);
+    function handleCheckout(prodID, quantity, prodName, img, prodPrice) {
+        console.log("CHECKOUT: ", prodID, quantity);
+        const productList = [{
+            prodID: prodID,
+            prodName: prodName,
+            quantity: quantity,
+            img: img,
+            price: prodPrice
+        }];
+        navigate(`/customer/pay`, { state: { productList } });
     }
 
     function handlePageClick(pageNum) {
@@ -195,7 +202,7 @@ export default function ProductDetail() {
                             </div>
                             <div className="bg-red-500 font-bold text-white p-2"
                                 onClick={() => {
-                                    handleCheckout(prodID, quantity)}
+                                    handleCheckout(prodID, quantity, prodName, imgList[0], prodPrice)}
                                 }
                             >Mua ngay</div>
                         </div>
