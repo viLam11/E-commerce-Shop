@@ -11,20 +11,38 @@ export default function NewReview({prodID}) {
     const [count, setCount] = useState(0);
  
     useEffect(() => {
-        setUsername(localStorage.getItem("userName"));
+        // setUsername(localStorage.getItem("userName"));
         setUserID(localStorage.getItem("userID"));
+        const user_id = localStorage.getItem("userID");
+        console.log(user_id);    
+        axios.get(`http://localhost:8000/api/user/get-detail/${user_id}`)
+            .then((response) => {
+                if(response.status === 200) {
+                    setUsername(response.data.data.username);
+                    console.log(response.data.data.username);   
+                }
+            })
+            .catch((err) => {
+                if(err.response.data) {
+                    alert(err.response.data.msg);
+                } else {
+                    console.log(err.message);
+                }
+            })
     }, [count])
 
     function hanldePostReview() {
         console.log("Rating: ", rating),
         console.log("Comment: ", comment),
-        axios.post(`http://localhost/Assignment/Backend/api/product/review/${prodID}`, {
-            "user_id": userID,
+        axios.post(`http://localhost:8000/api/product/CreateReview/${prodID}`, {
+            "uid": userID,
             "rating": rating,
             "comment": comment
         })
         .then((response) => {
-            if(response.status === 201) {
+            console.log("CHECK RESPONSE: " , response);
+
+            if(response.status === 200) {
                 alert("Đã thêm nhận xét");
                 setCount(count + 1);        
             }
