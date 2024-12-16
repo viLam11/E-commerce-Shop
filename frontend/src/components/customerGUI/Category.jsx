@@ -1,30 +1,28 @@
 import { useState, useEffect } from "react";
-
-function CategoryProduct({state, NavigateTo, ViewCategories, ViewProductDetail }){
-    const cateData = state.categoryData
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+function CategoryProduct({cate_id, cate_name, productData}){
+    
+    const navigate = useNavigate()
     const [mode, setMode] = useState({
         maxPrice: 0,
         minPrice: 0,
         brand:"",
         sortMode: ""
     })
-
-    if (!cateData){
-        throw ('404 Not Found');
-    }
-    const [prod, setProduct] = useState(state.productData.filter(item => item.cate_id == state.currentCategory));
+    const [prod, setProduct] = useState(productData.filter(item => item.cate_id == cate_id));
     useEffect(()=>{
-        setProduct(state.productData.filter(item => item.cate_id == state.currentCategory))
-    },[state.productData])
+        setProduct(productData.filter(item => item.cate_id == cate_id))
+    },[productData])
     useEffect(()=>{
-        let temp = state.productData.filter(item => item.cate_id == state.currentCategory)
+        let temp = productData.filter(item => item.cate_id == cate_id)
         if (mode.brand && mode.brand != "") temp = temp.filter(item => item.brand == mode.brand)
         if (mode.maxPrice != 0) temp = temp.filter(item => item.price <= mode.maxPrice)
         if (mode.minPrice != 0) temp = temp.filter(item => item.price >= mode.minPrice)
         if (mode.sortMode == "asc") temp = temp.sort((a, b) => (a.price || 0) - (b.price || 0))
         if (mode.sortMode == "desc") temp = temp.sort((a, b) => (b.price || 0) - (a.price || 0))
         setProduct(temp)
-    },[mode,state.productData, state.currentCategory])
+    },[mode,productData, cate_id])
     
     const [images, setImages] = useState({});
     useEffect(() => {
@@ -97,7 +95,7 @@ function CategoryProduct({state, NavigateTo, ViewCategories, ViewProductDetail }
                     </select>
                 </div>
                 <div className="spotlight-cate">
-                    <h2>{state.categoryData.find(item => item.cate_id == state.currentCategory ).cate_name}</h2>
+                    <h2>{cate_name}</h2>
                     <div className="spotlight-seed">
                         {/* Chia danh sách sản phẩm thành các nhóm 4 sản phẩm */}
                         {Array.from({ length: 3 }, (_, i) => (
@@ -110,11 +108,11 @@ function CategoryProduct({state, NavigateTo, ViewCategories, ViewProductDetail }
                                 className="product-card"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    ViewProductDetail(item.product_id); // Sửa từ `row` thành `item`
+                                    navigate(`/product-detail/${item.product_id}`); // Sửa từ `row` thành `item`
                                 }}
                                 >
                                 {/* Hiển thị hình ảnh sản phẩm */}
-                                <div className="product-view" onClick={() => ViewProductDetail(row.product_id)}>
+                                <div className="product-view" onClick={() => navigate(`/product-detail/${item.product_id}`)}>
                                       <img
                                           className="product-img"
                                           src={img ? img.image_url : "default_image.png"}
@@ -154,40 +152,50 @@ function CategoryProduct({state, NavigateTo, ViewCategories, ViewProductDetail }
     )
 }
 
- function CategoryDetail({ state, NavigateTo, ViewCategories, ViewProductDetail }){
-    const cateData = state.categoryData;
-    if (!cateData){
-        alert('No category defined')
-        throw ('404 Not Found');
-    }
-    return (
+ function CategoryDetail({cate_id, cate_name, productData}){
+    return (productData &&
         <>
             <div className="mar"></div>
             <div className="breadcrumbs">
                 <div>
-                    <a href="#" className='shopping' onClick={(e) =>{e.preventDefault(); NavigateTo("Shopping")}}>Mua sắm</a> / <a href="#">{cateData.find(item => item.cate_id == state.currentCategory).cate_name}</a> /
+                    <a href="/user/shopping" className='shopping'>Mua sắm</a> / <a href={`/category/${cate_id}`}>{cate_name}</a> /
                 </div> 
                 <CategoryProduct 
-                    NavigateTo={NavigateTo} 
-                    ViewCategories={ViewCategories}
-                    ViewProductDetail={ViewProductDetail}
-                    state ={state}
-                    cateData = {state.categoryData}
+                    cate_id={cate_id}
+                    cate_name={cate_name}
+                    productData={productData}
                 />
             </div>
         </>
     )
 }
 
-function Categories({ state, NavigateTo, ViewCategories, ViewProductDetail }){
-    console.log(state.categoryData)
-    return (
+function Categories(){
+    const categoryData = [{cate_id: "c01", cate_name:"Điện thoại"}, {cate_id: "c02", cate_name:"Laptop"}, {cate_id: "c03", cate_name:"Máy tính bảng"}, {cate_id: "c04", cate_name:"Đồng hồ thông minh"}, {cate_id: "c05", cate_name:"Phụ kiện"}]
+    const {id} = useParams()
+    const cate_id = categoryData.find(i => i.cate_id == id).cate_id
+    const cate_name = categoryData.find(i => i.cate_id == id).cate_name
+    const [productData, setData] = useState([])
+    useEffect(()=>{
+        const fetchData = async() => {
+            try{
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setData(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
+    return (productData &&
         <div className="category">
             <CategoryDetail 
-                NavigateTo={NavigateTo} 
-                ViewCategories={ViewCategories}
-                ViewProductDetail={ViewProductDetail}
-                state ={state}
+                cate_id={cate_id}
+                cate_name={cate_name}
+                productData={productData}
             />
         </div>
     )

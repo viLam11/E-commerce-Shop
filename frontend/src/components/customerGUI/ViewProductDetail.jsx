@@ -1,9 +1,11 @@
 import React, {useState,useEffect} from "react";
 import RatingBar from "../format/ratingBar";
 import axios from 'axios'
-function Detail({reviews, state, NavigateTo, ViewCategories, product }) {
+import { useNavigate, useParams } from "react-router-dom";
+import usePagination from "@mui/material/usePagination/usePagination";
+function Detail({reviews, product }) {
     if (!product) return null;
-
+    const navigate = useNavigate()
     const [images, setImages] = useState([]);
     const [mainImage, setMainImage] = useState(null);
     const [otherImages, setOtherImages] = useState([]);
@@ -43,7 +45,10 @@ function Detail({reviews, state, NavigateTo, ViewCategories, product }) {
         setOtherImages(newOther);
     };
     
-    const category = state.categoryData.find(item => item.cate_id === product.cate_id);
+    const category = product.cate_id == 'c01'? "Điện thoại":
+                    product.cate_id == 'c02'?"Laptop":
+                    product.cate_id == 'c03'?"Máy tính bảng":
+                    product.cate_id ==' c04'?"Đồng hồ thông minh":"Phụ kiện"
     const [buyQuantity, setBuy] = useState(1)
     const changeQuantity = (charge)=>{
         if (charge == 1) setBuy(buyQuantity + 1 < product.quantity?buyQuantity+1:product.quantity)
@@ -57,10 +62,10 @@ function Detail({reviews, state, NavigateTo, ViewCategories, product }) {
     };
 
     const handleAddCart = async () => {
-        console.log(state.currentProduct.product_id)
         try {
+            const uid = localStorage.getItem('user')
             const response = await axios.post(
-                `http://localhost:8000/api/cart/AddToCart/${state.currentUser.uid}`,
+                `http://localhost:8000/api/cart/AddToCart/${uid}`,
                 {
                     product_id: product.product_id,
                     quantity: buyQuantity,
@@ -82,9 +87,9 @@ function Detail({reviews, state, NavigateTo, ViewCategories, product }) {
         <>
             <div className="breadcrumbs">
                 <div>
-                    <a href="#" className="off" onClick={(e) =>{e.preventDefault(); NavigateTo('Shopping')}}>Mua sắm</a> /
-                    <a href="#" className="off" onClick={(e) =>{e.preventDefault(); ViewCategories(product.cate_id)}}>
-                        {category ? category.cate_name : ""}
+                    <a href='/user/shopping' className="off">Mua sắm</a> /
+                    <a href={`/category/${product.cate_id}`} className="off">
+                        {category}
                     </a> / {product.pname}
                 </div>
             </div>
@@ -153,7 +158,7 @@ function Description({ product }) {
     );
 }
 
-function Review({ reviews,state, product }) {
+function Review({ reviews, product }) {
     
     const averageRate = reviews.length > 0 
         ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
@@ -323,15 +328,17 @@ function Review({ reviews,state, product }) {
     );
 }
 
-function ViewDetail({ state, ViewProductDetail, NavigateTo, ViewCategories }) {
-    const [product, setProd]= useState({});
+function ViewDetail() {
+    const navigate = useNavigate()
+    const {id} = useParams()
+    const [product, setProduct]= useState({});
     useEffect(()=>{
         const fetchProduct = async() =>{
             try{
-                const response = await axios.get(`http://localhost:8000/api/product/get-detail/${state.currentProduct}`)
+                const response = await axios.get(`http://localhost:8000/api/product/get-detail/${id}`)
                 console.log(response)
                 if (response.status !== 200) throw new Error("Bug data")
-                setProd(response.data.data)
+                setProduct(response.data.data)
             }
             catch(err){
                 console.log(err.message)
@@ -357,12 +364,12 @@ function ViewDetail({ state, ViewProductDetail, NavigateTo, ViewCategories }) {
         };
 
         fetchReviews();
-    }, []);
-    return (
+    }, [product]);
+    return (product &&
         <div className="viewpage">
-            <Detail state={state} NavigateTo={NavigateTo} reviews = {reviews} ViewCategories={ViewCategories} product={product}/>
+            <Detail reviews = {reviews} product={product}/>
             <Description product={product} />
-            <Review product={product} state={state} reviews={reviews}/>
+            <Review product={product} reviews={reviews}/>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 //import { get } from '../../../../backend/src/routes/cart.route';
 
 function formatToDDMMYYYY(isoString) {
@@ -85,9 +86,26 @@ function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
         </div>
     )
 }
-export default function Cart({state, NavigateTo, CartToOrder}){
+export default function Cart(){
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-
+    const [productData, setData] = useState([])
+    const navigate = useNavigate()
+    const uid = localStorage.getItem('user')
+    console.warn(uid)
+    useEffect(()=>{
+        const fetchData = async() => {
+            try{
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                //console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setData(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
     const openPopup = () => {
         setIsPopupOpen(true);
     };
@@ -105,9 +123,9 @@ export default function Cart({state, NavigateTo, CartToOrder}){
     const [toggle, setTog] = useState(0)
     useEffect(()=>{
         const fetchCart = async() =>{
-            console.log(state.currentUser.uid)
             try{
-                const response = await axios.get(`http://localhost:8000/api/cart/GetCart/${state.currentUser.uid}?limit=1000`)
+                const response = await axios.get(`http://localhost:8000/api/cart/GetCart/${uid}?limit=1000`)
+                console.warn(response)
                 console.log(response)
                 if (response.status !== 200) {
                     alert('Lỗi khi lấy dữ liệu giỏ hàng');
@@ -118,7 +136,7 @@ export default function Cart({state, NavigateTo, CartToOrder}){
                 const productIds = cartData.map((item) => item.product_id);
     
                 // Lọc sản phẩm từ productData
-                const filteredProducts = state.productData?.filter((item) =>
+                const filteredProducts = productData?.filter((item) =>
                     productIds.includes(item.product_id)
                 );
                 const updatedProducts = filteredProducts?.map((product) => {
@@ -135,15 +153,15 @@ export default function Cart({state, NavigateTo, CartToOrder}){
                 setq(quantities || []);
             } 
             catch(e){
-                alert('Lỗi')
+                alert('Lỗi 2718')
             }
         }
         fetchCart()
-    },[toggle])
+    },[toggle, productData])
     useEffect(() => { 
         const selectedProducts = prodList.filter(item => item.chose === true);
         setBuy(selectedProducts);
-    }, [prodList]);
+    }, [prodList, productData]);
     
     useEffect(() => {
         const sum = buyList.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
@@ -170,7 +188,7 @@ export default function Cart({state, NavigateTo, CartToOrder}){
 
     const handleUpdate = async (item, q) => {
         try {
-            const update = await axios.put(`http://localhost:8000/api/cart/UpdateCart/${state.currentUser.uid}`, {
+            const update = await axios.put(`http://localhost:8000/api/cart/UpdateCart/${uid}`, {
                 product_id: item.product_id,
                 quantity: q
             });
@@ -194,7 +212,7 @@ export default function Cart({state, NavigateTo, CartToOrder}){
 
     const handleDelete = async(item) =>{
         try {
-            const update = await axios.post(`http://localhost:8000/api/cart/DeleteCart/${state.currentUser.uid}`, {
+            const update = await axios.post(`http://localhost:8000/api/cart/DeleteCart/${currentUser.uid}`, {
                 product_id: item,
             });
     
@@ -227,7 +245,7 @@ export default function Cart({state, NavigateTo, CartToOrder}){
         setStart((prev) => Math.max(prev - 5, 0));
         setEnd((prev) => Math.max(prev - 5, 5));
     };
-    return (
+    return (prodList && 
         <div className='cart'>
             <div className='breadcrumb'><span onClick={()=> NavigateTo('HomePage')} style={{color: "gray", cursor: "pointer"}}>Trang chủ</span> / <span>Giỏ hàng</span></div>
             <div style={{ marginTop: "50px", padding: "10px" }}>
@@ -407,7 +425,7 @@ export default function Cart({state, NavigateTo, CartToOrder}){
                     <div className="popup" onClick={closePopup}>
                         <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
                             <h2>Chọn Voucher</h2>
-                            <Voucher state={state} buyList={buyList} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen}/>
+                            <Voucher buyList={buyList} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen}/>
                             <button className="closePopup" onClick={closePopup}>
                             Đóng
                             </button>
@@ -415,15 +433,11 @@ export default function Cart({state, NavigateTo, CartToOrder}){
                     </div>
                 )}
                 <div style={{display: "inline-flex"}}>
-                    <div style={{marginTop: "50px"}}>
+                    <div style={{marginTop: "50px", display:"inline-flex", height: '40px'}}>
                         <input type='text' placeholder='Mã giảm giá' value={voucher.promotion_id} style={{padding: "5px", borderRadius: "8px", width: "210px"}}/>
-                        <br />
-                        <div style={{display: "inline-flex", marginTop:"10px", gap: "10px"}}>
-                            <div className='btn-css' onClick={openPopup}>Chọn mã giảm giá</div>
-                            <div className='btn-css'>Áp dụng</div>
-                        </div>
+                        <div className='btn-css' onClick={openPopup} style={{width: "160px", textAlign:"center", paddingTop:"10px", marginLeft: "20px"}}>Chọn mã giảm giá</div>
                     </div>
-                    <div style={{marginLeft: "550px", width: "400px", border: "2px solid #ADC1C6", padding:"20px",borderRadius: "10px"}}>
+                    <div style={{marginLeft: "410px", width: "400px", border: "2px solid #ADC1C6", padding:"20px",borderRadius: "10px"}}>
                         <div style={{marginBottom: "20px", color: "#D41545", fontSize: "18px", fontWeight: "bold"}}>Tổng cộng</div>
                         <div style={{display: 'inline-flex'}}>
                             <div>Thành tiền: </div>

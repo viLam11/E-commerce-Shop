@@ -81,7 +81,7 @@ class CartService {
     async GetCart(limit, page, sort, filter, uid) {
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`SELECT * FROM cart WHERE uid = $1`, [uid], async (errCart, resCart) => {
+                client.query(`SELECT * FROM users WHERE uid = $1`, [uid], async (errCart, resCart) => {
                     if (errCart) {
                         reject({
                             status: 400,
@@ -102,7 +102,7 @@ class CartService {
                             resolve({
                                 status: 200,
                                 msg: 'SUCCESS',
-                                data: products.data,
+                                data: products.data || [],
                                 totalProduct: resCart.rowCount,
                                 currentPage: page + 1,
                                 totalPage: Math.ceil(resCart.rowCount / limit)

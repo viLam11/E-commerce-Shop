@@ -1,20 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function Product({ state, ViewProductDetail }) {
+function Product({productData}) {
     //console.log("Product Data:", state.productData);
     return (
-            <DetailProduct state={state} ViewProductDetail={ViewProductDetail} />
+            <DetailProduct productData={productData}/>
     );
 }
 
-function DetailProduct({ state, ViewProductDetail }) {
+function DetailProduct({productData}) {
     const [images, setImages] = useState({}); // Store images for products by ID
-
+    const navigate = useNavigate()
     // Sort products by `sold` property
     const [sortedItems, setProduct] = useState([])
     useEffect(()=>{
-        setProduct(state.productData?state.productData:[])
-    },[state.productData]) 
+        setProduct(productData?productData:[])
+    },[productData]) 
     //console.log(state.productData)
     // Fetch images for products in sortedItems
     useEffect(() => {
@@ -55,7 +56,7 @@ function DetailProduct({ state, ViewProductDetail }) {
         };
 
         fetchReviews();
-    }, []);
+    }, [productData]);
 
     const Rate = (rate) =>{
         if (rate == -1) return;
@@ -91,9 +92,6 @@ function DetailProduct({ state, ViewProductDetail }) {
                 {sortedItems
                     ? sortedItems.slice(start, end).map((row, index) => {
                           const img = images[row.product_id];
-                          const productCate = state.categoryData
-                              ? state.categoryData.find(item => item.cate_id === row.cate_id)
-                              : null;
                           const review = reviews[row.product_id]
                           //console.log("Review: " + review)
                           const averageRate = review && review.length > 0 
@@ -104,7 +102,7 @@ function DetailProduct({ state, ViewProductDetail }) {
                                   className="spotlight-product"
                                   key={index}
                               >
-                                  <div className='product-view' onClick={() => ViewProductDetail(row.product_id)}>
+                                  <div className='product-view' onClick={() => navigate(`/product-detail/${row.product_id}`)}>
                                       <img
                                           className="product-img"
                                           src={img ? img.image_url : "default_image.png"}

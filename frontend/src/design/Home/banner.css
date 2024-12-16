@@ -34,6 +34,7 @@ body {
     margin-bottom: 15px;
     margin-top: 15px;
     width: 300px;
+    display: block;
 }
 
 .banner .side .item:hover{

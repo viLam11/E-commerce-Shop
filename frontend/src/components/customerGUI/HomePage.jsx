@@ -1,8 +1,14 @@
+import axios from "axios";
 import Product from "./Product";
 import { useState, useEffect } from "react";
-function Banner({ViewCategories}) {
-    const [activeIndex, setActiveIndex] = useState(1);
+import { useNavigate } from "react-router-dom";
+import '../../design/Home/banner.css'
+import '../../design/Home/category.css'
+import '../../design/Home/highlight.css'
+import '../../design/Home/productIntro.css'
 
+function Banner({productData}) {
+    const [activeIndex, setActiveIndex] = useState(1);
     useEffect(() => {
         const interval = setInterval(() => {
             setActiveIndex((prevIndex) => (prevIndex + 1) % 5); // Có 5 vòng tròn, nên dùng % 5
@@ -22,23 +28,23 @@ function Banner({ViewCategories}) {
         <div className="banner">
             <div className="side">
                 <div className="item">
-                    <h2 onClick={()=>ViewCategories('c01')}>Điện thoại</h2>
+                    <h2 onClick={()=>navigate('/user/category/c01')}>Điện thoại</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>ViewCategories('c02')}>Laptop</h2>
+                    <h2 onClick={()=>navigate('/user/category/c02')}>Laptop</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>ViewCategories('c03')}>Máy tính bảng</h2>
+                    <h2 onClick={()=>navigate('/user/category/c03')}>Máy tính bảng</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>ViewCategories('c04')}>Đồng hồ thông minh</h2>
+                    <h2 onClick={()=>navigate('/user/category/c04')}>Đồng hồ thông minh</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>ViewCategories('c05')}>Phụ kiện</h2>
+                    <h2 onClick={()=>navigate('/user/category/c05')}>Phụ kiện</h2>
                     <div className="underline"></div>
                 </div>
             </div>
@@ -58,46 +64,37 @@ function Banner({ViewCategories}) {
         </div>
     );
 }
-function Pagination(){
-    return(
-        <div className="pagination">
-            <span></span>
-            <span class="active"></span>
-            <span></span>
-            <span></span>
-        </div>
-    )
-}
-function CategoryBar({ViewCategories}){
+
+function CategoryBar(){
     return(
         <div className="searching">
             <h3>Phân loại</h3>
             <div className="category-buttons">
-                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c01')}}>
+                <a className="category-type" href="/user/category/c01">
                     <div>
                         <img src="../../public/img/s-l960 (1).webp" alt='Phone' style={{marginBottom: '6px' ,marginTop: '3px'}}/>
                         <br /> <span>Điện thoại</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c04')}}>
+                <a className="category-type" href="/user/category/c04" >
                     <div>
                         <img src="../../public/img/s-l960.webp" style={{marginBottom: '12px' }}/>
                         <br /> <span>Đồng hồ thông minh</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c02')}}>
+                <a className="category-type" href="/user/category/c02">
                     <div>
                         <img src= "../../public/img/s-l960 (2).webp" style={{marginBottom: '23px',marginTop: '15px'}}/>
                         <br /> <span>Laptop</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c03')}}>
+                <a className="category-type" href="/user/category/c03">
                     <div>
                         <img src="../../public/img/s-l960 (3).webp" style={{marginBottom: '26px' ,marginTop: '8px'}}/>
                         <br /> <span>Tablet</span>
                     </div>
                 </a>
-                <a className="category-type" href="#" onClick={(e) =>{e.preventDefault(); ViewCategories('c05')}}>
+                <a className="category-type" href="/user/category/c05">
                     <div>
                         <img src="../../public/img/mobile-phone-accessories-for-sell-e-commerce-portal.jpg"style={{marginBottom: '16px' ,marginTop: '8px'}}/>
                         <br /> <span>Phụ kiện</span>
@@ -108,15 +105,16 @@ function CategoryBar({ViewCategories}){
     )
 }
 
-function FlashProduct({ state, ViewProductDetail }) {
+function FlashProduct({productData}) {
+    const navigate = useNavigate()
     const [images, setImages] = useState({}); // Store images for products by ID
 
     // Sort products by `sold` property
     const [sortedItems, setProduct] = useState([])
     useEffect(()=>{
-        setProduct(state.productData
-            ? [...state.productData].sort((a, b) => (b.sold || 0) - (a.sold || 0)):[])
-    },[]) 
+        setProduct(productData
+            ? [...productData].sort((a, b) => (b.sold || 0) - (a.sold || 0)):[])
+    },[productData]) 
     // Fetch images for products in sortedItems
     useEffect(() => {
         const fetchImages = async () => {
@@ -157,7 +155,7 @@ function FlashProduct({ state, ViewProductDetail }) {
         };
 
         fetchReviews();
-    }, []);
+    }, [productData]);
 
     const [start, setStart] = useState(0); // Quản lý điểm bắt đầu
     const [end, setEnd] = useState(4); // Quản lý điểm kết thúc
@@ -186,9 +184,6 @@ function FlashProduct({ state, ViewProductDetail }) {
                 {sortedItems
                     ? sortedItems.slice(start, end).map((row, index) => {
                           const img = images[row.product_id];
-                          const productCate = state.categoryData
-                              ? state.categoryData.find(item => item.cate_id === row.cate_id)
-                              : null;
                            const review = reviews[row.product_id]
                               //console.log("Review: " + review)
                            const averageRate = review && review.length > 0 
@@ -199,7 +194,7 @@ function FlashProduct({ state, ViewProductDetail }) {
                                   className="spotlight-product"
                                   key={index}
                               >
-                                  <div className="product-view" onClick={() => ViewProductDetail(row.product_id)}>
+                                  <div className="product-view" onClick={() => navigate(`/product-detail/${row.product_id}`)}>
                                       <img
                                           className="product-img"
                                           src={img ? img.image_url : "default_image.png"}
@@ -246,63 +241,38 @@ function FlashProduct({ state, ViewProductDetail }) {
     );
 }
 
-function NewProduct(){
-    const {productData, imageData} = this.props;
-    const sortedItems = productData?[...productData].sort((a, b) => new Date(a.create_time) - new Date(b.create_time)):null;
-    const fprod = sortedItems && sortedItems.length > 0 ? sortedItems[0]:null;
-    const cid = fprod?fprod.product_id:null;
-    const image1 = imageData?imageData.find(item => item.product_id == cid && item.ismain == true):null;
-    return (
-        <div className="new-arrivals-section">
-            <div className="section-header">
-                <h2>Hàng mới về</h2>
-            </div>
-        
-            <div className="product-highlights">
-                <div className="feature-large">
-                    <img src={image1} alt={fprod?fprod.pname : null}/>
-                    <div className="feature-info">
-                        <h3>{fprod?fprod.pname : null}</h3>
-                        <p>{fprod?fprod.description : null}</p>
-                        <button>Buy Now</button>
-                    </div>
-                </div>
-        
-                <div className="feature-small">
-                    {sortedItems?sortedItems.slice(1,4).map((token,index)=>{
-                        const cid = token?token.product_id:null;
-                        const image = imageData?imageData.find(item => item.product_id == cid && item.ismain == true):null;
-                        return (
-                            <div key ={index} className="small-feature">
-                                <img src={image} alt="Huawei Collection"/>
-                                <div className="small-feature-info">
-                                    <h3>{token.pname}</h3>
-                                    <p>{token.description}</p>
-                                    <button>Shop Now</button>
-                                </div>
-                            </div>
-                        )
-                    }):null}
-                </div>
-            </div>
-        </div>
-    )
-}
-function HomePage({state,ViewProductDetail,NavigateTo,ViewCategories}){
+function HomePage(){
     //console.log("Home Data: " + state.productData)
-    return(<div id ='home'>
+    const [productData, setData] = useState([])
+    const navigate = useNavigate()
+    useEffect(()=>{
+        const fetchData = async() => {
+            try{
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setData(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
+
+    return(productData && <div id ='home'>
         <div className="container">
-            <Banner ViewCategories={ViewCategories}/>
+            <Banner productData={productData}/>
         </div>
-        <Product state = {state} ViewProductDetail = {ViewProductDetail}/>
+        <Product productData={productData}/>
         <div className="view-all-container">
-            <button className="view-all-button" onClick={()=>NavigateTo('Shopping')}>Xem tất cả sản phẩm</button>
+            <button className="view-all-button" onClick={()=>navigate('/user/shopping')}>Xem tất cả sản phẩm</button>
             <div className="underline"></div>
         </div>
         
-        <CategoryBar ViewCategories={ViewCategories}/>
-        <FlashProduct state ={state} ViewProductDetail={ViewProductDetail}/>
-        <button className="view-all" onClick={()=>NavigateTo('Shopping')}>Xem tất cả sản phẩm</button>
+        <CategoryBar productData={productData}/>
+        <FlashProduct productData={productData}/>
+        <button className="view-all" onClick={()=>navigate('/user/shopping')}>Xem tất cả sản phẩm</button>
         <div className="underline"></div>
         </div>
     )

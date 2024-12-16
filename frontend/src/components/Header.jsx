@@ -1,43 +1,23 @@
 import actionMenu from "./format/actionMenu";
 import UserAccountManagement from "./customerGUI/UserAccount";
 import { useEffect,useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Header({state,NavigateTo,Search}) {
+export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [data, setData] = useState([])
-    useEffect(() => {
-        const fetchData = async () => {
-            let newData = [];
-            try{
-                const productResponse = await fetch(
-                    `http://localhost:8000/api/product/getAll?filter=${searchQuery}`
-                );
-                if (!productResponse.ok) throw new Error("Failed to fetch products");
-                const nowData = await productResponse.json()
-                newData = nowData.data
-            }
-            catch(e){
-                throw new Error(e)
-            }
-            setData(newData); // Update images state once all images are fetched
-        };
-
-        fetchData();
-    }, [searchQuery]);
     const handleSearch = () =>{
         console.log("Searching: "+searchQuery)
-        console.log(data)
-        Search(data)
+        localStorage.setItem('Squery', searchQuery)
     }
-
+    const navigate = useNavigate()
     return (
         <div className="navbar">
             <div className="logo">Exclusive</div>
             <div className="nav-links">
-                <a href="#" onClick={(e) => { e.preventDefault(); NavigateTo('HomePage'); }}>Trang chủ</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); NavigateTo('Shopping'); }}>Mua sắm</a>
-                <a href="#">Khuyến mãi</a>
-                <a href="#">Đơn hàng</a>
+                <a href="/user/homepage" >Trang chủ</a>
+                <a href="/user/shopping">Mua sắm</a>
+                <a href="/user/promotion">Khuyến mãi</a>
+                <a href="/user/history-log">Đơn hàng</a>
             </div>
             <div className="search-bar" >
                 <input type="text" placeholder="Bạn đang tìm kiếm..." value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)}/>
@@ -45,13 +25,13 @@ export default function Header({state,NavigateTo,Search}) {
             </div>
                 <div className="icons">
                     <a href="#" ><span>&#128276;</span></a> 
-                    <a href="#" onClick={(e)=>{e.preventDefault(); NavigateTo('Cart')}}><span>&#128722;</span></a>
+                    <a href="#" onClick={(e)=>{e.preventDefault(); navigate('/user/cart')}}><span>&#128722;</span></a>
                     <div className="dropdown-container">
                         <a href="#" className="dropdown" id="dropdownButton" onClick={(e) =>{e.preventDefault(); actionMenu()}}>
                             <span>&#128100;</span>
                         </a>
                         <div className="action-menu" id="actionMenu">
-                            <div onClick={(e) =>{e.preventDefault(); NavigateTo('User')}}><span>&#128100;</span> Manage My Account</div>
+                            <div onClick={(e) =>{e.preventDefault(); navigate(`/user/info`)}}><span>&#128100;</span> Manage My Account</div>
                             <div><span>&#128230;</span> My Orders</div>
                             <div><span>&#10060;</span> My Cancellations</div>
                             <div><span>&#11088;</span> My Reviews</div>
