@@ -1,14 +1,14 @@
 import React, {useContext} from "react";
 import Header from "../Header";
 import Footer from "../Footer";
-import HomePage from "./HomePage";
-import ViewDetail from "./ViewProductDetail";
-import UserAccountManagement from "./UserAccount";
-import Login from "../guest/Login"
+import HomePage from "../customerGUI/HomePage";
+import ViewDetail from "../customerGUI/ViewProductDetail";
+import UserAccountManagement from "../customerGUI/UserAccount";
+import Login from "./Login"
 import { useData } from "./FetchData";
-import ShoppingPage from "./Shopping";
-import Categories from "./Category";
-import Cart from "./Cart";
+import ShoppingPage from "../customerGUI/Shopping";
+import Categories from "../customerGUI/Category";
+import Cart from "../customerGUI/Cart";
 import MakeOrder from "./MakeOrder";
 
 function PageComponent() {
