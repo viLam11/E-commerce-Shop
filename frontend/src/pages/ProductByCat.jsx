@@ -76,7 +76,7 @@ export default function ProductByCat() {
                         <a href="customer/shopping" className="font-bold "> {catName === "smartphone" ? "Điện thoại" : null} </a>
                     </span>
                 </div>
-
+                
                 <div className="w-10/12 mx-auto bg-product">
                     <div className="h-10"></div>
                     <div className="grid grid-cols-4 gap-y-10 ">
