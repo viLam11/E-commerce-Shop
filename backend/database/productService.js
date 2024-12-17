@@ -2,6 +2,7 @@ const client = require('./database');
 const CreateID = require('../createID')
 //const path = require('path');
 const fs = require('fs');
+const { CallTracker } = require('assert');
 class ProductService {
     constructor() { };
 
@@ -510,10 +511,11 @@ class ProductService {
         })
     }
 
-    async addImage(productId, body, file) {
+    async addImage(productId, body) {
         try {
-            const images = file.map(obj => obj.path)
-            const isArray = Array.isArray(images);
+            // const images = file.map(obj => obj.path)
+            const {image, ismain} = body
+            // const isArray = Array.isArray(image);
 
             // Check if product exists
             const checkProduct = await this.findsomethingExist("product_id", productId);
@@ -526,28 +528,27 @@ class ProductService {
             }
 
             // Add images to the product
-            for (let i = 0; true; i++) {
-                let imageUrl = isArray ? images[i] : images; // Handle case when images is not an array
+            for (let i = 0; i < image.length; i++) {
+                let imageUrl = image[i] // Handle case when images is not an array
 
                 // Check if image already exists
-                const checkImage = await client.query('SELECT * FROM image WHERE product_id = $1 AND image_url = $2', [productId, imageUrl]);
+                const checkImage = await client.query(`
+                    SELECT * FROM image 
+                    WHERE product_id = $1 AND image_url = $2
+                `, [productId, imageUrl]);
                 if (checkImage.rows.length !== 0) {
-                    console.log(`Image URL ${imageUrl} already exists for this product`);
+                    console.log(`Image URL ${imageUrl} already exists for product ${productId}`);
                     continue; // Skip this image if it already exists for the product
                 }
 
                 // Determine if this image should be the main image
                 let Ismain = false;
                 if ("ismain" in body) {
-                    //console.log("Found 'ismain' in data");
-                    if (!isArray && body.ismain === true) {
-                        Ismain = true; // If only one image is provided, set it as main
-                    } else {
-                        const ismainIndex = Number(body.ismain);
-                        if (!isNaN(ismainIndex) && ismainIndex === i) {
-                            Ismain = true; // Set the main image based on the index
-                        }
+                    if (ismain === i) {
+                        Ismain = true; // Set the main image based on the index
                     }
+                } else if( i === 0 ){
+                    Ismain = true;
                 }
 
                 // Insert new image
@@ -560,15 +561,12 @@ class ProductService {
                         data: null
                     };
                 }
-
-                if (isArray && i == images.length - 1) break;
-                if (!isArray) break;
             }
 
             return {
                 status: 200,
                 msg: 'Images added successfully',
-                data: { product_id: productId, image: images, ismain: body.ismain }
+                data: { product_id: productId, image: image, ismain: ismain }
             };
 
         } catch (err) {
@@ -619,14 +617,12 @@ class ProductService {
     async deleteImage(product_id, image_url) {
         return new Promise(async (resolve, reject) => {
             try {
-                //checkID = await this.findsomethingExistImage("image_url", image_url)
-                client.query('SELECT * FROM image WHERE product_id = $1 AND image_url = $2', [product_id, image_url], (err, res) => {
+                await client.query(`
+                    SELECT * FROM image 
+                    WHERE product_id = $1 AND image_url = $2
+                    `, [product_id, image_url], async (err, res) => {
                     if (err) {
-                        reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
+                        reject(err.message);
                     }
                     else if (res.rows.length === 0) {
                         resolve({
@@ -635,39 +631,41 @@ class ProductService {
                             data: null
                         });
                     } else {
-                        const delres = this.deletefileImage(image_url); // xoá file của ảnh
-                        if (!delres) {
-                            reject({
-                                status: 400,
-                                msg: "error when delete file image",
-                                data: null
-                            });
-                        } else {
-                            client.query(`DELETE FROM image WHERE product_id = $1 AND image_url = $2`, [product_id, image_url], (deleteErr, deleteRes) => {
-                                if (deleteErr) {
-                                    reject({
-                                        status: 400,
-                                        msg: deleteErr.message,
-                                        data: null
-                                    });
-                                } else {
-                                    resolve({
-                                        status: 200,
-                                        msg: "Product's image deleted successfully",
-                                        data: null
-                                    });
-                                }
-                            });
+                        console.log(res.rows[0])
+                        if(res.rows[0].ismain === true){
+                            let product_list = await client.query(`
+                                SELECT * FROM image 
+                                WHERE product_id = $1
+                                ORDER BY image_url ASC
+                                `, [product_id]);
+                            let i = 0
+                            console.log(product_list)
+                            while(product_list.rows[i].image_url === image_url) i++;
+                            await client.query(`
+                                UPDATE image 
+                                SET ismain = true
+                                WHERE product_id = $1 AND image_url = $2
+                                `, [product_id, product_list.rows[i].image_url]);
                         }
+                        client.query(`
+                            DELETE FROM image 
+                            WHERE product_id = $1 AND image_url = $2
+                            `, [product_id, image_url], (deleteErr, deleteRes) => {
+                            if (deleteErr) {
+                                reject(deleteErr.message);
+                            } else {
+                                resolve({
+                                    status: 200,
+                                    msg: "Product's image deleted successfully",
+                                    data: null
+                                });
+                            }
+                        });
                     }
                 })
             }
             catch (errfindID) {
-                reject({
-                    status: 400,
-                    msg: errfindID.msg,
-                    data: null
-                });
+                reject(errfindID.msg);
             }
         })
     }
@@ -681,11 +679,7 @@ class ProductService {
                     console.log(checkID);
                 }
                 catch (errfindID) {
-                    reject({
-                        status: 400,
-                        msg: errfindID.msg,
-                        data: null
-                    });
+                    reject(errfindID.msg);
                 }
                 if (checkID.data.rows.length === 0) {
                     resolve({
@@ -695,24 +689,12 @@ class ProductService {
                     });
                 } else {
                     console.log(checkID.data.rows)
-                    let allimg = checkID.data.rows.map(obj => obj.image_url)
-                    allimg.forEach(async (url) => {
-                        try {
-                            await this.deletefileImage(url);
-                            console.log(`Deleted file: ${url}`);
-                        } catch (error) {
-                            console.error(`Error deleting file: ${url}`, error);
-                        }
-                    });
                     client.query(`
-                        DELETE FROM image WHERE product_id = $1
+                        DELETE FROM image 
+                        WHERE product_id = $1
                     `, [productId], (deleteErr, deleteRes) => {
                         if (deleteErr) {
-                            reject({
-                                status: 400,
-                                msg: deleteErr.message,
-                                data: null
-                            });
+                            reject(deleteErr.message);
                         } else {
                             resolve({
                                 status: 200,
@@ -724,78 +706,55 @@ class ProductService {
                 }
             }
             catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+                reject(err.message);
             }
         });
     }
 
-    async updateImage(product_id, data) {
+    async updateImage(query, body) {
         return new Promise(async (resolve, reject) => {
             try {
-                let res = ("image_url" in data) ? await client.query(`SELECT * FROM image WHERE product_id = $1 AND image_url = $2`,
-                    [product_id, data.image_url]) : await client.query(`SELECT * FROM image WHERE product_id = $1`, [product_id]);
-                if (res.rows.length === 0) {
-                    return resolve({
-                        status: 404,
-                        msg: 'The image does not exist',
-                        data: null
-                    });
-                }
-                //console.log(data);
-                if ("image_url" in data && "ismain" in data && data.image.length > 0) {
-                    console.log("lỗi cú pháp")
-
-                    let newImages = data.image.map(img => img.path);
-                    console.log(newImages)
-                    // Xóa các ảnh mới
-                    newImages.forEach(async (url) => {
-                        try {
-                            await this.deletefileImage(url);
-                            console.log(`Deleted file: ${url}`);
-                        } catch (error) {
-                            console.error(`Error deleting file: ${url}`, error);
-                        }
-                    });
-                }
-                else if ("image_url" in data && "ismain" in data && data.image.length === 0) {
-                    // Chỉ sửa ismain
-                    await client.query(
-                        `UPDATE image SET ismain = $1 WHERE product_id = $2 AND image_url = $3`,
-                        [data.ismain, product_id, data.image_url]
-                    );
-                }
-                else if (!("image_url" in data) && data.image.length > 0) {
-                    // Thêm ảnh mới
-                    await this.addImage(product_id, data, data.image);
-
-                    // Chỉ sửa có trường image
-                    let oldImages = res.rows.map(obj => obj.image_url);
-
-                    // Xóa các ảnh cũ
-                    for (const url of oldImages) {
-                        try {
-                            await this.deleteImage(product_id, url);
-                            console.log(`Deleted file: ${url}`);
-                        } catch (error) {
-                            console.error(`Error deleting file: ${url}`, error);
-                        }
+                const {product_id, image_url} = query;
+                if("image_url" in query){
+                    let res = await client.query(`
+                        SELECT * FROM image 
+                        WHERE product_id = $1 AND image_url = $2`
+                        ,[product_id, image_url]);
+                    if (res.rows.length === 0) {
+                        return resolve({
+                            status: 404,
+                            msg: 'The image does not exist in image table',
+                            data: null
+                        });
                     }
+                    if ("ismain" in body){
+                        await client.query(
+                            `UPDATE image 
+                            SET ismain = $1 
+                            WHERE product_id = $2 AND image_url = $3`,
+                            [body.ismain, product_id, image_url]
+                        );
+                    }
+                    let check = await client.query(`
+                        SELECT * FROM image 
+                        WHERE product_id = $1 AND image_url = $2`
+                        ,[product_id, image_url]);
+                    resolve({
+                        status: 200,
+                        msg: 'Update success',
+                        data: check.rows[0]
+                    });
+                }else {
+                    //xoá cái cũ
+                    const del = await this.deleteImageByProduct(product_id);
+                    console.log(del)
+                    //thêm cái mới
+                    const add = await this.addImage(product_id, body);
+                    console.log(add)
+                    resolve(add);
                 }
-                resolve({
-                    status: 200,
-                    msg: 'Update success',
-                    data: null
-                });
             } catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+                reject(err.message);
             }
         });
     }
@@ -824,20 +783,20 @@ class ProductService {
             client.query(`
                 SELECT * FROM reviews
                 WHERE uid = $1 AND product_id = $2
-            `, [uid, product_id], (err, res) => {
+            `, [uid, product_id], async (err, res) => {
                 if (err) {
-                    reject({
-                        status: 400,
-                        msg: err.message,
-                        data: null
-                    });
+                    reject(err.message);
                 }
                 else if (res.rows.length !== 0) {
-                    resolve({
-                        status: 404,
-                        msg: 'The Review is already exist',
-                        data: null
-                    });
+                    // resolve({
+                    //     status: 404,
+                    //     msg: 'The Review is already exist',
+                    //     data: null
+                    // });
+                    console.log("'The Review is already exist")
+                    let update = await this.UpdateReview(product_id,newReview)
+                    console.log(update)
+                    resolve(update);
                 }
                 else {
                     try {
@@ -847,11 +806,8 @@ class ProductService {
                             async (err, res) => {
                                 if (err) {
                                     console.log(err)
-                                    reject({
-                                        status: 400,
-                                        msg: err.message,
-                                        data: null
-                                    })
+                                    // reject(err.message)
+                                    throw new Error(err.message)
                                 } else {
                                     resolve({
                                         status: 200,
@@ -885,7 +841,11 @@ class ProductService {
     async UpdateReview(product_id, body) {
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`SELECT * FROM reviews WHERE product_id = $1 AND uid = $2`, [product_id, body.uid], async (err, res) => {
+                client.query(`
+                    SELECT * 
+                    FROM reviews 
+                    WHERE product_id = $1 AND uid = $2
+                    `, [product_id, body.uid], async (err, res) => {
                     if (err) {
                         reject({
                             status: 400,
@@ -902,6 +862,10 @@ class ProductService {
                                     [value, product_id, body.uid]
                                 );
                             }
+                            await client.query( // upadte time
+                                `UPDATE reviews SET time = $1 WHERE product_id = $2 AND uid = $3`,
+                                [new Date(), product_id, body.uid]
+                            );
                             const updateReview = await client.query(`SELECT * FROM reviews WHERE product_id = $1 AND uid = $2`, [product_id, body.uid])
 
                             resolve({
@@ -931,21 +895,25 @@ class ProductService {
     }
 
 
-    async GetReview(product_id) {
+    async GetReview(query) {
         return new Promise(async (resolve, reject) => {
             try {
+                const {product_id, page, limit, uid} = query
+                console.log(query)
                 client.query(`
-                    SELECT r.*, u.username
-                    FROM reviews r
-                    JOIN users u ON r.uid = u.uid
-                    WHERE product_id = $1`
-                    , [product_id], async (err, res) => {
+                    SELECT *
+                    FROM reviews
+                    WHERE product_id = $1
+                    ORDER BY 
+                        CASE 
+                            WHEN uid = $4 THEN 0
+                            ELSE 1
+                        END,
+                        time DESC
+                    LIMIT $3 OFFSET $2;
+                    `, [product_id, page*limit, limit, uid], async (err, res) => {
                         if (err) {
-                            reject({    
-                                status: 400,
-                                msg: err.message,
-                                data: null
-                            });
+                           reject(err.message);
                         }
                         else if (res.rows.length === 0) {
                             resolve({
@@ -959,7 +927,7 @@ class ProductService {
                             resolve({
                                 status: 200,
                                 msg: 'SUCCESS',
-                                data: res.rows
+                                data: res.rows  
                             });
                         }
                     })
@@ -970,10 +938,11 @@ class ProductService {
         })
     }
 
-    async DeleteReview(product_id, body) {
+    async DeleteReview(query) {
         return new Promise(async (resolve, reject) => {
             try {
-                let checkID = await client.query('SELECT * FROM reviews WHERE product_id = $1 AND uid = $2', [product_id, body.uid]);
+                const {product_id, uid} = query
+                let checkID = await client.query('SELECT * FROM reviews WHERE product_id = $1 AND uid = $2', [product_id, uid]);
                 if (checkID.rows.length === 0) {
                     return resolve({
                         status: 404,
@@ -983,28 +952,21 @@ class ProductService {
                 }
 
                 // Xóa dữ liệu tùy theo điều kiện
-                const query = { sql: 'DELETE FROM reviews WHERE product_id = $1 AND uid = $2', params: [product_id, body.uid], successMsg: "User's review deleted successfully" };
+                // const query = { sql: 'DELETE FROM reviews WHERE product_id = $1 AND uid = $2', params: [product_id, uid], successMsg: "User's review deleted successfully" };
 
                 // Thực hiện truy vấn DELETE
-                const deleteRes = client.query(query.sql, query.params);
-                // console.log(deleteRes);
+                const deleteRes = await client.query('DELETE FROM reviews WHERE product_id = $1 AND uid = $2', [product_id, uid]);
+                console.log(deleteRes);
                 resolve({
                     status: 200,
-                    msg: query.successMsg,
+                    msg: "User's review deleted successfully",
                     data: null
                 });
-            } catch (err) {
-                // Bắt lỗi truy vấn hoặc lỗi logic
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+            } catch (err) {     
+                reject(err.message);
             }
         });
     }
 }
-
-
 
 module.exports = new ProductService;
