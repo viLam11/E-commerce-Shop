@@ -13,37 +13,36 @@ import ProductInCheckout from "../components/ProductInCheckout";
 //     "quantity": 1,
 //     "subtotal": "10000"
 //   }], 
-const productList =[ {
-    prodName: "Iphone",
-    prodID: "#prod01",
-    quantity: 1,
-    img: "https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0",
-    price: 1000
-}]
+// const productList =[ {
+//     prodName: "Iphone",
+//     prodID: "#prod01",
+//     quantity: 1,
+//     img: "https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0",
+//     price: 1000
+// }]
 export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
     const [errors, setErrors]  = useState([]);
     // const [productList, setProductList] = useState(null);
-    // const {productList} = location.state || {};
+    const {productList} = location.state || [];
     const [userID, setUserID] = useState(null);
     const [orderItems, setOrderItems] = useState([]);
     const [userData, setUserData] = useState({});
-
+    console.log(productList);
     useEffect(() => {
         if (!productList || productList.length === 0) {
             setErrors(["Chưa có sản phẩm để thanh toán"]);
         }
 
-        // const storedUserID = localStorage.getItem("userID");
-        const storedUserID = "7ea46d0d-0d9c-470f-9d05-50535c2f6cc0";    
+        const storedUserID = localStorage.getItem("userID");
+        // const storedUserID = "7ea46d0d-0d9c-470f-9d05-50535c2f6cc0";    
         
         if (!storedUserID) {
             alert("Vui lòng đăng nhập để tiếp tục");
             navigate("/");
         }
         setUserID(storedUserID);
-
     }, [productList]);
 
     useEffect(() => {
@@ -103,7 +102,7 @@ export default function Checkout() {
                                             id="name"
                                             name="lastName"
                                             className={`mt-1 p-2  w-4/5 bg-gray-100 text-gray-600 outline-none readOnly`}
-                                            value={"Huynh Bao Ngoc"}
+                                            value={ userData.lname  + " " + userData.fname}
                                             readOnly
                                         />
                                     </div>
@@ -116,7 +115,7 @@ export default function Checkout() {
                                         id="email"
                                         name="email"
                                         className={`mt-1 p-2  w-4/5 bg-gray-100 text-gray-600 `}
-                                        value={"ngoc@gmail.com"}
+                                        value={userData.email}
                                         readOnly
                                     />
 
@@ -128,10 +127,10 @@ export default function Checkout() {
                                         type="number"
                                         id="phone"
                                         name="phone"
-                                        className={`mt-1 p-2  w-4/5 bg-blue-50 hover:bg-blue-100`}
-                                        value={"0942047249"}
-                                    //   onChange={(e) => setPhone(e.target.value)}
-                                    />
+                                        className={`mt-1 p-2  w-4/5  bg-gray-100 text-gray-600 `}
+                                        value={userData.phone}
+                                        readOnly
+                                />
 
                                 </div>
 
@@ -142,7 +141,7 @@ export default function Checkout() {
                                         id="address"
                                         name="address"
                                         className={`mt-1 p-2 w-4/5 bg-blue-50 hover:bg-blue-100 `}
-                                        value={"sdfasdfadsfa"}
+                                        value={userData.address}
                                     //   onChange={(e) => setPass(e.target.value)}
                                     />
                                 </div>
@@ -164,30 +163,9 @@ export default function Checkout() {
                         </div>
                         <div className="col-2  w-1/2">
                             <div className="products w-8/12 space-y-4 m-auto">
-                                {/* <div className="flex flex-row items-center ">
-                                    <div className=" w-2/5 flex items-center space-x-2">
-                                        <span>
-                                            <img src="https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0" alt="" width={"50px"} />
-                                        </span>
-                                        <span>Iphone</span>
-                                    </div>
-                                    <div className=" w-2/5 text-right ">100.000.000 VND</div>
-                                    <div className=" w-1/5 text-right mr-20">x 1</div>
-                                </div>
+                                {productList.length > 0 &&  productList.map((product, index) => 
 
-                                <div className="flex flex-row items-center ">
-                                    <div className=" w-2/5 flex items-center space-x-2">
-                                        <span>
-                                            <img src="https://th.bing.com/th/id/R.26fd47d8cd148081597eb4070ec6081f?rik=vKSdFuUdliHwaw&pid=ImgRaw&r=0" alt="" width={"50px"} />
-                                        </span>
-                                        <span>Iphone</span>
-                                    </div>
-                                    <div className=" w-2/5 text-right ">100.000.000 VND</div>
-                                    <div className=" w-1/5 text-right mr-20">x 1</div>
-                                </div> */}
-                                { productList.map((product, index) => 
-
-                                    ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} />)
+                                    ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} img={product.img} />)
                                 )}
                                 <div className="flex justify-between mr-20">
                                     <div>Thành tiền</div>

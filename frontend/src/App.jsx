@@ -38,6 +38,9 @@ function App() {
           <Route path="/category/:id" element={<Categories />}/>
           <Route path="/product-detail/:id" element={<ViewDetail />}/>
           <Route path="/customer/pay" element={<Checkout />}  />
+
+
+
           <Route path="/admin/history/:id" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />

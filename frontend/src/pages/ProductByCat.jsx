@@ -14,8 +14,8 @@ export default function ProductByCat() {
     if (catSlug === "smartphone") {catName = "Điện thoại"}
     else if(catSlug === "laptop") {catName = "Laptop"}
     else if(catSlug === "tablet") {catName = "Máy tính bảng"}
-    else if(catSlug === "watch") {catName = "Đồng hồ"}
-    else  (catName = 5);
+    else if(catSlug === "watch") {catName = "Đồng hồ thông minh"}
+    else  (catName = "Phụ kiện");
     const [productList, setProductList] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [pageNum, setPageNum] = useState(0);

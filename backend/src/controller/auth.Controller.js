@@ -461,6 +461,27 @@ class AuthController {
             })
         }
     }
+
+    async getAddressById(req, res, next) {
+        try {
+            const userId = req.params.id;
+            if(!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: "The userID is required",
+                    data: null
+                })
+            }
+            
+            
+        } catch(err) {
+            return res.status(400).json({
+                status: 400,
+                msg: err,
+                data: null
+            })
+        }
+    }
 }
 
 module.exports = new AuthController;

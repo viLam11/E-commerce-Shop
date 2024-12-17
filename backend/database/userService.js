@@ -408,7 +408,7 @@ class UserService {
         return new Promise(async (resolve, reject) => {
             try {
                 client.query(`
-                SELECT * FROM users
+                SELECT * FROM users JOIN 
                 WHERE uid = $1
             `, [id], async (err, res) => {
                     if (err) {
