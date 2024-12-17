@@ -42,8 +42,10 @@ export default function Login() {
         if (response.status == 200) {
           const token = response.data.data.token;
           const userType = response.data.data.userType;
+          const user_id = response.data.data.userID;
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);
+          localStorage.setItem("userID", user_id);
           localStorage.setItem("role", userType);
           if(userType == "customer") navigate("/customer/homepage")
           else navigate("/admin/product-manage")

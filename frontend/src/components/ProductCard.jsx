@@ -38,7 +38,7 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
             <div className="relative w-56 h-56 border bg-white flex justify-center items-center align-center rounded-lg mx-auto"
                 onMouseOver={() => setShowBuy(true)}
                 onMouseOut={() => setShowBuy(false)}
-                onClick={() => window.location.href = (`/customer/productDetail/${prodID}`)}
+                onClick={() => window.location.href = (`/customer/product-detail/${prodID}`)}
             >
                 <div className="add-to-cart absolute top-1 right-1 bg-black text-white p-2 text-center rounded-full">
                     <FontAwesomeIcon icon={faCartShopping} />

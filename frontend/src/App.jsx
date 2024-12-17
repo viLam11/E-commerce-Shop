@@ -36,8 +36,8 @@ function App() {
           <Route path="/customer/homepage" element={<Homepage />} />
           <Route path="/customer/shopping" element={<Shopping />} />
           {/* <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} /> */}
-          <Route path="/customer/productDetail/:prodID" element={<ProductDetail />} />
-
+          <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
+          <Route path="/customer/history/:userID" element={<TransactionHist />} />
           <Route path="/customer/category/:catSlug" element={<ProductByCat />} />
 
 

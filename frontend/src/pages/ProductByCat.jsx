@@ -21,7 +21,7 @@ export default function ProductByCat() {
     const [pageNum, setPageNum] = useState(0);
 
     useEffect(() => {
-                 axios.post(`http://localhost:8000/api/category/getOneCategory?limit=5&page=0&sort=desc&sort=pname`, {
+                 axios.post(`http://localhost:8000/api/category/getOneCategory?limit=10&page=0&sort=desc&sort=pname`, {
                     categoryName: catName
                  })
                      .then((response) => {
@@ -34,7 +34,7 @@ export default function ProductByCat() {
                      })
                      .catch((error) => {
                          if (error.response) {
-                             alert(error.response.data.msg);
+                            //  alert(error.response.data.msg);
                          } else {
                              console.error('Error:', error.message);
                          }
@@ -56,11 +56,16 @@ export default function ProductByCat() {
         })
         .catch((error) => {
             if (error.response) {
-                alert(error.response.data.msg);
+                // alert(error.response.data.msg);
             } else {
                 console.error('Error:', error.message);
             }
         })
+    }
+
+
+    function hanldeSearch() {
+
     }
 
     return (
@@ -75,6 +80,11 @@ export default function ProductByCat() {
                     <span>
                         <a href="customer/shopping" className="font-bold "> {catName === "smartphone" ? "Điện thoại" : null} </a>
                     </span>
+                </div>
+
+                <div className="bg-red-500">
+                    fdsfasdfasdf
+                    <div className="bg-blue-500" onClick={hanldeSearch} >Tìm kiếm</div>
                 </div>
 
                 <div className="w-10/12 mx-auto bg-product">

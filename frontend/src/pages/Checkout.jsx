@@ -24,12 +24,15 @@ export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
     const [errors, setErrors]  = useState([]);
-    // const [productList, setProductList] = useState(null);
     const {productList} = location.state || [];
     const [userID, setUserID] = useState(null);
     const [orderItems, setOrderItems] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
     const [userData, setUserData] = useState({});
-    console.log(productList);
+    const [discountCode, setDiscountCode] = useState(null);   
+    const [discounted, setDiscounted] = useState(false);
+    const [discountedPrice, setDiscountedPrice] = useState(null);  
+    // console.log(productList);
     useEffect(() => {
         if (!productList || productList.length === 0) {
             setErrors(["Chưa có sản phẩm để thanh toán"]);
@@ -76,8 +79,94 @@ export default function Checkout() {
         })
         console.log("CHECK PRODUCT LIST: ", productList);
         setOrderItems(ordersData);
+
+        const totalPrice = productList.reduce((total, product) => {
+            return total + product.price * product.quantity;
+        }, 0);
+        setTotalPrice(totalPrice);
+
     }, [userID]);
 
+
+    const formatNumber = (number) => {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    };
+
+    function handleApplyPromotion() {
+        
+        const promotionErrorElement = document.getElementById('promotionError');
+
+        if (!discountCode) {
+            promotionErrorElement.textContent = 'Vui lòng nhập mã giảm giá';
+        } else {
+            promotionErrorElement.textContent = '';
+            // Apply promotion logic here
+        }
+
+        const prodInPromo = productList.map((product, index) => {
+            return {
+                product_id: product.prodID,
+                quantity: product.quantity
+            }
+        })
+
+        axios.post(`http://localhost:8000/api/promotion/Apply`, {
+            "uid":  userID,
+            "product": prodInPromo,
+            "promotion_id": discountCode
+        })
+            .then((response) => {
+                if(response.status === 200) {
+                    setDiscounted(true);
+                    console.log(response.data.data.new_total);
+                    setDiscountedPrice(response.data.data.new_total);
+                }
+                
+            })
+            .catch((err) => {
+                if(err.response) {
+                    alert(err.response.data.msg);   
+                } else {
+                    console.log(err);
+                }
+            })
+
+
+    };
+
+    function handlePlaceOrder() {
+
+        console.log("CHECK ORDER ITEMS: ", orderItems);
+
+        console.log("CHECK RESQUEST: ", {
+            orderItems: orderItems,
+            "status": "Pending", 
+            "shipping_address": "3/2 Huỳnh Tấn Phát", 
+            "shipping_fee": 10000, 
+            "shipping_co": "f",
+            "quantity": "1",
+            "total_price": 100000,
+            "promotion_id": "promotion1"
+        } )
+
+        axios.post(`http://localhost:8000/api/order/CreateOrder/${userID}`, {
+                orderItems: orderItems,
+                "status": "Pending", 
+                "shipping_address": "3/2 Huỳnh Tấn Phát", 
+                "shipping_fee": 10000, 
+                "shipping_co": "f",
+                "quantity": "1",
+                "total_price": 100000,
+                "promotion_id": "promotion1"
+            
+        })
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -162,29 +251,36 @@ export default function Checkout() {
                             </div>
                         </div>
                         <div className="col-2  w-1/2">
-                            <div className="products w-8/12 space-y-4 m-auto">
+                            <div className="products w-full space-y-4 m-auto">
                                 {productList.length > 0 &&  productList.map((product, index) => 
 
                                     ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} img={product.img} />)
                                 )}
+                                <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
                                     <div>Thành tiền</div>
-                                    <div>100.000 VND</div>
+                                    <div>{formatNumber(totalPrice)} VND</div>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
                                     <div>Phí vận chuyển</div>
-                                    <div>100.000 VND</div>
+                                    <div>{formatNumber(15000)} VND</div>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>  
-                                <div className="promotion flex justify-between mr-20">
-                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5" />
-                                    <button className="bg-red-600 text-white p-2 rounded-md">Áp dụng</button>
+                                <div className="promotion flex justify-between mr-20" id="promotion">   
+                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5"
+                                        onChange={(e) => setDiscountCode(e.target.value)}   
+                                    />
+                                    <button className="bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
+                                        onClick={handleApplyPromotion}
+                                    >Áp dụng</button>
                                 </div>
+                                <div id="promotionError" className="text-red-600 text-sm italic"></div>
                                 <div className="border-b border-gray-600 mr-20"></div>  
                                 <div className="flex justify-between mr-20">
                                     <div className="font-semibold">Tổng tiền</div>
-                                    <div>100.000 VND</div>
+                                    {discounted ? <div> <span className="">{formatNumber(discountedPrice)} VND</span>  <span className="line-through">{formatNumber(totalPrice + 15000)} VND</span> </div>:  <div>{formatNumber(totalPrice + 15000)} VND</div>}
+                                    
                                 </div>
 
                                 <div className="payment-method">
@@ -203,7 +299,9 @@ export default function Checkout() {
                                 </div>
 
                                 <div className="flex justify-center items-center">
-                                    <div className="bg-red-600 text-white font-bold p-2 rounded-md">Đặt hàng</div>
+                                    <div className="bg-red-600 text-white font-bold p-2 rounded-md hover:bg-red-700"
+                                        onClick={handlePlaceOrder}  
+                                    >Đặt hàng</div>
                                 </div>
                             </div>
 

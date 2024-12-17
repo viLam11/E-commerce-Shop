@@ -1,11 +1,14 @@
 const client = require('./database');
+const { v4: uuidv4 } = require('uuid');
 const CreateID = require('../createID')
 class UserService {
     constructor() { };
 
+
+
     async createCustomer(username, password, data) {
         return new Promise((resolve, reject) => {
-            const userId = generateID('uid');
+            const userId = uuidv4();
             const { lname, fname, gender, email, userType, birthday } = data
             client.query(
                 `INSERT INTO users( uid, username, upassword, email, userType, lname, fname, gender, birthday, ranking) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
@@ -408,7 +411,7 @@ class UserService {
         return new Promise(async (resolve, reject) => {
             try {
                 client.query(`
-                SELECT * FROM users JOIN 
+                SELECT * FROM users 
                 WHERE uid = $1
             `, [id], async (err, res) => {
                     if (err) {
