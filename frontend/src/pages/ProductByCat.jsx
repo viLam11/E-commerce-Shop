@@ -82,11 +82,6 @@ export default function ProductByCat() {
                     </span>
                 </div>
 
-                <div className="bg-red-500">
-                    fdsfasdfasdf
-                    <div className="bg-blue-500" onClick={hanldeSearch} >Tìm kiếm</div>
-                </div>
-
                 <div className="w-10/12 mx-auto bg-product">
                     <div className="h-10"></div>
                     <div className="grid grid-cols-4 gap-y-10 ">
