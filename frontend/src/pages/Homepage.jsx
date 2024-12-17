@@ -3,22 +3,25 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ProductsManagement from "./ProductsManagement";
 import ProductCard from "../components/ProductCard";
+import Slider from "../components/Slider";
 import CatogoryCard from "../components/CategoryCard";
+import axios from "axios";
 
 export default function Homepage() {
     const [role, setRole] = useState("customer");
     const [token, setToken] = useState(null);
+    const [productList, setProductList] = useState([]);
 
-    // useEffect(() => {
-    //     const loadRole = localStorage.getItem("role");
-    //     const loadToken = localStorage.getItem("token");
-    //     if (loadRole) {
-    //         setRole(loadRole)
-    //     }
-    //     if (loadToken) {
-    //         setToken(loadToken)
-    //     }
-    // })
+    useEffect(() => {
+        axios.get(`http://localhost:8000/api/product/getAll?page=4&limit=4`)
+            .then((response) => {
+                console.log(response.data.data);
+                setProductList(response.data.data); 
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }, [])
 
     {
         return (
@@ -27,7 +30,7 @@ export default function Homepage() {
 
 
                 <main className="flex-grow">
-                    <div class="grid grid-cols-[20vw_80vw] mt-2 w-10/12 mx-auto">
+                    <div className="grid grid-cols-[20vw_80vw] mt-2 w-10/12 mx-auto">
                         <div className="flex items-center">
                             <ul className="w-3/4 font-semibold space-y-6 my-auto pr-6 border-r-2 border-gray-200 ">
                                 <li className="border-b-2 border-black ">Điện thoại</li>
@@ -39,7 +42,8 @@ export default function Homepage() {
 
                         </div>
                         <div className="">
-                            <img src="../../public/banner1.jpg" alt="" width="900px" h="400px" />
+                            {/* <img src="../../public/banner1.jpg" alt="" width="900px" h="400px" /> */}
+                            <Slider />
                         </div>
                     </div>
 
@@ -51,8 +55,11 @@ export default function Homepage() {
                             <span className="px-4">Sản phẩm nổi bật</span>
                         </div>
                         <div className="grid grid-cols-4 gap-6 py-6 w-full">
-                            {Array.from({ length: 4 }, (_, i) => (
-                                <ProductCard  prodName={"Tên sản phẩm"} prodID={"prod001"} prodImage={""} prodRating={"4"} prodPrice={"2000"} />
+                            {/* {Array.from({ length: 4 }, (_, i) => (
+                                <ProductCard key={i}  prodName={"Tên sản phẩm"} prodID={"prod001"} prodImage={""} prodRating={"4"} prodPrice={"2000"} />
+                            ))} */}
+                            {productList.map((product, index) => (
+                                <ProductCard key={index} prodName={product.pname} prodID={product.product_id} prodImage={product.image[0]} prodRating={product.rating} prodPrice={product.price} />
                             ))}
                         </div>
                     </div>

@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import ProductsManagement from "./pages/ProductsManagement";
 import NewProduct from "./pages/NewProduct";
 import ProductUpdate from "./pages/ProductUpdate";
-//import Homepage2 from "./pages/Homepage2";
+import Homepage from "./pages/Homepage";
 import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
@@ -19,7 +19,9 @@ import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
 import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
-
+import Shopping from "./pages/Shopping";
+import ProductDetail from "./pages/ProductDetail";
+import ProductByCat from "./pages/ProductByCat";  
 
 function App() {
   return (
@@ -31,8 +33,8 @@ function App() {
     >
       <AuthProvider >
         <Routes>
+        <Route path="/" element={<Login />} />
           <Route path="/test" element={<Test />} />
-          <Route path="/" element={<Login />} />
           <Route path="/user/homepage" element={<HomePage />} />
           <Route path="/user/info" element={<UserAccountManagement />}>
                     {/* Các route con */}
@@ -50,10 +52,10 @@ function App() {
           <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<Homepage />} />
           <Route path="/customer/shopping" element={<Shopping />} />
-          {/* <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} /> */}
+          <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} />
           <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
           <Route path="/customer/history/:userID" element={<TransactionHist />} />
-          <Route path="/customer/category/:catSlug" element={<ProductByCat />} />
+          <Route path="/customer/category/:catSlug" element={<ProductByCat />} /> 
 
 
 

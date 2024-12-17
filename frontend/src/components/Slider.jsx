@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
 const images = [
-    "../banner/banner1.png",
-    "../banner/banner2.jpg",
+    // "../public/banner1.png",
+    // "../public/banner2.jpg",
     "../../public/banner1.jpg"
     // Add more image paths as needed
 ];

@@ -20,11 +20,11 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
         return (
             <>
                 {[...Array(filledStars)].map((_, index) => (
-                    <span key={index} className="star filled text-yellow-400">★</span>
+                    <span key={index} className=" filled text-yellow-400">★</span>
                 ))}
-                {halfStar && <span className="star half-filled text-yellow-400">★</span>}
+                {halfStar && <span className=" half-filled text-yellow-400">★</span>}
                 {[...Array(emptyStars)].map((_, index) => (
-                    <span key={index} className="star">★</span>
+                    <span key={index} className="">★</span>
                 ))}
             </>
         );
@@ -43,7 +43,7 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
                 <div className="add-to-cart absolute top-1 right-1 bg-black text-white p-2 text-center rounded-full">
                     <FontAwesomeIcon icon={faCartShopping} />
                 </div>
-                <img src={prodImage.trim()} alt="" className="w-auto h-28" />
+                <img src={prodImage} alt="" className="w-auto h-28" />
                 {showBuy ? 
                     <div className="buy-now absolute bottom-0 bg-black text-white w-full text-center p-1"
                         onClick={(e) => 
@@ -56,13 +56,15 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
                 
             </div>
             <div className="w-full pl-2">
-                <h1 className="font-bold text-sm">{prodName}</h1>
-                <div className="price text-sm">
-                    <span className="text-red-600">{formattedPrice}</span>
-                    {/* <span className="mx-2 line-through">22.000.000</span> */}
+                <h1 className="font-bold text-sm h-14 mt-2">{prodName}</h1>
+                <div className="price text-sm text-left justify-start  h-4">
+                    <span className="text-red-600 text-left ">{formattedPrice}</span>
                 </div>
-                 <div className="rating space-x-1 text-sm">
-                {renderStars(prodRating)}
+                 <div className="space-x-1 text-sm">
+                    <span>
+                        {renderStars(prodRating)}
+                    </span>
+
                 <span>({prodRating})</span>
             </div>
 
