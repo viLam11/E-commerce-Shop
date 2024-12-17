@@ -1,21 +1,21 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
 import bcrypt from 'bcryptjs'
 import "react-date-range/dist/styles.css"; // Main style file
 import "react-date-range/dist/theme/default.css"; // Theme CSS file
 import "react-datepicker/dist/react-datepicker.css";
 import { TextField, FormControl} from '@mui/material';
 //import { ThemeProvider, createTheme } from "@mui/material/styles";
-
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "../Footer";
 import '../../design/users/acc.css'
+//import { set } from "react-datepicker/dist/date_utils";
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
-
+const UserContext = createContext()
 function formatToDDMMYYYY(isoString) {
     const date = new Date(isoString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -97,7 +97,8 @@ const PieChart = ({chartData, total}) => {
 //     },
 //   });
 
-function History({currentUser,active, setActive}){
+export function History(){
+    const { active, setActive, currentUser } = useContext(UserContext);
     const [count, setCnt] = useState(0)
     const [totalPaid, setPaid] = useState(0)
     const [totalQuantity, setTotal] = useState(0)
@@ -106,6 +107,7 @@ function History({currentUser,active, setActive}){
     const [endDate, setEndDate] = useState('');
     const [hook, setHook] = useState(0)
     const [curOrder, setCurrent] = useState(null)
+    const [isdetail, setIsDetail] = useState(false)
     useEffect(()=>{
         const fetchOrder = async()=>{
             const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${currentUser.uid}?limit=1000`)
@@ -218,13 +220,13 @@ function History({currentUser,active, setActive}){
         }
         fetchDetail()
     },[curOrder,active])    
-    if (active == 2){
+    if (!isdetail){
         return(
             <div className="profile-form">
                 <h2>Lịch sử mua hàng của khách hàng {currentUser.lname}</h2>
                 <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px"}}>
                     <div style={{marginLeft:"-10px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
-                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1", marginTop: "-10px"}}>Tổng chi tiêu</div>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {currentUser.ranking}</div>
@@ -233,12 +235,11 @@ function History({currentUser,active, setActive}){
                 </div>
                 <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px", marginLeft:"40px"}}>
                     <div style={{marginRight:"-20px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
-                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1"}}>Tổng chi tiêu</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1", marginTop: "-10px"}}>Tổng tiền được giảm</div>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
-                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} sản phẩm</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} vouchers</div>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {currentUser.ranking}</div>
                     </div>
-                    <PieChart chartData={chartData} total={totalQuantity}/>
                 </div>
                 <div style={{display: "inline-flex", gap: "40px", marginTop: "20px", height: "60px"}}>
                 <FormControl fullWidth sx={{ marginBottom: 2 , height: "40px"}}>
@@ -319,7 +320,7 @@ function History({currentUser,active, setActive}){
                             <div style={{paddingTop: "10px"}}>{item.status}</div>
                             <div style={{paddingTop: "0px"}}>
                             {/* Lựa chọn button */}
-                            <button style={{ padding: "5px 10px" }} onClick={()=> {setActive(8); setCurrent(item)}}>Chi tiết đơn hàng</button>
+                            <button style={{ padding: "5px 10px" }} onClick={()=> {setIsDetail(!isdetail); setCurrent(item)}}>Chi tiết đơn hàng</button>
                             </div>
                         </div>
                         ))
@@ -336,10 +337,10 @@ function History({currentUser,active, setActive}){
             </div>
         )
     }
-    else if (active == 8){
+    else{
         return (
             <div className="profile-form">
-                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setActive(2)}>&#8592;</span>Chi tiết đơn hàng</h2>
+                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setIsDetail(!isdetail)}>&#8592;</span>Chi tiết đơn hàng</h2>
                 <div style={{marginLeft: "30px"}}>
                     <div style={{display: "inline-flex", marginBottom:"10px"}}>
                         <div style={{marginRight: "200px"}}>Mã đơn hàng: <strong>{curOrder?curOrder.oid:""}</strong></div>
@@ -380,19 +381,21 @@ function History({currentUser,active, setActive}){
     }
 }
 
-function Ranking({currentUser}){
+export function Ranking(){
+    const { active, setActive, currentUser } = useContext(UserContext);
     return(
         <div className="profile-form">Hạng của khách hàng {currentUser.lname} là: {currentUser.ranking}</div>
     )
 }
 
-function UpdatePassword({active,setActive, currentUser}){
+export function UpdatePassword(){
+    const { active, setActive, currentUser } = useContext(UserContext);
     const [pass, setPass] = useState({
         old_pass: "",
         new_pass: "",
         confirm_pass: ""
     })
-    
+    const navigate = useNavigate()
     const handleSubmit = async() => {
         //alert(phone)
         if (!bcrypt.compare(pass.old_pass, currentUser.upassword)){
@@ -422,7 +425,7 @@ function UpdatePassword({active,setActive, currentUser}){
     }
     return (
         <div className="profile-form">
-            <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setActive(1)}>&#8592;</span> Thay đổi mật khẩu</h2>
+            <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thay đổi mật khẩu</h2>
             <div className="form-group">
                 <input type="password" className="full-width" placeholder="Mật khẩu hiện tại" value={pass.old_pass} onChange={(e) => setPass((prev) => ({...prev, old_pass: e.target.value}))}/>
             </div>
@@ -440,8 +443,10 @@ function UpdatePassword({active,setActive, currentUser}){
     )
 }
 
-function UpdatePhone({active,currentUser,setActive}){
+export function UpdatePhone(){
+    const { active, setActive, currentUser } = useContext(UserContext);
     const [phone, setVal] = useState("")
+    const navigate = useNavigate()
     const [Pnumber, setPhone] = useState([])
     const [toggle, setToggle] = useState(1)
     useEffect(() => {
@@ -493,7 +498,7 @@ function UpdatePhone({active,currentUser,setActive}){
     }
     return(
         <div className="profile-form">
-                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setActive(1)}>&#8592;</span> Thông tin địa chỉ</h2>
+                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
                         <th>STT</th>
@@ -531,7 +536,8 @@ function UpdatePhone({active,currentUser,setActive}){
     )
 }
 
-function UpdateAdress({active,currentUser,setActive}){
+export function UpdateAdress(){
+    const { active, setActive, currentUser } = useContext(UserContext);
     const [address, setVal] = useState({
         province: "",
         city: "",
@@ -539,6 +545,7 @@ function UpdateAdress({active,currentUser,setActive}){
         street: "",
         isdefault: false
     })
+    const navigate = useNavigate()
     const [toggle, setToggle] = useState(1)
     const [defAdress, setAddress] = useState([])
     useEffect(() => {
@@ -686,7 +693,7 @@ function UpdateAdress({active,currentUser,setActive}){
         <>
         
         <div className="profile-form">
-                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setActive(1)}>&#8592;</span> Thông tin địa chỉ</h2>
+                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1);navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
                         <tr>
@@ -785,8 +792,10 @@ function UpdateAdress({active,currentUser,setActive}){
     )
 }
 
-function UpdateData({currentUser, active, setActive}){
+export function UpdateData(){
     const [magnet, setMag] =useState(1)
+    const { active, setActive, currentUser } = useContext(UserContext);
+    const navigate = useNavigate()
     console.log(currentUser)
     const [user, setUser] = useState({
         fname: currentUser.fname,
@@ -873,18 +882,18 @@ function UpdateData({currentUser, active, setActive}){
                             <label htmlFor="adress">Địa chỉ</label>
                             <div className="item-item">
                                 <div>{defAdress!=""?defAdress:"Chưa có địa chỉ mặc định"}</div>
-                                <button id="address" onClick={()=>setActive(5)}>Chỉnh sửa</button>
+                                <button id="address" onClick={()=>{setActive(1); navigate('/user/info/address')}}>Chỉnh sửa</button>
                             </div>
                         </div>
                         <div className="full-width">
                             <label htmlFor="phone">Số điện thoại</label>
                             <div className="item-item">
                                 <div>{defPhone&& defPhone.length > 0?defPhone[0]:"Chưa có số điện thoại mặc định"}</div>
-                                <button id="phone" onClick={() => setActive(6)}>Chỉnh sửa</button>
+                                <button id="phone" onClick={() => {setActive(1); navigate('/user/info/phone') }}>Chỉnh sửa</button>
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setActive(7)} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer"}}>Đổi mật khẩu</button>
+                    <button onClick={() => {setActive(1); navigate('/user/info/password')}} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer"}}>Đổi mật khẩu</button>
                     <div className="form-actions">
                         <button className="btn-cancel">Hủy</button>
                         <button className="btn-save" onClick={handleUpdate}>Lưu thay đổi</button>
@@ -936,29 +945,41 @@ function UserAccountManagement() {
     },[uid])
     const navigate = useNavigate()
     const [active,setActive] = useState(1)
-    const curPage = (number)=>{
-        setActive(number)
-    }
-
+    const curPage = (number, path) => {
+        setActive(number);
+        navigate(path);
+    };
     return ( currentUser &&
         <>
-        <Header/>
-         <div className="acc-container">
-            <div className="acc-breadcrumb">
-                <a onClick={() => navigate('/user/homepage')}>Home</a>/<a><b>Account</b></a>
-            </div>
-            <div className="update">
-                <div className="side-bar" style={{color:"black"}}>
-                    <div className={`item ${active == 1 || active == 5 || active == 6 || active == 7?"active":""}`} onClick={()=>curPage(1)}>Tài khoản của bạn</div>
-                    <div className={`item ${active == 2 ||  active == 8?"active":""}`} onClick={()=>curPage(2)}>Lịch sử mua hàng</div>
-                    <div className={`item ${active == 3?"active":""}`} onClick={()=>curPage(3)}>Hạng thành viên</div>
-                    <div className={`item ${active == 4?"active":""}`} onClick={()=>curPage(4)}>Đăng xuất</div>
+         <UserContext.Provider value={{ active, setActive, currentUser }}>
+                <Header />
+                <div className="acc-container">
+                    <div className="acc-breadcrumb">
+                        <a onClick={() => navigate("/user/homepage")}>Home</a>/
+                        <a>
+                            <b>Account</b>
+                        </a>
+                    </div>
+                    <div className="update">
+                        <div className="side-bar" style={{ color: "black" }}>
+                            <div className={`item ${active === 1 ? "active" : ""}`} onClick={() => curPage(1, "/user/info")}>
+                                Tài khoản của bạn
+                            </div>
+                            <div className={`item ${active === 2 ? "active" : ""}`} onClick={() => curPage(2, "/user/info/history-log")}>
+                                Lịch sử mua hàng
+                            </div>
+                            <div className={`item ${active === 3 ? "active" : ""}`} onClick={() => curPage(3, "/user/info/rank")}>
+                                Hạng thành viên
+                            </div>
+                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/user/logout")}>
+                                Đăng xuất
+                            </div>
+                        </div>
+                        <Outlet /> {/* Render các route con */}
+                    </div>
                 </div>
-                <ControlRender active={active} currentUser={currentUser} setActive={setActive}/>
-            </div>
-            
-        </div>
-        <Footer />
+                <Footer />
+            </UserContext.Provider>
         </>
     );
 }

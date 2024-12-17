@@ -18,6 +18,8 @@ import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
+import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
+
 
 function App() {
   return (
@@ -32,7 +34,15 @@ function App() {
           <Route path="/test" element={<Test />} />
           <Route path="/" element={<Login />} />
           <Route path="/user/homepage" element={<HomePage />} />
-          <Route path="/user/info" element={<UserAccountManagement />} />
+          <Route path="/user/info" element={<UserAccountManagement />}>
+                    {/* Các route con */}
+                    <Route index element={<UpdateData />} />
+                    <Route path="address" element={<UpdateAdress />} />
+                    <Route path="phone" element={<UpdatePhone />} />
+                    <Route path="password" element={<UpdatePassword />} />
+                    <Route path="history-log" element={<History />} />
+                    <Route path="rank" element={<Ranking />} />
+          </Route>
            <Route path="/user/cart" element={<Cart/>} />
           <Route path="/user/shopping" element={<ShoppingPage/>}/>
           <Route path="/category/:id" element={<Categories />}/>
