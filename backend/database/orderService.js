@@ -35,9 +35,10 @@ class OrderService {
                         //         , selled = selled + $1)
                         client.query(
                             `UPDATE product 
-                         SET quantity = quantity - $1
-                         WHERE product_id = $2
-                         RETURNING *`,
+                            SET quantity = quantity - $1,
+                                sold = sold + $1
+                            WHERE product_id = $2
+                            RETURNING *`,
                             [amount, productId],
                             (err, res) => {
                                 if (err) {
@@ -303,7 +304,13 @@ class OrderService {
                     }
                     else {
                         try {
-                            const resOrder = await client.query(`SELECT * FROM order_include WHERE oid = $1`, [orderId])
+                            //const resOrder = await client.query(`SELECT * FROM order_include WHERE oid = $1`, [orderId])
+                            const resOrder = await client.query(`SELECT 
+                                                                    oi.*, 
+                                                                    p.*
+                                                                FROM order_include oi
+                                                                LEFT JOIN product p ON oi.product_id = p.product_id
+                                                                WHERE oi.oid = $1`, [orderId])
                             resolve({
                                 status: 200,
                                 msg: 'SUCCESS',
@@ -342,7 +349,10 @@ class OrderService {
                         data: null
                     });
                 } else {
-                    resolve(res.rows[0].total);
+                    resolve({
+                        status: 200,
+                        data: res.rows[0].total
+                    });
                 }
             });
         });
@@ -416,82 +426,11 @@ class OrderService {
             );
         });
     }
-    // cần filter kiểu theo 1 string
-    async filterOrder(filter, limit, offset) { //của chatgpt giúp tìm kí tự bất kì có trong chuỗi
-        return new Promise(async (resolve, reject) => {
-            const columns = ['pname', 'brand', 'description'];
-            // filter = filter.split('')
-            // const likeConditions = columns.map(column => {
-            //     const conditions = filter.map(char => `${column} ILIKE '%${char}%'`).join(' AND ');
-            //     return `(${conditions})`;
-            // }).join(' OR ');
-            const keywords = filter.split(' ');
-
-            // Tạo điều kiện LIKE với từng từ trên từng cột
-            const likeConditions = columns.map(column => {
-                // Với mỗi cột, tạo điều kiện OR cho các từ khóa
-                const conditions = keywords.map(word => `${column} ILIKE '%${word}%'`).join(' OR ');
-                return `(${conditions})`;
-            }).join(' OR '); // Kết hợp các điều kiện cột bằng OR
-
-            const query = `SELECT * FROM product WHERE ${likeConditions} LIMIT $1 OFFSET $2`
-            const countQuery = `SELECT COUNT(*) AS total FROM product WHERE ${likeConditions}`
-            const count = await new Promise((resolve, reject) => {
-                client.query(countQuery, (err, countRes) => {
-                    if (err) {
-                        reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
-                    } else {
-                        resolve({
-                            status: 200,
-                            msg: 'COUNT SUCCESS',
-                            data: countRes.rows[0].total
-                        });
-                    }
-                })
-            })
-            client.query(query, [limit, offset], async (err, res) => {
-                if (err) {
-                    reject({
-                        status: 400,
-                        msg: err.message,
-                        data: null,
-                        countData: 0
-                    });
-                } else {
-                    for (let i = 0; i < res.rowCount; i++) {
-                        const image = await this.getImageByProduct(res.rows[i].product_id);
-                        if (image.data) res.rows[i].image = image.data.map(item => item.image_url);
-                    }
-                    resolve({
-                        status: 200,
-                        msg: 'FILTER SUCCESS',
-                        data: res,
-                        countData: count.data
-                    });
-                }
-            });
-        });
-    }
 
     async getAllOrder(limit, page, filter, sort, uid) {
         return new Promise(async (resolve, reject) => {
             try {
                 let countPro = await this.countOrders(uid)
-                if (filter) {
-                    const orderFilter = await this.filterOrder(filter)
-                    resolve({
-                        status: 200,
-                        msg: 'SUCCESS',
-                        data: orderFilter.data.rows,
-                        totalOrder: orderFilter.countData,
-                        currentPage: page + 1,
-                        totalPage: Math.ceil(orderFilter.countData / limit)
-                    });
-                }
                 if (sort) {
                     const orders = await this.sortOrders(sort, limit, limit * page, uid)
                     resolve({
@@ -520,7 +459,7 @@ class OrderService {
                                 data: res.rows,
                                 totalOrder: countPro,
                                 currentPage: page + 1,
-                                totalPage: Math.ceil(countPro / limit)
+                                totalPage: Math.ceil(countPro.data / limit)
                             });
                         }
                     }
