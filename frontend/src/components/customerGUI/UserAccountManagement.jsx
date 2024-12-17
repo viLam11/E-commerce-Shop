@@ -12,6 +12,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "../Footer";
+import '../../design/users/acc.css'
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -915,7 +916,8 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
-    const uid = localStorage.getItem('user')
+    //const uid = localStorage.getItem('user')
+    const uid ='uid3'
     console.log(uid)
     const [currentUser, setUser] = useState(null)
     useEffect(()=>{

@@ -1,7 +1,9 @@
 import {useState, useEffect} from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
-
+import Header from './Header';
+import Footer from '../Footer';
+import '../../design/Shopping/cart.css'
 function formatToDDMMYYYY(isoString) {
     const date = new Date(isoString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -245,6 +247,8 @@ export default function Cart(){
         setEnd((prev) => Math.max(prev - 5, 5));
     };
     return (prodList && 
+        <>
+        <Header/>
         <div className='cart'>
             <div className='breadcrumb'><span onClick={()=> NavigateTo('HomePage')} style={{color: "gray", cursor: "pointer"}}>Trang chủ</span> / <span>Giỏ hàng</span></div>
             <div style={{ marginTop: "50px", padding: "10px" }}>
@@ -462,5 +466,7 @@ export default function Cart(){
                 </div>
                 </div>
         </div>
+        <Footer/>
+        </>
     )
 }

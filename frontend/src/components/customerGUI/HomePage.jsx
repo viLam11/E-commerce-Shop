@@ -52,6 +52,7 @@ function Banner({productData}) {
             <div className="horizon"></div>
             <div className="ads">
                 <img src={images[activeIndex]} alt="ADS" />
+                
             </div>
             <div className="pagination">
                 {Array.from({ length: 5 }).map((_, index) => (
