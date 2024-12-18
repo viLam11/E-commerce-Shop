@@ -45,8 +45,9 @@ class ProductService {
                                     if ("image" in newProduct) {
                                         obj = { image: newProduct.image };
                                         if ("ismain" in newProduct) obj.ismain = newProduct.ismain;
+                                        else obj.ismain = 0
                                         try {
-                                            await this.addImage(productId, obj, obj.image);  // ensure this is an async function
+                                            await this.addImage(productId, obj);  // ensure this is an async function
                                         } catch (error) {
                                             reject({
                                                 status: 400,
@@ -106,11 +107,7 @@ class ProductService {
                     checkID = await this.findsomethingExist("product_id", id)
                 }
                 catch (errfindID) {
-                    reject({
-                        status: 400,
-                        msg: errfindID.msg,
-                        data: null
-                    });
+                    reject(errfindID.msg);
                 }
                 if (checkID.data.rows.length === 0) {
                     resolve({
@@ -140,13 +137,26 @@ class ProductService {
                     else {
                         try {
                             for (const [key, value] of Object.entries(data)) {
-                                if (key === "product_id") continue;
-                                await client.query(
-                                    `UPDATE product SET ${key} = $1 WHERE product_id = $2`,
-                                    [value, id]
-                                );
+                                if (key === "product_id" || key === "ismain") continue;
+                                if (key === "image"){
+                                    let img_res = await this.updateImage({product_id: id}, data)
+                                    console.log(img_res)
+                                } else{
+                                    await client.query(
+                                        `UPDATE product SET ${key} = $1 WHERE product_id = $2`,
+                                        [value, id]
+                                    );
+                                }
                             }
-                            const updateproduct = await client.query(`SELECT * FROM product WHERE product_id = $1`, [id])
+                            const updateproduct = await client.query(`
+                                SELECT p.*, ARRAY_AGG(i.image_url) AS image
+                                FROM product p
+                                JOIN image i ON p.product_id = i.product_id
+                                WHERE p.product_id = $1
+                                GROUP BY 
+                                    p.product_id, p.pname, p.brand, p.description, p.price, 
+                                    p.quantity, p.create_time, p.cate_id, p.sold, p.rating;
+                                `, [id]);
 
                             resolve({
                                 status: 200,
@@ -154,21 +164,13 @@ class ProductService {
                                 data: updateproduct.rows[0]
                             });
                         } catch (updateErr) {
-                            reject({
-                                status: 400,
-                                msg: updateErr.message,
-                                data: null
-                            });
+                            reject(updateErr.message);
                         }
                     }
                 }
             }
             catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+                reject(err.message);
             }
         })
     }
@@ -275,6 +277,7 @@ class ProductService {
                     }
                     else {
                         const image = await this.getImageByProduct(id);
+                        console.log(image)
                         res.rows[0].image = image.data.map(item => item.image_url);
                         resolve({
                             status: 200,
@@ -581,7 +584,7 @@ class ProductService {
     async getImageByProduct(productId) {
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`
+                await client.query(`
                 SELECT * FROM image WHERE product_id = $1`
                     , [productId], async (err, res) => {
                         if (err) {
@@ -778,8 +781,21 @@ class ProductService {
     }
 
     async CreateReview(product_id, newReview) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const { uid, rating, comment } = newReview
+            const exist =  await client.query(`
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM orders o
+                    JOIN order_include oi ON o.oid = oi.oid
+                    WHERE o.uid = $1 AND oi.product_id = $2
+                );
+            `, [uid, product_id]);
+            let ex_flag     = exist.rows[0].exists
+            if(!ex_flag){   // nếu khách chưa mua sản phẩm
+                reject('Customer has not purchased the product')
+            }
+            // console.log(exist.rows[0].exists);
             client.query(`
                 SELECT * FROM reviews
                 WHERE uid = $1 AND product_id = $2
@@ -900,7 +916,7 @@ class ProductService {
             try {
                 const {product_id, page, limit, uid} = query
                 console.log(query)
-                client.query(`
+                await client.query(`
                     SELECT *
                     FROM reviews
                     WHERE product_id = $1
@@ -924,10 +940,19 @@ class ProductService {
                         }
                         else {
                             console.log(res.rows);
+                            let count_res = await client.query(`
+                                SELECT COUNT(*)
+                                FROM reviews
+                                WHERE product_id = $1
+                            `, [product_id]);
+                            const totalRows     = count_res.rows[0].count;
+                            const tol_pag       = Math.ceil(totalRows/limit);
+                            console.log(totalRows, tol_pag)
                             resolve({
                                 status: 200,
                                 msg: 'SUCCESS',
-                                data: res.rows  
+                                data: res.rows ,
+                                total_page: tol_pag
                             });
                         }
                     })

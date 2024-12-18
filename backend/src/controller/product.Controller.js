@@ -11,8 +11,9 @@ class ProductController {
                     data: null
                 })
             }
-            let file = (req.file) ? req.file : req.files;
-            req.body.image = file
+            // let file = (req.file) ? req.file : req.files;
+            // req.body.image = file
+            console.log(req.body)
             const response = await ProductService.createProduct(req.body)
             return res.status(200).json(response)
         }
