@@ -42,13 +42,13 @@ export default function Login() {
         if (response.status == 200) {
           const token = response.data.data.token;
           const userType = response.data.data.userType;
-          alert("Login by: " + userType + " - " + response.data.data.uid)
+          alert("Login by: " + userType + " - " + response.data.data.userID)
           const user_id = response.data.data.userID;
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);
           localStorage.setItem("userID", user_id);
           localStorage.setItem("role", userType);
-          localStorage.setItem("uid", response.data.data.uid);
+          localStorage.setItem("uid", response.data.data.userID);
           if(userType == "customer") navigate("/user/homepage")
           else navigate("/admin/product-manage")
         }

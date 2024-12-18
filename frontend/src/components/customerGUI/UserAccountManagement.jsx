@@ -96,30 +96,362 @@ const PieChart = ({chartData, total}) => {
 //       fontFamily: "Roboto, Arial, sans-serif",
 //     },
 //   });
-function Review({currentUser}){
-    const [star, setStar] = useState([0,0,0,0,0])
-    const seedStar = (num)=>{
-        const temp = [...star]
-        for (let i = 0; i < num; i++){
-            temp[i] = 1
+function Review({currentUser, product, closePopup}){
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [count, setCount] = useState(0);
+    const [onColor, setOn] = useState([0,0,0,0,0])
+    const [battery, setBattery] = useState("")
+    const [speed, setSpeed] = useState("")
+    const [tool, setTool] = useState("")
+    const [service, setService] = useState("")
+    const [myReview, setMine] = useState(null)
+    useEffect(()=>{
+        const fetchMyReview = async()=>{
+            console.log(product.product_id + " " + currentUser.uid)
+            try{
+                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview/?product_id=${product.product_id}&limit=2&uid=${currentUser.uid}`)
+                console.log(rreview)
+                if (rreview.data.status != 200){
+                    alert('Error')
+                    throw new Error(rreview.data.msg)
+                }
+                else {
+                    setMine(rreview.data.data)
+                    Coloring(rreview.data.data.rating)
+                }
+            }
+            catch(e){
+                console.error(e.message)
+            }
         }
-        for (let i = num; i < star.length; i++){
-            temp[i] = 0
-        }
-        setStar(temp)
+        fetchMyReview()
+    },[])
+
+    const Coloring = (idx) => {
+        const temp = onColor.map((_, index) => (index < idx ? 1 : 0));
+        setOn(temp);
+    };
+
+    const [onColor1, setOn1] = useState([0,0,0,0,0])
+    const Coloring1 = (idx) => {
+      const temp = onColor1.map((_, index) => (index < idx ? 1 : 0));
+      setOn1(temp);
+    };
+
+    const [onColor2, setOn2] = useState([0,0,0,0,0])
+    const Coloring2 = (idx) => {
+      const temp = onColor2.map((_, index) => (index < idx ? 1 : 0));
+      setOn2(temp);
+    };
+
+    const [onColor3, setOn3] = useState([0,0,0,0,0])
+    const Coloring3 = (idx) => {
+      const temp = onColor3.map((_, index) => (index < idx ? 1 : 0));
+      setOn3(temp);
+    };
+    const [onColor4, setOn4] = useState([0,0,0,0,0])
+    const Coloring4 = (idx) => {
+      const temp = onColor4.map((_, index) => (index < idx ? 1 : 0));
+      setOn4(temp);
+    };
+    function hanldePostReview() {
+        console.log("Rating: ", rating),
+        console.log("Comment: ", (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment),
+        axios.post(`http://localhost:8000/api/product/CreateReview/${product.product_id}`, {
+            "uid": currentUser.uid,
+            "rating": rating,
+            "comment": (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment
+        })
+        .then((response) => {
+            console.log("CHECK RESPONSE: " , response);
+
+            if(response.status === 200) {
+                alert("Đã thêm nhận xét");
+                setCount(count + 1);        
+            }
+        })
+        .catch((error) => {
+            if (error.response.data) {
+              //alert(error.response.data.msg);
+              console.error(error.response.data)
+            } else {
+              console.error('Error:', error.message);
+            }
+          })
+    
     }
-    return (
-        <div>
+
+    return(
+        <>
+       <div style={{
+        overflowY: "scroll",
+        height: "450px",
+        scrollbarWidth: "none", // Firefox
+        msOverflowStyle: "none", // IE & Edge
+      }}>
+        <style>
+            {`
+            div::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+                .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+            `}
+        </style>
             <div style={{display: "inline-flex"}}>
-                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div onMouseOver={()=>seedStar(0)}>&#9734;</div>}
-                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div onMouseOver={()=>seedStar(0)}>&#9734;</div>}
-                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
-                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
-                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
+                <div><img style={{width: "100px"}} src={product.image[0]} alt="" /></div>
+                <div style={{fontWeight: "bold", marginTop:"10px"}}>{product.pname}</div>
             </div>
-        </div>
+            {myReview?
+            <>
+            <div style={{ display: "inline-flex", marginTop: "20px", gap: "70px", marginBottom: "20px" }}>
+            {Array.from({ length: 5 }).map((_, idx) => (
+                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                    <div
+                        key={idx}
+                        style={onColor[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                        >
+                        <svg
+                            height="20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            fill="currentColor"
+                        >
+                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                        </svg>
+                    </div>
+                    <div style={{fontSize: "12px", width: "70px", marginTop:"10px"}}>{idx == 0?"Rất tệ":(idx==1?"Tệ":(idx==2?"Bình thường":(idx==3?"Tốt":"Tuyệt vời")))}</div>
+                </div>
+            ))}
+            </div>
+            <textarea className="comment border border-black w-full p-1"
+                    value={myReview.comment}
+                    style={{height: "100px", borderRadius:"8px", padding:"4px 8px 8px 8px", marginTop:"20px"}}
+                >
+                    
+                </textarea>
+            </>:
+            <>
+            <div style={{ display: "inline-flex", marginTop: "20px", gap: "70px", marginBottom: "20px" }}>
+            {Array.from({ length: 5 }).map((_, idx) => (
+                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                    <div
+                        key={idx}
+                        onMouseOver={() => {
+                            Coloring(idx + 1);
+                            setRating(idx + 1)
+                        }}
+                        style={onColor[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                        >
+                        <svg
+                            height="20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            fill="currentColor"
+                        >
+                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                        </svg>
+                    </div>
+                    <div style={{fontSize: "12px", width: "70px", marginTop:"10px"}}>{idx == 0?"Rất tệ":(idx==1?"Tệ":(idx==2?"Bình thường":(idx==3?"Tốt":"Tuyệt vời")))}</div>
+                </div>
+            ))}
+            </div>
+            <div style={{height: "1px", backgroundColor:"#E5E5E5", border: "1px solid #E5E5E5", marginBottom:"30px", alignItems:"left"}}></div>
+            <div>
+                <div style={{textAlign:"left", fontSize:"16px", fontWeight:"bold", marginBottom: "20px"}}>Theo trải nghiệm</div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-40px", marginBottom: "15px"}}>
+                    <div style={{marginLeft: "-65px", marginRight:"285px", fontSize:"14px"}}>Thời lượng pin</div>
+                    <div style={{ display: "inline-flex", gap: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring1(idx + 1);
+                                    setBattery(onColor1[4] == 1?"Rất mạnh":
+                                        (onColor1[3]==1?"Mạnh":
+                                        (onColor1[2]==1?"Vừa đủ":
+                                        (onColor1[1]==1?"Yếu":
+                                        (onColor1[0]==1?"Rất yếu":"")))))
+                                    }}
+                                style={onColor1[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor1[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-52px"}:
+                        onColor1[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-29px"}:
+                        onColor1[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-38px"}:
+                        onColor1[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-19px"}:
+                        onColor1[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-41px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"2px"}}>
+                            {onColor1[4] == 1?"Rất mạnh":(onColor1[3]==1?"Mạnh":(onColor1[2]==1?"Vừa đủ":(onColor1[1]==1?"Yếu":(onColor1[0]==1?"Rất yếu":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-132px", marginRight:"278px", fontSize:"14px"}}>Tốc độ phản hồi</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() =>{ 
+                                    Coloring2(idx + 1);
+                                    setSpeed(
+                                        onColor2[4] == 1?"Rất nhanh":
+                                        (onColor2[3]==1?"Nhanh":
+                                        (onColor2[2]==1?"Vừa đủ":
+                                        (onColor2[1]==1?"Chậm":
+                                        (onColor2[0]==1?"Rất chậm":""))))
+                                    )
+                                }}
+                                style={onColor2[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor2[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-102px"}:
+                        onColor2[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-81px"}:
+                        onColor2[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-86px"}:
+                        onColor2[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-79px"}:
+                        onColor2[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-101px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-42px"}}>
+                            {onColor2[4] == 1?"Rất nhanh":(onColor2[3]==1?"Nhanh":(onColor2[2]==1?"Vừa đủ":(onColor2[1]==1?"Chậm":(onColor2[0]==1?"Rất chậm":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-36px", marginRight:"253px", fontSize:"14px"}}>Tiện ích thông minh</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring3(idx + 1);
+                                    setTool(onColor3[4] == 1?"Rất hữu ích":
+                                        (onColor3[3]==1?"Tiện lợi":
+                                        (onColor3[2]==1?"Vừa đủ":
+                                        (onColor3[1]==1?"Tệ":
+                                        (onColor3[0]==1?"Rất tệ":"")))))
+                                }}
+                                style={onColor3[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor3[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-15px"}:
+                        onColor3[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"9px"}:
+                        onColor3[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"10px"}:
+                        onColor3[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"37px"}:
+                        onColor3[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"19px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                            {onColor3[4] == 1?"Rất hữu ích":(onColor3[3]==1?"Tiện lợi":(onColor3[2]==1?"Vừa đủ":(onColor3[1]==1?"Tệ":(onColor3[0]==1?"Rất tệ":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-36px", marginRight:"273px", fontSize:"14px"}}>Dịch vụ đính kèm</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring4(idx + 1);
+                                    setService(
+                                        onColor4[4] == 1?"Rất tốt":
+                                        (onColor4[3]==1?"Tốt":
+                                        (onColor4[2]==1?"Bình thường":
+                                        (onColor4[1]==1?"Kém":
+                                        (onColor4[0]==1?"Rất kém":""))))
+                                    )
+                                }}
+                                style={onColor4[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor4[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"12px"}:
+                        onColor4[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"31px"}:
+                        onColor4[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-21px"}:
+                        onColor4[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"25px"}:
+                        onColor4[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"3px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                            {onColor4[4] == 1?"Rất tốt":(onColor4[3]==1?"Tốt":(onColor4[2]==1?"Bình thường":(onColor4[1]==1?"Kém":(onColor4[0]==1?"Rất kém":""))))}
+                    </div>
+                </div>
+            </div>
+            <textarea className="comment border border-black w-full p-1"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Xin mời chia sẻ một số cảm nhận về sản phẩm"
+                    style={{height: "100px", borderRadius:"8px", padding:"4px 8px 8px 8px", marginTop:"20px"}}
+                >
+                    
+                </textarea>
+            </>}
+            
+       </div>
+       {myReview?
+        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{setMine(null);closePopup()}}>
+        Chỉnh sửa đánh giá
+        </button>
+       :
+        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{hanldePostReview();closePopup()}}>
+        Thêm đánh giá
+        </button>}
+       </>
     )
 }
+
 export function History(){
     const { active, setActive, currentUser } = useContext(UserContext);
     const [count, setCnt] = useState(0)
@@ -267,6 +599,7 @@ export function History(){
         const closePopup = () => {
             setIsPopupOpen(false);
         };   
+    const [curProduct, setCur] = useState({})
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -406,7 +739,7 @@ export function History(){
                                     <div style={{marginLeft: "120px"}}>
                                         <div style={{marginBottom:"30px", color:"#448AFF"}}>{product_.pname}</div>
                                         <div style={{marginLeft: "360px", marginBottom: "10px", color: "#FF005A"}}>Số lượng: {item.quantity}</div>
-                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer"}} onClick={openPopup}>Đánh giá</div>
+                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer"}} onClick={()=>{setCur(product_); openPopup()}}>Đánh giá</div>
                                     </div>
                                 </div>
                             )
@@ -478,11 +811,9 @@ export function History(){
                     </style>
                     {isPopupOpen && (
                         <div className="popup" onClick={closePopup}>
-                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
-                                <h2>Chọn Voucher</h2>
-                                <button className="closePopup" onClick={closePopup}>
-                                Đóng
-                                </button>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "700px", height:"600px"}}>
+                                <h2 style={{backgroundColor: "#E5E5E5", marginLeft: "-20px", padding: "10px 0px 10px 0px", width:"700px", marginTop:"-20px", borderRadius: "8px 8px 0px 0px"}}>Đánh giá và nhận xét</h2>
+                                <Review currentUser={currentUser} product={curProduct} closePopup={closePopup} />
                             </div>
                         </div>
                     )}
