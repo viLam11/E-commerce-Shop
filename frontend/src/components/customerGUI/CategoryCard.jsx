@@ -6,28 +6,27 @@ import '../../design/Home/highlight.css'
 import Header from "./Header";
 import Footer from "../Footer";
 
-function CategoryProduct({cate_id, cate_name, productData}){
-    
-    const navigate = useNavigate()
-    const [brandList, setBrandList] = useState(() => {
-        const uniqueBrands = [...new Set(
-            productData
-                .filter(item => item.cate_id === cate_id)
-                .map(item => item.brand)
-        )];
-        return uniqueBrands;
-    });
+export default function CategoryProduct(){
+    const categoryData = [{cate_id: "c01", cate_name:"Điện thoại"}, {cate_id: "c02", cate_name:"Laptop"}, {cate_id: "c03", cate_name:"Máy tính bảng"}, {cate_id: "c04", cate_name:"Đồng hồ thông minh"}, {cate_id: "c05", cate_name:"Phụ kiện"}]
+    const {id} = useParams()
+    const cate_id = categoryData.find(i => i.cate_id == id).cate_id
+    const cate_name = categoryData.find(i => i.cate_id == id).cate_name
+    const [productData, setData] = useState([])
     useEffect(()=>{
-        setBrandList(() => {
-            const uniqueBrands = [...new Set(
-                productData
-                    .filter(item => item.cate_id === cate_id)
-                    .map(item => item.brand)
-            )];
-            return uniqueBrands;
-        })
-        console.log(brandList)
-    },[productData])
+        const fetchData = async() => {
+            try{
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setData(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
+    const navigate = useNavigate()
     const [mode, setMode] = useState({
         maxPrice: 0,
         minPrice: 0,
@@ -82,7 +81,7 @@ function CategoryProduct({cate_id, cate_name, productData}){
         setStart((prev) => Math.max(prev - 4, 0));
         setEnd((prev) => Math.max(prev - 4, 4));
     };
-    //console.log(images)
+    console.log(images)
     const formatPrice = (price) =>{
         const format = String(price);
         let token = " đ";
@@ -100,18 +99,20 @@ function CategoryProduct({cate_id, cate_name, productData}){
     }
     return(
         <>
+            <Header/>
             <div className="detail">
                 <h4>Chọn theo tiêu chí</h4>
                 <div className="sort-bar">
-                    <select style={{marginTop: "5px"}} value={mode.brand} onChange={(e) => setMode((prev) => ({...prev,brand: e.target.value}))}>
+                    <select value={mode.brand} onChange={(e) => setMode((prev) => ({...prev,brand: e.target.value}))}>
                         <option value = "">Hãng sản xuất</option>
-                        {brandList && brandList.length > 0?brandList.map((item, index)=>{
-                            return(<option key={index} value = {item}>{item}</option>)
-                        }):null}
+                        <option value = "Samsung">Samsung</option>
+                        <option value = "Apple">Apple</option>
+                        <option value = "Xiaomi">Xiaomi</option>
+                        <option value = "Marshall">Marshall</option>
                     </select>
                     <input type="number" placeholder="Mức giá cao nhất" value={mode.maxPrice==0?"Mức giá cao nhất":mode.maxPrice} onChange={(e) => setMode((prev) => ({...prev,maxPrice: e.target.value}))}/>
                     <input type="number" placeholder="Mức giá thấp nhất" value={mode.minPrice==0?"Mức giá cao nhất":mode.minPrice} onChange={(e) => setMode((prev) => ({...prev,minPrice: e.target.value}))}/>
-                    <select style={{marginTop: "5px"}} value={mode.sortMode} onChange={(e) => setMode((prev) => ({...prev,sortMode: e.target.value}))}>
+                    <select value={mode.sortMode} onChange={(e) => setMode((prev) => ({...prev,sortMode: e.target.value}))}>
                         <option value="">Sắp xếp theo giá tiền</option>
                         <option value="asc">Tăng dần</option>
                         <option value="desc">Giảm dần</option>
@@ -171,61 +172,7 @@ function CategoryProduct({cate_id, cate_name, productData}){
                     </div>
                     </div>
             </div>
+            <Footer/>
         </>
     )
 }
-
- function CategoryDetail({cate_id, cate_name, productData}){
-    return (productData &&
-        <>
-            <div className="mar"></div>
-            <div className="breadcrumbs">
-                <div>
-                    <a href="/user/shopping" className='shopping'>Mua sắm</a> / <a href={`/category/${cate_id}`}>{cate_name}</a> /
-                </div> 
-                <CategoryProduct 
-                    cate_id={cate_id}
-                    cate_name={cate_name}
-                    productData={productData}
-                />
-            </div>
-        </>
-    )
-}
-
-function Categories(){
-    const categoryData = [{cate_id: "c01", cate_name:"Điện thoại"}, {cate_id: "c02", cate_name:"Laptop"}, {cate_id: "c03", cate_name:"Máy tính bảng"}, {cate_id: "c04", cate_name:"Đồng hồ thông minh"}, {cate_id: "c05", cate_name:"Phụ kiện"}]
-    const {id} = useParams()
-    const cate_id = categoryData.find(i => i.cate_id == id).cate_id
-    const cate_name = categoryData.find(i => i.cate_id == id).cate_name
-    const [productData, setData] = useState([])
-    useEffect(()=>{
-        const fetchData = async() => {
-            try{
-                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
-                //console.log(rdata)
-                if (rdata.status != 200) throw new Error("Feth data fail")
-                setData(rdata.data.data)
-            }
-            catch(err){
-                console.error("Error: ", err.message)
-            }
-        }
-        fetchData()
-    },[])
-    return (productData &&
-        <>
-            <Header/>
-            <div className="category">
-            <CategoryDetail 
-                cate_id={cate_id}
-                cate_name={cate_name}
-                productData={productData}
-            />
-            <Footer />
-        </div>
-        </>
-    )
-}
-
-export default Categories;

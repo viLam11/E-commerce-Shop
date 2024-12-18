@@ -68,7 +68,7 @@ function Detail({reviews, product }) {
 
     const handleAddCart = async () => {
         try {
-            const uid = localStorage.getItem('user')
+            const uid = localStorage.getItem('uid')
             const response = await axios.post(
                 `http://localhost:8000/api/cart/AddToCart/${uid}`,
                 {
@@ -167,7 +167,7 @@ function Review({ reviews, product }) {
     
     const averageRate = reviews.length > 0 
         ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
-        : -1;
+        : 0;
     const ratings = [5, 4, 3, 2, 1].reduce((acc, rating) => ({
         ...acc,
         [rating]: reviews.filter(review => review.rating === rating).length
@@ -233,7 +233,7 @@ function Review({ reviews, product }) {
         try {
             const newDate = getDate()
             const rating = starRate
-            const uid = state.currentUser.uid
+            const uid = 'uid3'
             const response = await axios.post(
                 `http://localhost:8000/api/product/CreateReview/${product.product_id}`,
                 {

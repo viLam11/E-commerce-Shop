@@ -92,6 +92,7 @@
 .searching .category-type img{
     align-items: center;
     width: 40%;
+    margin-left: 50px;
 }
 
 .category .mar{
@@ -99,7 +100,7 @@
 }
 
 .category .breadcrumbs .detail{
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .breadcrumbs .detail .sort-bar{

@@ -39,7 +39,7 @@ router.get('/get-detail/:id', authController.getDetailUser);
 
 router.post('/CreateAddress/:id', authController.createAddress);
 router.get('/GetAll/:id', authController.getAllAddress);
-router.delete('/DeleteAddress/:id', authController.deleteAddress);
+router.post('/DeleteAddress/:id', authController.deleteAddress);
 router.put('/UpdateAddress/:id', authController.updateAddress);
 router.get('/GetAdd/:id', authController.getAddressById);
 

@@ -91,7 +91,7 @@ export default function Cart(){
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [productData, setData] = useState([])
     const navigate = useNavigate()
-    const uid = localStorage.getItem('user')
+    const uid = localStorage.getItem('uid')
     console.warn(uid)
     useEffect(()=>{
         const fetchData = async() => {
@@ -246,6 +246,16 @@ export default function Cart(){
         setStart((prev) => Math.max(prev - 5, 0));
         setEnd((prev) => Math.max(prev - 5, 5));
     };
+
+    const handleMakeOrder = async() =>{
+        try{
+            const uid = localStorage.getItem('user')
+            const order = await axios.post(`http://localhost:8000/api/order/CreateOrder/${uid}`)
+        }
+        catch(err){
+            console.error(err.message)
+        }
+    }
     return (prodList && 
         <>
         <Header/>
@@ -299,7 +309,7 @@ export default function Cart(){
                         justifyContent: "center"
                         }}
                     >
-                        <div style={{paddingTop: "10px"}}><input type="checkbox" checked={item.chose} onChange={(e)=>{
+                        <div style={{paddingTop: "5px"}}><input type="checkbox" checked={item.chose} onChange={(e)=>{
                             const tempArr = [...prodList]
                             tempArr[index + start] = {
                                 ...tempArr[index + start],
@@ -307,7 +317,7 @@ export default function Cart(){
                             };
                             setList(tempArr)
                         }}/></div>
-                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}><img src={item.image[0]} style={{height: "40px", marginTop: "0px"}}/> <div style={{paddingBottom:"0px", marginLeft:"10px"}}>{item.pname}</div></div>
+                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}><img src={item.image[0]} style={{height: "40px", marginTop: "-8px"}}/> <div style={{paddingBottom:"0px", marginLeft:"10px"}}>{item.pname}</div></div>
                         <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.price)}</div>
                         <div style={{display: "inline-flex", width: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
                             <input type='number' value={item.pquantity} style={{width: "20px", height: "30px", border: "none", backgroundColor: "transparent", cursor: "pointer"}} 
@@ -448,7 +458,7 @@ export default function Cart(){
                         </div>
                         <div className='underline' style={{marginBottom: "10px", width: "350px" }}></div>
                         <div style={{display: 'inline-flex'}}>
-                            <div>Chiết khấu: </div>
+                            <div>Giảm giá: </div>
                             <div style={{marginLeft: "180px"}}>{fixPrice(discount)}</div>
                         </div>
                         <div className='underline' style={{marginBottom: "10px", width: "350px" }}></div>
@@ -461,7 +471,7 @@ export default function Cart(){
                             <div>Tổng cộng: </div>
                             <div style={{marginLeft: "180px"}}>{fixPrice(total-discount)}</div>
                         </div>
-                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}} onClick={() => CartToOrder(buyList)}>Mua hàng</div>
+                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}} onClick={() => navigate('/customer/pay',{state: {list: buyList, total: total, discount: discount, voucher_code: voucher.promotion_id}})}>Mua hàng</div>
                     </div>
                 </div>
                 </div>

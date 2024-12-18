@@ -23,6 +23,7 @@ import ProductInCheckout from "../components/ProductInCheckout";
 export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
+    console.log(location)
     const [errors, setErrors]  = useState([]);
     // const [productList, setProductList] = useState(null);
     const {productList} = location.state || [];
@@ -35,7 +36,8 @@ export default function Checkout() {
             setErrors(["Chưa có sản phẩm để thanh toán"]);
         }
 
-        const storedUserID = localStorage.getItem("userID");
+        //const storedUserID = localStorage.getItem("userID");
+        const storedUserID = 'uid3';
         // const storedUserID = "7ea46d0d-0d9c-470f-9d05-50535c2f6cc0";    
         
         if (!storedUserID) {
@@ -67,13 +69,13 @@ export default function Checkout() {
                 }
             });
 
-        const ordersData = productList.map((product, index) => {
+        const ordersData = productList?productList.map((product, index) => {
             return {
                 product_id: product.prodID,
                 quantity: product.quantity,
                 subtotal: product.price * product.quantity
             }
-        })
+        }):null
         console.log("CHECK PRODUCT LIST: ", productList);
         setOrderItems(ordersData);
     }, [userID]);
@@ -163,7 +165,7 @@ export default function Checkout() {
                         </div>
                         <div className="col-2  w-1/2">
                             <div className="products w-8/12 space-y-4 m-auto">
-                                {productList.length > 0 &&  productList.map((product, index) => 
+                                {productList && productList.length > 0 &&  productList.map((product, index) => 
 
                                     ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} img={product.img} />)
                                 )}

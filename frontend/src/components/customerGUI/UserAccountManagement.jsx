@@ -96,7 +96,30 @@ const PieChart = ({chartData, total}) => {
 //       fontFamily: "Roboto, Arial, sans-serif",
 //     },
 //   });
-
+function Review({currentUser}){
+    const [star, setStar] = useState([0,0,0,0,0])
+    const seedStar = (num)=>{
+        const temp = [...star]
+        for (let i = 0; i < num; i++){
+            temp[i] = 1
+        }
+        for (let i = num; i < star.length; i++){
+            temp[i] = 0
+        }
+        setStar(temp)
+    }
+    return (
+        <div>
+            <div style={{display: "inline-flex"}}>
+                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div onMouseOver={()=>seedStar(0)}>&#9734;</div>}
+                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div onMouseOver={()=>seedStar(0)}>&#9734;</div>}
+                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
+                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
+                {star[0] == 1?<div style={{color: "yellow"}}>&#9734;</div>:<div>&#9734;</div>}
+            </div>
+        </div>
+    )
+}
 export function History(){
     const { active, setActive, currentUser } = useContext(UserContext);
     const [count, setCnt] = useState(0)
@@ -108,6 +131,22 @@ export function History(){
     const [hook, setHook] = useState(0)
     const [curOrder, setCurrent] = useState(null)
     const [isdetail, setIsDetail] = useState(false)
+    const [productData, setDataSet] = useState([])
+    useEffect(()=>{
+        const fetchData = async() => {
+            try{
+                console.log(localStorage.getItem('Squery') || "")
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000&filter=${localStorage.getItem('Squery') || ""}`)
+                console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setDataSet(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
     useEffect(()=>{
         const fetchOrder = async()=>{
             const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${currentUser.uid}?limit=1000`)
@@ -215,11 +254,19 @@ export function History(){
                 setOrderDetail(response.data.data)
             }
             catch(err){
-                console.err("Error: " + err.message)
+                console.error("Error: " + err.message)
             }
         }
         fetchDetail()
-    },[curOrder,active])    
+    },[curOrder,active]) 
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -281,7 +328,7 @@ export function History(){
                 <div
                         style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 150px 200px 150px 150px",
+                        gridTemplateColumns: "1fr 200px 250px 200px 250px",
                         backgroundColor: "#A0C4FF",
                         fontWeight: "bold",
                         padding: "10px",
@@ -303,7 +350,7 @@ export function History(){
                             key={index}
                             style={{
                             display: "grid",
-                            gridTemplateColumns: "1fr 150px 200px 150px 150px",
+                            gridTemplateColumns: "1fr 200px 250px 200px 250px",
                             backgroundColor: index % 2 === 0 ? "#A0C4FF" : "#A0C4FF",
                             padding: "10px",
                             textAlign: "center",
@@ -314,13 +361,13 @@ export function History(){
                             justifyContent: "center"
                             }}
                         >
-                            <div style={{display: "inline-flex", alignItems:"center",marginLeft:"100px", justifyItems:"center", textAlign:"center"}}>{item.oid}</div>
-                            <div style={{paddingTop: "10px",alignItems:"center"}}>{formatToDDMMYYYY(item.create_time)}</div>
-                            <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.final_price)}</div>
-                            <div style={{paddingTop: "10px"}}>{item.status}</div>
+                            <div style={{display: "inline-flex", alignItems:"center",marginLeft:"80px", justifyItems:"center", textAlign:"center"}}>{item.oid}</div>
+                            <div style={{paddingTop: "5px",alignItems:"center"}}>{formatToDDMMYYYY(item.create_time)}</div>
+                            <div style={{paddingTop: "5px",alignItems:"center"}}>{fixPrice(item.final_price)}</div>
+                            <div style={{paddingTop: "5px"}}>{item.status}</div>
                             <div style={{paddingTop: "0px"}}>
                             {/* Lựa chọn button */}
-                            <button style={{ padding: "5px 10px" }} onClick={()=> {setIsDetail(!isdetail); setCurrent(item)}}>Chi tiết đơn hàng</button>
+                            <button style={{ padding: "5px 10px", border: "1px solid black", backgroundColor: "white", borderRadius:"6px" }} onClick={()=> {setIsDetail(!isdetail); setCurrent(item)}}>Chi tiết đơn hàng</button>
                             </div>
                         </div>
                         ))
@@ -345,28 +392,102 @@ export function History(){
                     <div style={{display: "inline-flex", marginBottom:"10px"}}>
                         <div style={{marginRight: "200px"}}>Mã đơn hàng: <strong>{curOrder?curOrder.oid:""}</strong></div>
                     {curOrder?(
-                        curOrder.status == "Completed"?<div style={{backgroundColor: "rgba(0, 128, 0, 0.3)",color: "green" ,padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px"}}>Đã giao hàng</div>:
-                        curOrder.status == "Pending"?<div style={{backgroundColor:"rgba(255, 255, 0, 0.3)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang chờ duyệt đơn</div>:
-                        curOrder.status == "Cancelled"?<div style={{backgroundColor: "rgba(255, 0, 0, 0.3)",color: "red", padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px" }}>Đã hủy</div>:""):null}
+                        curOrder.status == "Completed"?<div style={{backgroundColor: "rgba(0, 128, 0, 0.2)",color: "#FFC312" ,padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px"}}>Đã giao hàng</div>:
+                        curOrder.status == "Pending"?<div style={{backgroundColor:"rgba(255, 255, 0, 0.2)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang chờ duyệt đơn</div>:
+                        curOrder.status == "Cancelled"?<div style={{backgroundColor: "rgba(255, 0, 0, 0.2)",color: "red", padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px" }}>Đã hủy</div>:""):<div style={{backgroundColor:"rgba(255, 255, 0, 0.2)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang đang được giao</div>}
                     </div>
                     <div style={{marginBottom: "10px"}}>{formatToDDMMYYYY(curOrder.create_time)}</div>
                     <div>
                         {orderDetail?orderDetail.map((item, index)=>{
                             const product_ = productData.find(i => i.product_id == item.product_id)
                             return(
-                                <div style={{display: "inline-flex", backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px"}}>
+                                <div style={{display: "inline-flex", backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px", boxShadow: "5px 5px 10px rgba(0, 0, 0, 0.3)"}}>
                                     <img src={product_.image[0]} style={{height: "100px"}}/>
                                     <div style={{marginLeft: "120px"}}>
                                         <div style={{marginBottom:"30px", color:"#448AFF"}}>{product_.pname}</div>
                                         <div style={{marginLeft: "360px", marginBottom: "10px", color: "#FF005A"}}>Số lượng: {item.quantity}</div>
-                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A"}}>Đánh giá</div>
+                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer"}} onClick={openPopup}>Đánh giá</div>
                                     </div>
                                 </div>
                             )
                         }):null}
                     </div>
+                    <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.5);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                    {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
+                                <h2>Chọn Voucher</h2>
+                                <button className="closePopup" onClick={closePopup}>
+                                Đóng
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <div style={{marginBottom:"40px"}}></div>
-                    <div style={{backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px"}}>
+                    <div style={{backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px", boxShadow: "5px 5px 10px rgba(0, 0, 0, 0.3)"}}>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize:"20px", fontWeight:"bold", marginBottom: "20px"}}><span style={{fontSize: "24px"}}>&#128179;</span> Thông tin thanh toán</div>
                         <div style={{marginBottom: "10px"}}>Tổng tiền sản phẩm: <span style={{textAlign: "right", marginLeft: "400px", width: "200px"}}>{fixPrice(curOrder.total_price)}</span></div>
                         <div style={{marginBottom: "10px"}}>Giảm giá: <span style={{textAlign: "right", marginLeft: "485px", width: "200px"}}>{fixPrice(curOrder.total_price - curOrder.final_price +curOrder.shipping_fee)}</span></div>
@@ -563,27 +684,34 @@ export function UpdateAdress(){
         console.log(defAdress)
     }, [currentUser, toggle]);
     const sample = ['57 A Street C, District 1, City DN','58 A Street D, District 3, City HN','98 A Street C, District 3, City HN']
-    const [partitionedAddresses, setPar] = useState(defAdress.map((addr) => {
-        const parts = addr.address.split(',').map((item) => item.trim());
-        return {
-          street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
-          district: parts[1] || "",
-          city: parts[2] || "",
-          province: parts[3] || "",
-        };
-      }));
-    const [prevState, setPrev] = useState(partitionedAddresses)
-    useEffect(()=>{
-        setPar(defAdress.map((addr) => {
+    const [partitionedAddresses, setPar] = useState(defAdress
+        .map((addr) => {
             const parts = addr.address.split(',').map((item) => item.trim());
             return {
-              street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
-              district: parts[1] || "",
-              city: parts[2] || "",
-              province: parts[3] || "",
-              isdefault: addr.isdefault || false
+                street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                district: parts[1] || "",
+                city: parts[2] || "",
+                province: parts[3] || "",
+                isdefault: addr.isdefault || false
             };
-          }))
+        })
+        .sort((a, b) => b.isdefault - a.isdefault));
+    const [prevState, setPrev] = useState(partitionedAddresses)
+    useEffect(()=>{
+        setPar(
+            defAdress
+                .map((addr) => {
+                    const parts = addr.address.split(',').map((item) => item.trim());
+                    return {
+                        street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                        district: parts[1] || "",
+                        city: parts[2] || "",
+                        province: parts[3] || "",
+                        isdefault: addr.isdefault || false
+                    };
+                })
+                .sort((a, b) => b.isdefault - a.isdefault) // Đưa các phần tử có isdefault: true lên đầu
+        );
           
     },[defAdress])
     // useEffect(()=>{
@@ -613,8 +741,8 @@ export function UpdateAdress(){
                     isdefault: address.isdefault
                 }
             )
-            console.log(addAddress)
-            if(addAddress.status !== 200){
+            console.log("add",addAddress)
+            if(addAddress.data.status !== 200){
                 alert(addAddress.msg || "Thêm địa chỉ thất bại")
             }
             else{
@@ -664,26 +792,26 @@ export function UpdateAdress(){
             alert('Vui lòng nhập đầy đủ thông tin')
         }
         else{
-            const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${currentUser.uid}`,
+            const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${localStorage.getItem('uid')}`,
                 {
                     address: defAdress[index].address
                 }
             )
-            if(updateAddress.status !== 200){
+            if(updateAddress.data.status !== 200){
                 alert(updateAddress.msg || "Xóa địa chỉ thất bại")
             }
             else{
-                // if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
-                //     let temp = defAdress.map(adrr => adrr.address)
-                //     temp = temp.filter(item => item != defAdress[index].address)
-                //     const resAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${currentUser.uid}`,
-                //         {
-                //             old_address: temp[0],
-                //             new_address: temp[0],
-                //             isdefault: true
-                //         }
-                //     )
-                // }
+                if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
+                    let temp = defAdress.map(adrr => adrr.address)
+                    temp = temp.filter(item => item != defAdress[index].address)
+                    const resAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${localStorage.getItem('uid')}`,
+                        {
+                            old_address: temp[0],
+                            new_address: temp[0],
+                            isdefault: true
+                        }
+                    )
+                }
                 setToggle(!toggle)
                 //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
             }
@@ -692,7 +820,7 @@ export function UpdateAdress(){
     return(
         <>
         
-        <div className="profile-form">
+        <div className="profile-form" style={{backgroundColor:"white"}}>
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1);navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
@@ -703,7 +831,7 @@ export function UpdateAdress(){
                         <th>Quận/Huyện</th>
                         <th>Tỉnh/Thành phố</th>
                         <th>Mặc định</th>
-                        <th></th>
+                        <th style={{width: "95px"}}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -752,7 +880,7 @@ export function UpdateAdress(){
                                     };
                                     setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                 }}/></td>
-                                <td style={{display: "inline-flex"}}><button style={{width: "75px", backgroundColor: "greenyellow", color: "gray"}} onClick={()=> handleUpdate(index)}>Cập nhật</button><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red"}}>Xóa</button></td> {/* Close button */}
+                                <td style={{display: "inline-flex", alignItems: "center"}}><button style={{width: "75px", backgroundColor: "greenyellow", color: "gray", marginRight: "30px", alignItems: "center"}} onClick={()=> handleUpdate(index)}>Cập nhật</button><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red", marginLeft: "10px", alignItems: "center"}}>Xóa</button></td> {/* Close button */}
                             </tr>
                             )
                         }) : <span style={{paddingTop: "5px", textAlign: "center"}}>Người dùng không có thông tin địa chỉ</span>
@@ -779,9 +907,9 @@ export function UpdateAdress(){
                         <input type="text" id="street" value={address.street}  onChange={(e) => setVal((prev)=>({...prev,street:e.target.value}))}/>
                     </div>
                 </div> 
-                <label>
-                    <input type="checkbox" name="subscribe" checked={address.isdefault} onChange={(e) => setVal((prev)=>({...prev,isdefault:e.target.checked}))}/>
-                     Địa chỉ mặc định
+                <label style={{display: "inline-flex", width:"200px"}}>
+                    <input style={{width: "10px"}} type="checkbox" name="subscribe" checked={address.isdefault} onChange={(e) => setVal((prev)=>({...prev,isdefault:e.target.checked}))} />
+                     <span style={{marginTop: "5px", marginLeft: "10px"}}>Địa chỉ mặc định</span>
                 </label>
                 <div className="form-actions">
                     <button className="btn-cancel">Hủy</button>
@@ -835,20 +963,50 @@ export function UpdateData(){
         try{
             const { fname, lname, email, username } = user;  // Object destructuring for clarity
             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const usernamePattern = /^[a-zA-Z0-9]+$/;
+            const vietnameseNamePattern = /^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỹửữựỳỵýỷỹ\s]+$/;
+
             if (!emailPattern.test(email)){
                 alert('Định dạng email không hợp lệ vui lòng nhập lại')
                 return;
             }
-            const uid = localStorage.getItem('user');  // Destructure currentUser to get uid
-            const response = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{
-                fname,
-                lname,
-                username,
-                email
+            if (!usernamePattern.test(username)){
+                alert('Định dạng tên không hợp lệ')
+                return;
+            }
+            if (!vietnameseNamePattern.test(fname)){
+                alert('Định dạng tên không hợp lệ')
+                return;
+            }
+            if (!vietnameseNamePattern.test(lname)){
+                alert('Định dạng tên không hợp lệ')
+                return;
+            }
+            const uid = localStorage.getItem('uid');  // Destructure currentUser to get uid
+            console.log("Break id: ",uid)
+            const response = await axios.put(`http://localhost:8000/api/user/update-user/${uid}`,{
+                username: username,
+                lname: lname,
+                fname: fname,
+                email: email
             })
-            if (response.status != 200) throw new Error("Update fail!")
-            
-            alert('Cập nhật thông tin thành công')
+            // username: username,
+            //     lname: lname,
+            //     fname: fname,
+            //     email: email
+            // username: username!=currentUser.username?username:null,
+            //     lname: lname!=currentUser.lname?lname:null,
+            //     fname: fname!=currentUser.fname?fname:null,
+            //     email: email!=currentUser.email?email:null
+            console.log(response)
+            if (response.data.status != 200) {
+                alert(response.data.msg)
+                window.location.reload();
+            }
+            else {
+                alert('Cập nhật thông tin thành công')
+                window.location.reload();
+            }
         }
         catch(e){
             throw new Error(e)
@@ -893,7 +1051,7 @@ export function UpdateData(){
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => {setActive(1); navigate('/user/info/password')}} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer"}}>Đổi mật khẩu</button>
+                    <button onClick={() => {setActive(1); navigate('/user/info/password')}} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer", backgroundColor: "white", border: "1px, solid gray"}}>Đổi mật khẩu</button>
                     <div className="form-actions">
                         <button className="btn-cancel">Hủy</button>
                         <button className="btn-save" onClick={handleUpdate}>Lưu thay đổi</button>
@@ -925,8 +1083,7 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
-    //const uid = localStorage.getItem('user')
-    const uid ='uid3'
+    const uid = localStorage.getItem('uid')
     console.log(uid)
     const [currentUser, setUser] = useState(null)
     useEffect(()=>{
@@ -934,7 +1091,7 @@ function UserAccountManagement() {
             try{
                 const ruser = await axios.get(`http://localhost:8000/api/user/get-detail/${uid}`)
                 console.log(ruser)
-                if (ruser.status != 200) throw new Error("Bug Data")
+                if (ruser.data.status != 200) throw new Error("Bug Data")
                 setUser(ruser.data.data)
             }
             catch(err){
