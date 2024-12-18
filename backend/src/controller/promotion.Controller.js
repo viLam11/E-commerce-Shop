@@ -93,8 +93,8 @@ class PromotionController {
 
     async Apply(req, res, next){
         try {
-            const promotionId = req.body.uid
-            if (!promotionId) {
+            const uid = req.body.uid
+            if (!uid) {
                 return res.status(400).json({
                     status: 'ERR',
                     msg: 'The promotionID is required',
