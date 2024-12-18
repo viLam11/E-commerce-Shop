@@ -67,19 +67,19 @@ export default function NewReview({prodID}) {
 
                 </div>
                 <div>
-                    <span  className={`star filled ${rating >= 1 ? "text-yellow-400" : ''}`}
+                    <span  className={` filled ${rating >= 1 ? "text-yellow-400" : ''}`}
                         onClick={() => setRating(1)}    
                         >★</span>
-                    <span  className={`star filled ${rating >= 2 ? "text-yellow-400" : ''}`}
+                    <span  className={` filled ${rating >= 2 ? "text-yellow-400" : ''}`}
                         onClick={() => setRating(2)}    
                         >★</span>
-                    <span  className={`star filled ${rating >= 3 ? "text-yellow-400" : ''}`}
+                    <span  className={` filled ${rating >= 3 ? "text-yellow-400" : ''}`}
                         onClick={() => setRating(3)}    
                         >★</span>
-                    <span  className={`star filled ${rating >= 4 ? "text-yellow-400" : ''}`}
+                    <span  className={` filled ${rating >= 4 ? "text-yellow-400" : ''}`}
                         onClick={() => setRating(4)}    
                      >★</span>
-                    <span  className={`star filled ${rating === 5 ? "text-yellow-400" : ''}`}
+                    <span  className={` filled ${rating === 5 ? "text-yellow-400" : ''}`}
                         onClick={() => setRating(5)}    
                         >★</span>
                 </div>

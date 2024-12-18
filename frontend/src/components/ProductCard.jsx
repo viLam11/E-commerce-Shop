@@ -57,7 +57,7 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
             </div>
             <div className="w-full pl-2">
                 <h1 className="font-bold text-sm h-14 mt-2">{prodName}</h1>
-                <div className="price text-sm text-left justify-start  h-4">
+                <div className=" text-sm text-left justify-start  h-4">
                     <span className="text-red-600 text-left ">{formattedPrice}</span>
                 </div>
                  <div className="space-x-1 text-sm">

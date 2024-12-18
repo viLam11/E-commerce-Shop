@@ -24,15 +24,15 @@ export default function ProductCartSmall({prodID, prodName, prodPrice, prodRatin
         const emptyStars = totalStars - filledStars - (halfStar ? 1 : 0);
 
         return (
-            <>
+            <div className="" >
                 {[...Array(filledStars)].map((_, index) => (
-                    <span key={index} className="star filled text-yellow-400">★</span>
+                    <span key={index} className=" filled text-yellow-400">★</span>
                 ))}
-                {halfStar && <span className="star half-filled text-yellow-400">★</span>}
+                {halfStar && <span className=" half-filled text-yellow-400">★</span>}
                 {[...Array(emptyStars)].map((_, index) => (
-                    <span key={index} className="star">★</span>
+                    <span key={index} className="">★</span>
                 ))}
-            </>
+            </div>
         );
     };
 
@@ -84,16 +84,16 @@ export default function ProductCartSmall({prodID, prodName, prodPrice, prodRatin
                     </div> : null}
                 
             </div>
-            <div className="w-full pl-2">
+            <div className="w-full ">
                 <h1 className="font-bold text-sm">{prodName}</h1>
-                <div className="price text-sm">
-                    <span className="text-red-600">{formattedPrice}</span>
-                    {/* <span className="mx-2 line-through">22.000.000</span> */}
+                <div className="text-sm text-left justify-start">
+                    <span className="text-red-600 text-left ">{formattedPrice}</span>
                 </div>
-                 <div className="rating space-x-1 text-sm">
-                {renderStars(prodRating)}
-                <span>({prodRating})</span>
-            </div>
+                 <div className="space-x-1 text-sm" >
+                    <span className="">
+                        {renderStars(prodRating)}
+                    </span>
+                </div>
 
             </div>
         </div>

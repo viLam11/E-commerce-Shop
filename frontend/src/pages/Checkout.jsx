@@ -84,6 +84,7 @@ export default function Checkout() {
             return total + product.price * product.quantity;
         }, 0);
         setTotalPrice(totalPrice);
+        console.log("CHECK TOTAL PRICE: ", totalPrice); 
 
     }, [userID]);
 
@@ -144,20 +145,20 @@ export default function Checkout() {
             "shipping_address": "3/2 Huỳnh Tấn Phát", 
             "shipping_fee": 10000, 
             "shipping_co": "f",
-            "quantity": "1",
-            "total_price": 100000,
-            "promotion_id": "promotion1"
+            "quantity": 1,
+            "total_price": totalPrice,
+            "promotion_id":discountCode
         } )
 
         axios.post(`http://localhost:8000/api/order/CreateOrder/${userID}`, {
-                orderItems: orderItems,
-                "status": "Pending", 
-                "shipping_address": "3/2 Huỳnh Tấn Phát", 
-                "shipping_fee": 10000, 
-                "shipping_co": "f",
-                "quantity": "1",
-                "total_price": 100000,
-                "promotion_id": "promotion1"
+            orderItems: orderItems,
+            "status": "Pending", 
+            "shipping_address": "3/2 Huỳnh Tấn Phát", 
+            "shipping_fee": 10000, 
+            "shipping_co": "f",
+            "quantity": 1,
+            "total_price": totalPrice,
+            "promotion_id":discountCode
             
         })
             .then((response) => {
@@ -253,21 +254,20 @@ export default function Checkout() {
                         <div className="col-2  w-1/2">
                             <div className="products w-full space-y-4 m-auto">
                                 {productList.length > 0 &&  productList.map((product, index) => 
-
                                     ( <ProductInCheckout prodName={product.prodName} prodPrice={product.price} quantity={product.quantity} subtotal={product.quantity * product.price} img={product.img} />)
                                 )}
-                                <div className="border-b border-gray-600 mr-20"></div>
-                                <div className="flex justify-between mr-20">
+                                <div className="border-b border-gray-600 mr-10"></div>
+                                <div className="flex justify-between mr-10">
                                     <div>Thành tiền</div>
                                     <div>{formatNumber(totalPrice)} VND</div>
                                 </div>
-                                <div className="border-b border-gray-600 mr-20"></div>
-                                <div className="flex justify-between mr-20">
+                                <div className="border-b border-gray-600 mr-10"></div>
+                                <div className="flex justify-between mr-10">
                                     <div>Phí vận chuyển</div>
                                     <div>{formatNumber(15000)} VND</div>
                                 </div>
-                                <div className="border-b border-gray-600 mr-20"></div>  
-                                <div className="promotion flex justify-between mr-20" id="promotion">   
+                                <div className="border-b border-gray-600 mr-10"></div>  
+                                <div className="promotion flex justify-between mr-10" id="promotion">   
                                     <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5"
                                         onChange={(e) => setDiscountCode(e.target.value)}   
                                     />
@@ -276,8 +276,8 @@ export default function Checkout() {
                                     >Áp dụng</button>
                                 </div>
                                 <div id="promotionError" className="text-red-600 text-sm italic"></div>
-                                <div className="border-b border-gray-600 mr-20"></div>  
-                                <div className="flex justify-between mr-20">
+                                <div className="border-b border-gray-600 mr-10"></div>  
+                                <div className="flex justify-between mr-10">
                                     <div className="font-semibold">Tổng tiền</div>
                                     {discounted ? <div> <span className="">{formatNumber(discountedPrice)} VND</span>  <span className="line-through">{formatNumber(totalPrice + 15000)} VND</span> </div>:  <div>{formatNumber(totalPrice + 15000)} VND</div>}
                                     

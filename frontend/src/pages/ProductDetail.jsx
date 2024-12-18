@@ -177,7 +177,7 @@ export default function ProductDetail() {
                     <div className="w-full space-y-1 ml-6">
                         <div className="text-left font-bold text-2xl">{prodName}</div>
                         <RenderStars rating={prodAvgRating} />
-                        <div className="price text-lg font-bold">{formatPrice(prodPrice)}</div>
+                        <div className="text-lg font-bold">{formatPrice(prodPrice)}</div>
 
                         <div className="border border-b-1 w-10/12 "></div>
                         <div className="h-6"></div>

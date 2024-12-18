@@ -48,11 +48,10 @@ function App() {
            <Route path="/user/cart" element={<Cart/>} />
           <Route path="/user/shopping" element={<ShoppingPage/>}/>
           <Route path="/category/:id" element={<Categories />}/>
-          <Route path="/product-detail/:id" element={<ViewDetail />}/>
+          {/* <Route path="/product-detail/:prodID" element={<P />}/> */}
           <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<Homepage />} />
           <Route path="/customer/shopping" element={<Shopping />} />
-          <Route path="/customer/product-detail/:prodID" element={<ViewDetail />} />
           <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
           <Route path="/customer/history/:userID" element={<TransactionHist />} />
           <Route path="/customer/category/:catSlug" element={<ProductByCat />} /> 
