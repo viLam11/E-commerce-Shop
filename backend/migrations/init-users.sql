@@ -200,24 +200,81 @@ create table orders(
 	quantity				integer			not null,
 	total_price					integer			not null,
 	final_price				integer			not null,
+	promotion_id	varchar(255),
+	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
 	constraint fk_order_prod foreign key(uid)
 				references users(uid)
 );
 
-CREATE OR REPLACE FUNCTION calculate_final_price()
+-- Trigger Function to update total_payment
+CREATE OR REPLACE FUNCTION update_total_payment()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
-        NEW.final_price := NEW.total_price - NEW.shipping_fee;
+    -- Handle INSERT operation
+    IF TG_OP = 'INSERT' THEN
+        IF NEW.status = 'Completed' THEN
+            UPDATE users
+            SET total_payment = total_payment + NEW.final_price
+            WHERE uid = NEW.uid;
+        END IF;
     END IF;
-    RETURN NEW;
+
+    -- Handle DELETE operation
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.status = 'Completed' THEN
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price
+            WHERE uid = OLD.uid;
+        END IF;
+    END IF;
+
+    -- Handle UPDATE operation
+    IF TG_OP = 'UPDATE' THEN
+        IF OLD.status = 'Completed' AND NEW.status <> 'Completed' THEN
+            -- Order was completed but no longer completed
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price
+            WHERE uid = OLD.uid;
+        ELSIF OLD.status <> 'Completed' AND NEW.status = 'Completed' THEN
+            -- Order was not completed but now is completed
+            UPDATE users
+            SET total_payment = total_payment + NEW.final_price
+            WHERE uid = NEW.uid;
+        ELSIF OLD.status = 'Completed' AND NEW.status = 'Completed' THEN
+            -- Order remains completed, adjust for price changes
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price + NEW.final_price
+            WHERE uid = NEW.uid;
+        END IF;
+    END IF;
+
+    RETURN NULL; -- Triggers for AFTER events return NULL
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER	final_price
-BEFORE INSERT OR UPDATE ON orders
+--DROP FUNCTION update_total_payment()
+-- Create the Trigger
+CREATE TRIGGER trigger_update_total_payment
+AFTER INSERT OR DELETE OR UPDATE ON orders
 FOR EACH ROW
-EXECUTE FUNCTION calculate_final_price();
+EXECUTE FUNCTION update_total_payment();
+
+--DROP TRIGGER trigger_update_total_payment ON orders
+
+-- CREATE OR REPLACE FUNCTION calculate_final_price()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
+--         NEW.final_price := NEW.total_price - NEW.shipping_fee;
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- CREATE TRIGGER	final_price
+-- BEFORE INSERT OR UPDATE ON orders
+-- FOR EACH ROW
+-- EXECUTE FUNCTION calculate_final_price();
 
 select* from users;
 
@@ -243,14 +300,13 @@ create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
 	product_id 	varchar(255)	not null,
-	promotion_id	varchar(255),
 	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
 	discount	integer	not null,
+	primary key (iid,oid)
 	constraint fk_order_prod foreign key(oid) references orders(oid),
 	constraint fk_prod_of_order	foreign key(product_id) references product(product_id),
-	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
 	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
 )
 drop table order_include
@@ -312,27 +368,27 @@ SELECT * FROM orders
 WHERE orders.user_id = 'user000010';
 
 -- 3.2 Tính số tiền userID đã chi
-CREATE OR REPLACE FUNCTION check_expense(
-    userID varchar(255)
-)
-RETURNS INTEGER AS $$
-DECLARE
-    totalAmount INTEGER := 0;
-    coursePrice INTEGER;
-BEGIN
-    FOR coursePrice IN 
-        SELECT price
-        FROM orders o
-        WHERE o.user_id = userID
-    LOOP
-        totalAmount := totalAmount + coursePrice;
-    END LOOP;
+-- CREATE OR REPLACE FUNCTION check_expense(
+--     userID varchar(255)
+-- )
+-- RETURNS INTEGER AS $$
+-- DECLARE
+--     totalAmount INTEGER := 0;
+--     coursePrice INTEGER;
+-- BEGIN
+--     FOR coursePrice IN 
+--         SELECT price
+--         FROM orders o
+--         WHERE o.user_id = userID
+--     LOOP
+--         totalAmount := totalAmount + coursePrice;
+--     END LOOP;
 
-    RETURN totalAmount;
-END;
-$$ LANGUAGE plpgsql;
+--     RETURN totalAmount;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-SELECT check_expense('user000001');
+-- SELECT check_expense('user000001');
 
 -- create table carts(
 -- 	uid			varchar(255)	not null,
@@ -348,7 +404,6 @@ CREATE TABLE cart (
     uid          VARCHAR(255) NOT NULL,
     product_id   VARCHAR(255) NOT NULL,
     quantity     INTEGER      NOT NULL DEFAULT 1 CHECK(quantity > 0),
-
     PRIMARY KEY (uid,product_id),
     CONSTRAINT fk_addtocart_productid FOREIGN KEY (product_id) REFERENCES product(product_id),
     CONSTRAINT fk_addtocart_uid FOREIGN KEY (uid) REFERENCES users(uid)
