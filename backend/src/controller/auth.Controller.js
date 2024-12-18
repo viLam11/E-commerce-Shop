@@ -7,7 +7,7 @@ const UserService = require('../../database/userService');
 class AuthController {
     async postSignUp(req, res) {
         // console.log('CHECK authData: ', req.body)
-        //const userId = uuidv4();
+        // const userId = uuidv4();
         const { email, password, confirmPassword } = req.body;
         let username = req.body.username;
         if (!username) {
@@ -137,16 +137,20 @@ class AuthController {
                 );
 
                 //localStorage.setItem('token', token);
-                res.cookie('token', token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production', // Chỉ bật secure trên môi trường production
-                    maxAge: 3600000 // 1 giờ
-                });
+                // res.cookie('token', token, {
+                //     httpOnly: true,
+                //     secure: process.env.NODE_ENV === 'production', // Chỉ bật secure trên môi trường production
+                //     maxAge: 3600000 // 1 giờ
+                // });
 
                 res.status(200).json({
                     status: 200,
                     msg: 'Authentication successful',
-                    data: { token: token }
+                    data: { 
+                        token: token, 
+                        userType: loadedUser.usertype,
+                        userID: loadedUser.uid
+                    }
                 });
             })
             .catch(err => {
@@ -456,6 +460,27 @@ class AuthController {
         catch (err) {
             return res.status(404).json({
                 status: 404,
+                msg: err,
+                data: null
+            })
+        }
+    }
+
+    async getAddressById(req, res, next) {
+        try {
+            const userId = req.params.id;
+            if(!userId) {
+                return res.status(400).json({
+                    status: 400,
+                    msg: "The userID is required",
+                    data: null
+                })
+            }
+            
+            
+        } catch(err) {
+            return res.status(400).json({
+                status: 400,
                 msg: err,
                 data: null
             })

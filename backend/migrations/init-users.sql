@@ -2,12 +2,13 @@ create type user_type as enum('admin', 'customer');
 create type u_gender as enum('male', 'female');
 create type status	as enum('active', 'inactive');
 create type ranks as enum('silver', 'gold', 'diamond');
-create type bool as enum ('Yes', 'No')
---users
+create type bool as enum ('Yes', 'No');
+
+
 create table users(
 	uid	 		varchar(100) 	PRIMARY KEY,
 	username	varchar(50) 	NOT NULL unique,
-	upassword 	varchar(60) 	NOT NULL,
+	upassword 	varchar(200) 	NOT NULL,
 	fname		varchar(32) 	NOT NULL,
 	lname		varchar(32) 	NOT NULL,
 	email		varchar(50) 	NOT NULL unique,
@@ -36,16 +37,6 @@ BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION check_role_constraint();
 
-COPY users (uid, username, upassword,fname, lname, email, gender, usertype, birthday, ranking,total_payment, id_no)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\users.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-select* from users;
-
-drop table users;
-
---phone
 create table user_phone(
 	uid			varchar(100)	not null,
 	phone		varchar(11)		not null,
@@ -54,15 +45,6 @@ create table user_phone(
 								references users(uid)
 );
 
-COPY user_phone (uid, phone)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\phone.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-select * from user_phone
-
-drop table user_phone;
---address
 
 create table user_address(
 	uid			varchar(100)	not null,
@@ -73,31 +55,11 @@ create table user_address(
 								references users(uid)
 );
 
-COPY user_address (uid, address, isdefault)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\address.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-select * from user_address;
-
-drop table user_address;
---category
 create table category(
 	cate_id		varchar(100)	primary key,
 	cate_name	varchar(33)		not null
 );
-INSERT INTO category(cate_id, cate_name) VALUES('c01', 'Điện thoại');
-INSERT INTO category(cate_id, cate_name) VALUES('c02', 'Laptop');
-INSERT INTO category(cate_id, cate_name) VALUES('c03', 'Máy tính bảng');
-INSERT INTO category(cate_id, cate_name) VALUES('c04', 'Đồng hồ thông minh');
-INSERT INTO category(cate_id, cate_name) VALUES('c05', 'Phụ kiện');
 
-COPY category (cate_id, cate_name)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\category.csv'
-DELIMITER ',' 
-CSV HEADER;
-
---product
 CREATE TABLE product(
 	product_id			varchar(100)	PRIMARY KEY,
 	pname				varchar(100)	NOT NULL,
@@ -112,15 +74,6 @@ CREATE TABLE product(
 	constraint fk_category	foreign key (cate_id) references category(cate_id)
 );
 
-COPY product (product_id, pname, price,cate_id, brand, description, quantity, create_time, sold, rating)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\product.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-drop table product;
-
-select * from product;
---product image
 create table image(
 	product_id 	varchar(255) ,
 	image_id	varchar(255) ,
@@ -132,15 +85,6 @@ create table image(
 				on delete cascade
 );
 
-COPY image (product_id, image_id, image_url, ismain)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\image.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-select * from image;
-
-drop table image;
---promotion
 create type discount as enum('fix price', 'percent');
 create type apply_type as enum ('product', 'category', 'all');
 create table promotion(
@@ -158,13 +102,6 @@ create table promotion(
 	apply_range		apply_type		not null
 );
 
-COPY promotion (promotion_id, name, quantity, description,starttime, endtime, minspent, apply_range, apply_id, value, percentage, max_amount)
-FROM 'C:\Program Files\PostgreSQL\17\data sample\promotion.csv'
-DELIMITER ',' 
-CSV HEADER;
-
-select * from promotion
-
 CREATE OR REPLACE FUNCTION check_promo_constraint()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -177,14 +114,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER promo_constraint
-BEFORE INSERT ON users
-FOR EACH ROW
-EXECUTE FUNCTION check_promo_constraint();
+-- CREATE TRIGGER promo_constraint
+-- BEFORE INSERT ON users
+-- FOR EACH ROW
+-- EXECUTE FUNCTION check_promo_constraint();
 
-select * from promotion;
-drop table promotion;
---order
+DROP TRIGGER IF EXISTS promo_constraint ON users;
+
+
 create type deli_state as enum('Cancelled','Completed','Returned','Shipped','Pending','Paid');
 create table orders(
 	oid						varchar(100) 	primary key,
@@ -294,8 +231,9 @@ create table reviews(
 	primary key(product_id, uid),
 	constraint fk_review_prod foreign key(product_id) references product(product_id),
 	constraint fk_cus_review	foreign key(uid) references users(uid)
-)
-drop table reviews;
+);
+
+
 create table order_include(
 	iid	smallint	not null,
 	oid	varchar(255)	not null,
@@ -308,9 +246,7 @@ create table order_include(
 	constraint fk_order_prod foreign key(oid) references orders(oid),
 	constraint fk_prod_of_order	foreign key(product_id) references product(product_id),
 	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
-)
-drop table order_include
-create type action_type('add', 'delete', 'update');
+);
 
 select * from promotion;
 select * from orders;

@@ -1,11 +1,14 @@
 const client = require('./database');
+const { v4: uuidv4 } = require('uuid');
 const CreateID = require('../createID')
 class UserService {
     constructor() { };
 
+
+
     async createCustomer(username, password, data) {
         return new Promise((resolve, reject) => {
-            const userId = generateID('uid');
+            const userId = CreateID.generateID('uid');
             const { lname, fname, gender, email, userType, birthday } = data
             client.query(
                 `INSERT INTO users( uid, username, upassword, email, userType, lname, fname, gender, birthday, ranking) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
@@ -341,8 +344,8 @@ class UserService {
                 else {
                     client.query(`
                         SELECT * FROM users
-                        WHERE email = $1
-                    `, [data.email], async (err, res) => {
+                        WHERE email = $1 OR username = $2 
+                    `, [data.email, data.username], async (err, res) => {
                         if (err) {
                             reject({
                                 status: 400,
@@ -350,10 +353,10 @@ class UserService {
                                 data: null
                             });
                         }
-                        else if (res.rows.length !== 0) {
+                        else if (res.rows.length > 1) {
                             resolve({
                                 status: 404,
-                                msg: 'The Pname is already exist',
+                                msg: `${data.username} đã tồn tại`,
                                 data: null
                             });
                         }
@@ -500,119 +503,206 @@ class UserService {
         })
     }
 
-    async createAddress(userId, body) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const isArray = Array.isArray(body.address);
-                const checkUser = await this.findsomethingExist("users", "uid", userId);
-                if (checkUser.data.rows.length === 0) {
-                    resolve({
-                        status: 404,
-                        msg: `The uid does not exist`,
-                        data: null
-                    });
+    // async createAddress(userId, body) {
+    //     return new Promise(async (resolve, reject) => {
+    //         try {
+    //             const isArray = Array.isArray(body.address);
+    //             const checkUser = await this.findsomethingExist("users", "uid", userId);
+    //             if (checkUser.data.rows.length === 0) {
+    //                 resolve({
+    //                     status: 404,
+    //                     msg: `The uid does not exist`,
+    //                     data: null
+    //                 });
+    //             }
+
+    //             for (let i = 0; true; i++) {
+    //                 let Address = isArray ? body.address[i] : body.address; // Handle case when images is not an array
+    //                 const checkAddress = await client.query('SELECT * FROM user_address WHERE uid = $1 AND address = $2', [userId, body.address]);
+    //                 if (checkAddress.rows.length !== 0) {
+    //                     continue;
+    //                 }
+
+    //                 let Isdefault = false;
+    //                 if ("isdefault" in body) {
+    //                     //console.log("Found 'ismain' in data");
+    //                     if (!isArray && body.isdefault === true) {
+    //                         Isdefault = true; // If only one image is provided, set it as main
+    //                     } else {
+    //                         const IsdefaultIndex = Number(body.isdefault);
+    //                         if (!isNaN(IsdefaultIndex) && IsdefaultIndex === i) {
+    //                             Isdefault = true; // Set the main image based on the index
+    //                         }
+    //                     }
+    //                 }
+
+    //                 try {
+    //                     await client.query('INSERT INTO user_address (uid, address, isdefault) VALUES ($1, $2, $3)', [userId, Address, Isdefault]);
+    //                 } catch (insertErr) {
+    //                     reject({
+    //                         status: 400,
+    //                         msg: insertErr.message,
+    //                         data: null
+    //                     });
+    //                 }
+    //                 if (isArray && i == body.address.length - 1) break;
+    //                 if (!isArray) break;
+    //             }
+
+    //             resolve({
+    //                 status: 200,
+    //                 msg: 'Address added successfully',
+    //                 data: { uid: userId, address: body.address }
+    //             });
+
+    //         }
+    //         catch (err) {
+    //             reject({
+    //                 status: 400,
+    //                 msg: err.message,
+    //                 data: null
+    //             });
+    //         }
+    //     })
+    // }
+
+    async createAddress(uid, body) {
+        try {
+            await client.query('BEGIN')
+            if (body.isdefault) {
+                await client.query(`
+                    UPDATE user_address
+                    SET isdefault = $1
+                    WHERE uid = $2
+                `, [false, uid])
+                await client.query(`
+                    INSERT INTO user_address (uid, address, isdefault)
+                    VALUES ($1, $2, $3)
+                `, [uid, body.address, body.isdefault])
+            }
+            else {
+                const cad = await client.query(`
+                    SELECT * FROM user_address
+                    WHERE uid = $1
+                `, [uid])
+                if (cad.rows.length <= 0) {
+                    await client.query(`
+                        INSERT INTO user_address (uid, address, isdefault)
+                        VALUES ($1, $2, $3)
+                    `, [uid, body.address, true])
+                }
+                else {
+                    await client.query(`
+                        INSERT INTO user_address (uid, address, isdefault)
+                        VALUES ($1, $2, $3)
+                    `, [uid, body.address, body.isdefault])
                 }
 
-                for (let i = 0; true; i++) {
-                    let Address = isArray ? body.address[i] : body.address; // Handle case when images is not an array
-                    const checkAddress = await client.query('SELECT * FROM user_address WHERE uid = $1 AND address = $2', [userId, body.address]);
-                    if (checkAddress.rows.length !== 0) {
-                        continue;
-                    }
-
-                    let Isdefault = false;
-                    if ("isdefault" in body) {
-                        //console.log("Found 'ismain' in data");
-                        if (!isArray && body.isdefault === true) {
-                            Isdefault = true; // If only one image is provided, set it as main
-                        } else {
-                            const IsdefaultIndex = Number(body.isdefault);
-                            if (!isNaN(IsdefaultIndex) && IsdefaultIndex === i) {
-                                Isdefault = true; // Set the main image based on the index
-                            }
-                        }
-                    }
-
-                    try {
-                        await client.query('INSERT INTO user_address (uid, address, isdefault) VALUES ($1, $2, $3)', [userId, Address, Isdefault]);
-                    } catch (insertErr) {
-                        reject({
-                            status: 400,
-                            msg: insertErr.message,
-                            data: null
-                        });
-                    }
-                    if (isArray && i == body.address.length - 1) break;
-                    if (!isArray) break;
-                }
-
-                resolve({
-                    status: 200,
-                    msg: 'Address added successfully',
-                    data: { uid: userId, address: body.address }
-                });
-
             }
-            catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message,
-                    data: null
-                });
+            await client.query('COMMIT')
+            return {
+                status: 200,
+                msg: "Add successfully",
+                data: body
             }
-        })
+        }
+        catch (err) {
+            await client.query('ROLLBACK')
+            return {
+                status: 400,
+                msg: err.message,
+                data: null
+            }
+        }
     }
+    // async updateAddress(uid, body) {
+    //     return new Promise(async (resolve, reject) => {
+    //         client.query(`SELECT * FROM user_address WHERE uid = $1`,
+    //             [uid], (err, res) => {
+    //                 if (err) {
+    //                     reject({
+    //                         status: 400,
+    //                         msg: err.message,
+    //                         data: null
+    //                     });
+    //                 }
+    //                 else if (res.rows.length === 0) {
+    //                     resolve({
+    //                         status: 404,
+    //                         msg: 'The id is not exist',
+    //                         data: null
+    //                     });
+    //                 }
+    //                 else {
+    //                     try {
+    //                         for (const [key, value] of Object.entries(body)) {
+    //                             if (key === "user_id") continue;
+    //                             else if (key === "isdefault" && "address" in body && !("upaddress" in body)) {
+    //                                 client.query(`UPDATE user_address SET ${key} = $1 WHERE uid = $2 AND address = $3`, [value, uid, body.address]);
+    //                             }
+    //                             else if (key === "upaddress") {
+    //                                 client.query(`DELETE FROM user_address WHERE uid = $1`, [uid])
+    //                                 let tmp = body.upaddress;
+    //                                 body.address = tmp;
+    //                                 this.createAddress(uid, body);
+    //                             }
 
+    //                         }
+    //                         resolve({
+    //                             status: 200,
+    //                             msg: 'Update success',
+    //                             data: null
+    //                         });
+    //                     } catch (updateErr) {
+    //                         reject({
+    //                             status: 400,
+    //                             msg: updateErr.message,
+    //                             data: null
+    //                         });
+    //                     }
+
+    //                 }
+    //             })
+    //     })
+    // }
 
     async updateAddress(uid, body) {
-        return new Promise(async (resolve, reject) => {
-            client.query(`SELECT * FROM user_address WHERE uid = $1`,
-                [uid], (err, res) => {
-                    if (err) {
-                        reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
-                    }
-                    else if (res.rows.length === 0) {
-                        resolve({
-                            status: 404,
-                            msg: 'The id is not exist',
-                            data: null
-                        });
-                    }
-                    else {
-                        try {
-                            for (const [key, value] of Object.entries(body)) {
-                                if (key === "user_id") continue;
-                                else if (key === "isdefault" && "address" in body && !("upaddress" in body)) {
-                                    client.query(`UPDATE user_address SET ${key} = $1 WHERE uid = $2 AND address = $3`, [value, uid, body.address]);
-                                }
-                                else if (key === "upaddress") {
-                                    client.query(`DELETE FROM user_address WHERE uid = $1`, [uid])
-                                    let tmp = body.upaddress;
-                                    body.address = tmp;
-                                    this.createAddress(uid, body);
-                                }
-
-                            }
-                            resolve({
-                                status: 200,
-                                msg: 'Update success',
-                                data: null
-                            });
-                        } catch (updateErr) {
-                            reject({
-                                status: 400,
-                                msg: updateErr.message,
-                                data: null
-                            });
-                        }
-
-                    }
-                })
-        })
+        try {
+            await client.query('BEGIN')
+            if (body.isdefault) {
+                await client.query(`
+                    UPDATE user_address
+                    SET isdefault = $1
+                    WHERE uid = $2
+                `, [false, uid])
+                await client.query(`
+                    UPDATE user_address
+                    SET isdefault = $1, address = $2
+                    WHERE uid = $3 and address = $4
+                `, [true, body.new_address, uid, body.old_address])
+            }
+            else {
+                await client.query(`
+                    UPDATE user_address
+                    SET isdefault = $1, address = $2
+                    WHERE uid = $3 and address = $4
+                `, [body.isdefault, body.new_address, uid, body.old_address])
+            }
+            await client.query('COMMIT')
+            return {
+                status: 200,
+                msg: "Add successfully",
+                data: body
+            }
+        }
+        catch (err) {
+            await client.query('ROLLBACK')
+            return {
+                status: 400,
+                msg: err.message,
+                data: null
+            }
+        }
     }
 
     async deleteAddress(uid, body) {

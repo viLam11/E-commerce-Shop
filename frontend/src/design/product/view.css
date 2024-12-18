@@ -1,0 +1,482 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    margin-top: 0px;
+}
+.viewpage{
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 50px;
+    margin-right: 50px;
+    font-family: 'Roboto',sans-serif;
+}
+.product-page {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.breadcrumbs{
+    padding: 20px;
+    border-radius: 8px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.breadcrumbs div {
+    margin-top: 60px;
+}
+
+.breadcrumbs div a{
+    color: #000;
+    text-decoration: none;
+}
+
+.breadcrumbs div .off{
+    color: #888;
+}
+
+.breadcrumbs div .shopping{
+    color: #888;
+    text-decoration: none;
+}
+
+.review-of-customer{
+    border-radius: 8px;
+    border: solid #888;
+}
+
+.a-review{
+    border-radius: 8px;
+    border: solid #888;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+}
+
+.review-of-customer form{
+    border-radius: 8px;
+    border: solid #888;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+
+}
+
+.review-of-customer form input[type ='text']{
+    border: none;
+    outline: none;
+    width: 70%;
+    height: 100%;
+}
+
+.review-of-customer form input[type ='submit']{
+    border: none;
+    outline: none;
+    width: 60px;
+    height: 30px;
+    margin-left: 210px;
+    text-decoration: none;
+    background-color: #ddd;
+    font-family: 'Roboto',sans-serif;
+}
+.review-of-customer form input[type ='submit']:hover{
+    color: #eeeaea;
+    background-color:#e74c3c;
+}
+.product-container {
+    display: flex;
+    gap: 20px;
+}
+
+.thumbnails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.thumbnails img {
+    width: 60px;
+    height: auto;
+    border: 1px solid #ddd;
+    background-color: #888;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.thumbnails img:hover {
+    border-color: #0077ff;
+}
+
+.main-image img {
+    width: 400px;
+    height: auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    
+}
+
+.main-image img:hover {
+    border-color: #0077ff;
+}
+
+.product-details {
+    width: 1200px;
+    margin-left: 40px;
+}
+
+.product-details h1 {
+    font-size: 2em;
+    margin: 0 0 10px;
+}
+
+.rating-stock {
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.stock-status {
+    color: green;
+}
+
+.price {
+    font-size: 1.8em;
+    color: #ff4747;
+    margin-bottom: 15px;
+}
+
+.prod-description{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.prod-description h3{
+    text-align: center;
+    align-items: center;
+    justify-items: center;
+    color: #ff4747;
+    margin-bottom: 10px;
+}
+
+.prod-description div{
+    border: solid #888 ;
+    border-radius: 8px;
+    color: #000;
+    padding: 10px;
+    text-align: justify;
+}
+
+.review-prod{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    
+}
+
+.review-prod .view-review{
+    display: inline-flex;
+    width: 100%;
+    border: solid #888;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.review-prod .view-review div{
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 20px
+}
+
+.review-prod .view-review .horizon-slash{
+    display: inline-flex;
+    margin-top: 10px;
+    height: 500px;
+    width: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0px;
+    border: #000 solid;
+    color: #000;
+}
+
+.review-prod .view-review .view-detail{
+    display: inline-flex;
+    max-width: 1200px;
+}
+
+
+.review-prod h3{
+    text-align: center;
+    align-items: center;
+    justify-items: center;
+    color: #ff4747;
+    margin-bottom: 10px;
+}
+
+.review-prod .view-review .view-detail{
+    text-align: right;
+    align-items: right;
+    justify-items: right;
+}
+.rating-bar {
+    width: 400px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .rating-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .outer {
+    flex: 1;
+    height: 2px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 8px;
+  }
+  
+  .outer div{
+    height: 50%;
+    width: 100%;
+    background-color: red; /* Color of the fill */
+    border-radius: 4px;
+  }
+  
+  .btn {
+    width: 27px; /* Độ rộng nút */
+    height: 27px; /* Độ cao nút */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    background-color: transparent; /* Mặc định không màu */
+    font-family: Arial, sans-serif;
+}
+
+/* Nút giảm */
+.decrement {
+    background-color: white;
+    color: black;
+}
+
+.decrement:hover {
+    background-color: rgb(176, 50, 50);
+    color: rgb(234, 232, 232);
+}
+/* Nút tăng */
+.increment {
+    background-color: white;
+    color: black;
+}
+.increment:hover {
+    background-color: rgb(176, 50, 50);
+    color: rgb(234, 232, 232);
+}
+.color-options {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.color-options p {
+    margin-right: 10px;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.purchase-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.quantity {
+    display: flex;
+    align-items: center;
+}
+.quantity span{
+    width: 40px;
+    height: 27px;
+    border: 1px solid #ddd;
+    text-align: center;
+    text-justify:distribute;
+}
+.quantity button {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+.quantity input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 5px;
+    margin: 0 5px;
+    width: 60px;
+}
+
+.buy-now {
+    background-color: #ff4747;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-to-cart {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.info-box {
+    margin-top: 20px;
+}
+
+.info-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    display: inline-flex;
+    width: 500px;
+}
+.info-item .icon{
+    width: 50px;
+    font-size:0.7cm;
+}
+/*STAR RATING*/
+.rating-container {
+    display: flex;
+    gap: 2rem;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Left Section */
+  .rating-left {
+    text-align: center;
+  }
+  
+  .average-rating {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .total-ratings {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  .stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .star-wrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .star {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ccc;
+    clip-path: polygon(
+      50% 0%,
+      63% 38%,
+      100% 38%,
+      69% 59%,
+      82% 100%,
+      50% 75%,
+      18% 100%,
+      31% 59%,
+      0% 38%,
+      37% 38%
+    ); /* Star shape */
+  }
+  
+  .star-fill {
+    position: absolute;
+    width: 0;
+    height: 100%;
+    background: #f39c12;
+    clip-path: inherit; /* Matches the star shape */
+    transition: width 0.3s ease;
+  }
+  
+  /* Right Section */
+  .rating-right {
+    flex: 1;
+  }
+  
+  .rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .star-level {
+    width: 50px;
+    text-align: right;
+  }
+  
+  .bar {
+    flex: 1;
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .bar-fill {
+    height: 100%;
+    background: #e74c3c;
+    border-radius: 5px 0 0 5px;
+    transition: width 0.3s ease;
+  }
+  
+  .count {
+    width: 30px;
+    text-align: right;
+  }
+  

@@ -20,10 +20,16 @@ class OrderService {
                             });
                         }
 
-                        const currentQuantity = res.rows[0].quantity;
+                        console.log("prodID: ", productId);
+                        console.log("Check response: ", res.rows[0].quantity);
+                        console.log("amount: ", amount);
 
+                        const currentQuantity = res.rows[0].quantity;
+                        // const currentQuantity = 10;
                         // Nếu số lượng tồn kho không đủ
                         if (currentQuantity < amount) {
+
+                            console.log('Not enough stock');
                             return reject({
                                 status: 400,
                                 msg: 'Not enough stock',
@@ -67,6 +73,65 @@ class OrderService {
             }
         });
     }
+
+
+    // async createOrder(newOrder, uid) {
+    //     return new Promise(async (resolve, reject) => {
+    //         const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, promotion_id } = newOrder
+    //         const orderId = CreateID.generateID("order");
+    //         await client.query('BEGIN');
+    //         try {
+    //             await client.query(
+    //                 `INSERT INTO orders( oid, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, final_price)
+    //                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    //                 [orderId, uid, status, shipping_address, shipping_fee, shipping_co, quantity, total_price, shipping_fee + total_price]);
+    //             if (promotion_id) {
+    //                 await client.query(`UPDATE promotion SET quantity = quantity-1 WHERE promotion_id = $1`, [promotion_id])
+    //             }
+    //             let iid = 0
+    //             const errorProducts = [];
+    //             for (const order of orderItems) {
+    //                 try {
+    //                     // Kiểm tra và cập nhật số lượng sản phẩm
+    //                     const productData = await this.updateProductStock(order.product_id, order.quantity);
+    //                     iid += 1;
+
+    //                     // Thêm sản phẩm vào bảng order_include
+    //                     await client.query(
+    //                         `INSERT INTO order_include (iid, oid, product_id, quantity, paid_price, cate_id, promotion_id)
+    //                      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    //                         [iid, orderId, order.product_id, order.quantity, order.subtotal, productData.data.cate_id, promotion_id]
+    //                     );
+    //                 } catch (err) {
+    //                     console.log(err);
+    //                     errorProducts.push(order.product_id); // Lưu sản phẩm không đủ số lượng
+    //                 }
+    //             }
+
+    //             // Nếu có sản phẩm lỗi, rollback và trả về thông báo
+    //             if (errorProducts.length > 0) {
+    //                 await client.query('ROLLBACK');
+
+    //                 console.log("HERE !!! ", errorProducts);
+    //                 return resolve({
+    //                     status: 'ERR',
+    //                     msg: `Sản phẩm với id ${errorProducts.join(', ')} không đủ hàng`
+    //                 });
+    //             }
+    //             await client.query('COMMIT');
+    //             resolve({
+    //                 status: 200,
+    //                 msg: 'SUCCESS',
+    //             });
+    //         } catch (err) {
+    //             await client.query('ROLLBACK');
+    //             reject({
+    //                 status: 400,
+    //                 msg: err.message
+    //             })
+    //         }
+    //     })
+    // }
 
 
     async createOrder(newOrder, uid) {
@@ -116,12 +181,16 @@ class OrderService {
                 });
             } catch (err) {
                 await client.query('ROLLBACK');
-                reject({
-                    status: 400,
-                    msg: err.message
-                })
+                throw new Error(`Sản phẩm với id ${errorProducts.join(', ')} không đủ hàng`);
             }
-        })
+
+            await client.query('COMMIT');
+            return { status: 200, msg: 'SUCCESS' };
+        } catch (err) {
+            console.error("Error during order creation:", err.message);
+            await client.query('ROLLBACK');
+            throw { status: 400, msg: err.message };
+        }
     }
 
     async findsomethingExist(table, column, value) {

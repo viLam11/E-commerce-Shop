@@ -22,7 +22,7 @@ router.put('/UpdateProduct/:id', authMiddleware.authUserMiddleWare, productContr
 router.delete('/DeleteProduct/:id', authMiddleware.authUserMiddleWare, productController.deleteProduct);
 router.get('/get-detail/:id', productController.getDetailProduct);
 router.get('/getAll', productController.getAllProduct);
-router.delete('/delete-many', authMiddleware.authUserMiddleWare, productController.deleteMany);
+router.delete('/delete-many', productController.deleteMany);
 
 //image
 // router.post('/AddImage/:id', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.addImage);

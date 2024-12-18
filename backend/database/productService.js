@@ -8,26 +8,22 @@ class ProductService {
 
     async createProduct(newProduct) {
         return new Promise((resolve, reject) => {
-            const { pname, price, brand, description, quantity, cate_id } = newProduct
-            client.query(`
-                SELECT * FROM product
-                WHERE pname = $1
-            `, [pname], (err, res) => {
+            const { pname, price, brand, description, quantity, cate_id } = newProduct;
+
+            client.query(`SELECT * FROM product WHERE pname = $1`, [pname], (err, res) => {
                 if (err) {
                     reject({
                         status: 400,
                         msg: err.message,
                         data: null
                     });
-                }
-                else if (res.rows.length !== 0) {
+                } else if (res.rows.length !== 0) {
                     resolve({
                         status: 404,
-                        msg: 'The product is already exist',
+                        msg: 'The product already exists',
                         data: null
                     });
-                }
-                else {
+                } else {
                     try {
                         const productId = CreateID.generateID('product');
                         client.query(
@@ -71,8 +67,8 @@ class ProductService {
                         reject(e)
                     }
                 }
-            })
-        })
+            });
+        });
     }
 
     async findsomethingExist(column, value) {
@@ -138,10 +134,10 @@ class ProductService {
                         try {
                             for (const [key, value] of Object.entries(data)) {
                                 if (key === "product_id" || key === "ismain") continue;
-                                if (key === "image"){
-                                    let img_res = await this.updateImage({product_id: id}, data)
+                                if (key === "image") {
+                                    let img_res = await this.updateImage({ product_id: id }, data)
                                     console.log(img_res)
-                                } else{
+                                } else {
                                     await client.query(
                                         `UPDATE product SET ${key} = $1 WHERE product_id = $2`,
                                         [value, id]
@@ -291,7 +287,7 @@ class ProductService {
                 reject(err)
             }
         })
-    }
+    };
 
 
     async countProducts() {
@@ -313,7 +309,6 @@ class ProductService {
             });
         });
     }
-
 
     async sortProducts(sort, limit, offset) {
         return new Promise((resolve, reject) => {
@@ -437,6 +432,7 @@ class ProductService {
                 let countPro = await this.countProducts()
                 if (filter) {
                     const productFilter = await this.filterProduct(filter, limit, limit * page)
+
                     resolve({
                         status: 200,
                         msg: 'SUCCESS',
@@ -490,6 +486,8 @@ class ProductService {
         })
     }
 
+    // image
+
     async findsomethingExistImage(column, value) {
         return new Promise((resolve, reject) => {
             client.query(`
@@ -517,7 +515,7 @@ class ProductService {
     async addImage(productId, body) {
         try {
             // const images = file.map(obj => obj.path)
-            const {image, ismain} = body
+            const { image, ismain } = body
             // const isArray = Array.isArray(image);
 
             // Check if product exists
@@ -550,7 +548,7 @@ class ProductService {
                     if (ismain === i) {
                         Ismain = true; // Set the main image based on the index
                     }
-                } else if( i === 0 ){
+                } else if (i === 0) {
                     Ismain = true;
                 }
 
@@ -635,7 +633,7 @@ class ProductService {
                         });
                     } else {
                         console.log(res.rows[0])
-                        if(res.rows[0].ismain === true){
+                        if (res.rows[0].ismain === true) {
                             let product_list = await client.query(`
                                 SELECT * FROM image 
                                 WHERE product_id = $1
@@ -643,7 +641,7 @@ class ProductService {
                                 `, [product_id]);
                             let i = 0
                             console.log(product_list)
-                            while(product_list.rows[i].image_url === image_url) i++;
+                            while (product_list.rows[i].image_url === image_url) i++;
                             await client.query(`
                                 UPDATE image 
                                 SET ismain = true
@@ -717,12 +715,12 @@ class ProductService {
     async updateImage(query, body) {
         return new Promise(async (resolve, reject) => {
             try {
-                const {product_id, image_url} = query;
-                if("image_url" in query){
+                const { product_id, image_url } = query;
+                if ("image_url" in query) {
                     let res = await client.query(`
                         SELECT * FROM image 
                         WHERE product_id = $1 AND image_url = $2`
-                        ,[product_id, image_url]);
+                        , [product_id, image_url]);
                     if (res.rows.length === 0) {
                         return resolve({
                             status: 404,
@@ -730,7 +728,7 @@ class ProductService {
                             data: null
                         });
                     }
-                    if ("ismain" in body){
+                    if ("ismain" in body) {
                         await client.query(
                             `UPDATE image 
                             SET ismain = $1 
@@ -741,13 +739,13 @@ class ProductService {
                     let check = await client.query(`
                         SELECT * FROM image 
                         WHERE product_id = $1 AND image_url = $2`
-                        ,[product_id, image_url]);
+                        , [product_id, image_url]);
                     resolve({
                         status: 200,
                         msg: 'Update success',
                         data: check.rows[0]
                     });
-                }else {
+                } else {
                     //xoá cái cũ
                     const del = await this.deleteImageByProduct(product_id);
                     console.log(del)
@@ -783,7 +781,7 @@ class ProductService {
     async CreateReview(product_id, newReview) {
         return new Promise(async (resolve, reject) => {
             const { uid, rating, comment } = newReview
-            const exist =  await client.query(`
+            const exist = await client.query(`
                 SELECT EXISTS (
                     SELECT 1
                     FROM orders o
@@ -791,8 +789,8 @@ class ProductService {
                     WHERE o.uid = $1 AND oi.product_id = $2
                 );
             `, [uid, product_id]);
-            let ex_flag     = exist.rows[0].exists
-            if(!ex_flag){   // nếu khách chưa mua sản phẩm
+            let ex_flag = exist.rows[0].exists
+            if (!ex_flag) {   // nếu khách chưa mua sản phẩm
                 reject('Customer has not purchased the product')
             }
             // console.log(exist.rows[0].exists);
@@ -810,7 +808,7 @@ class ProductService {
                     //     data: null
                     // });
                     console.log("'The Review is already exist")
-                    let update = await this.UpdateReview(product_id,newReview)
+                    let update = await this.UpdateReview(product_id, newReview)
                     console.log(update)
                     resolve(update);
                 }
@@ -914,7 +912,7 @@ class ProductService {
     async GetReview(query) {
         return new Promise(async (resolve, reject) => {
             try {
-                const {product_id, page, limit, uid} = query
+                const { product_id, page, limit, uid } = query
                 console.log(query)
                 await client.query(`
                     SELECT *
@@ -927,35 +925,35 @@ class ProductService {
                         END,
                         time DESC
                     LIMIT $3 OFFSET $2;
-                    `, [product_id, page*limit, limit, uid], async (err, res) => {
-                        if (err) {
-                           reject(err.message);
-                        }
-                        else if (res.rows.length === 0) {
-                            resolve({
-                                status: 404,
-                                msg: "The product's review is not exist",
-                                data: null
-                            });
-                        }
-                        else {
-                            console.log(res.rows);
-                            let count_res = await client.query(`
+                    `, [product_id, page * limit, limit, uid], async (err, res) => {
+                    if (err) {
+                        reject(err.message);
+                    }
+                    else if (res.rows.length === 0) {
+                        resolve({
+                            status: 404,
+                            msg: "The product's review is not exist",
+                            data: null
+                        });
+                    }
+                    else {
+                        console.log(res.rows);
+                        let count_res = await client.query(`
                                 SELECT COUNT(*)
                                 FROM reviews
                                 WHERE product_id = $1
                             `, [product_id]);
-                            const totalRows     = count_res.rows[0].count;
-                            const tol_pag       = Math.ceil(totalRows/limit);
-                            console.log(totalRows, tol_pag)
-                            resolve({
-                                status: 200,
-                                msg: 'SUCCESS',
-                                data: res.rows ,
-                                total_page: tol_pag
-                            });
-                        }
-                    })
+                        const totalRows = count_res.rows[0].count;
+                        const tol_pag = Math.ceil(totalRows / limit);
+                        console.log(totalRows, tol_pag)
+                        resolve({
+                            status: 200,
+                            msg: 'SUCCESS',
+                            data: res.rows,
+                            total_page: tol_pag
+                        });
+                    }
+                })
             }
             catch (err) {
                 reject(err)
@@ -966,7 +964,7 @@ class ProductService {
     async DeleteReview(query) {
         return new Promise(async (resolve, reject) => {
             try {
-                const {product_id, uid} = query
+                const { product_id, uid } = query
                 let checkID = await client.query('SELECT * FROM reviews WHERE product_id = $1 AND uid = $2', [product_id, uid]);
                 if (checkID.rows.length === 0) {
                     return resolve({
@@ -987,7 +985,7 @@ class ProductService {
                     msg: "User's review deleted successfully",
                     data: null
                 });
-            } catch (err) {     
+            } catch (err) {
                 reject(err.message);
             }
         });
