@@ -54,7 +54,7 @@ export default function ProductDetail() {
         const fetchData = async () => {
             try {
                 const fetchProductDetails = axios.get(`http://localhost:8000/api/product/get-detail/${prodID}`);
-                const fetchReviewList = axios.get(`http://localhost:8000/api/product/GetReview/${prodID}`);  
+                const fetchReviewList = axios.get(`http://localhost:8000/api/product/GetReview/?product_id=${prodID}&page=0&limit=5&uid=uid3`);  
                 const [productResponse, reviewResponse] = await Promise.all([fetchProductDetails, fetchReviewList]);
 
                 if (productResponse.status === 200) {

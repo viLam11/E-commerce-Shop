@@ -19,8 +19,8 @@ export default function OrderDetail({ productList, orderID, setDetailMode, shipp
 
                 {productList.map((prod, index) => (
                     <div>
-                        <div>#{index + 1} Sản phẩm ... (id) {prod.product_id} ...</div>
-                        <div>Giá: ...</div>
+                        <div>#{index + 1} Sản phẩm {prod.pname}</div>
+                        <div>Giá:  {prod.price}</div>
                         <div>Số lượng: {prod.quantity}</div>
                         <div>Thành tiền: {prod.paid_price}</div>
 
@@ -28,11 +28,11 @@ export default function OrderDetail({ productList, orderID, setDetailMode, shipp
                     </div>
                 ))}
 
-                
+                <div className="h-10 border border-b-black"></div>
                 <div>Số tiền được giảm: 20000</div>
                 <div>Tổng tiền thanh toán: {totalPrice}</div>
 
-                <div className="border border-black p-1 mx-auto w-20 text-center rounded-sm"
+                <div className="border-none border-b-black p-1 mx-auto w-20 text-center rounded-sm"
                     onClick={() => setDetailMode(false)}
                 >Đóng</div>
             </div>
