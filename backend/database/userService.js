@@ -113,7 +113,20 @@ class UserService {
                 }
             }
             client.query(
-                `SELECT * FROM users ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`,
+                //`SELECT * FROM users ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`,
+                `SELECT 
+                    u.*,
+                    array_agg(DISTINCT up.phone) AS phone,
+                    array_agg(DISTINCT jsonb_build_object(
+                        'address', ua.address,
+                        'isdefault', ua.isdefault
+                    )) AS address
+                FROM users u
+                LEFT JOIN user_phone up ON u.uid = up.uid
+                LEFT JOIN user_address ua ON u.uid = ua.uid
+                GROUP BY u.uid
+                ORDER BY ${column} ${order}
+                LIMIT $1 OFFSET $2`,
                 [limit, offset],
                 (err, res) => {
                     if (err) {
@@ -139,32 +152,32 @@ class UserService {
     //const likeConditions = searchChars.map(char => `${filter[0]} ILIKE '%${char}%'`).join(' AND ');
     //const likeConditions = columns.map(column => { const conditions = filter.map(char => `${column} ILIKE '%${char}%'`).join(' AND ') }).join(' OR ')
 
-    async filterUser(filter, limit, offset) { //của chatgpt giúp tìm kí tự bất kì có trong chuỗi
+    async filterUser(filter, limit, offset) {
         return new Promise(async (resolve, reject) => {
             const columns = ['username', 'email', 'lname', 'fname', 'id_no'];// thiếu , 'gender', 'userType'
-            // filter = filter.split('')
-            // const likeConditions = columns.map(column => {
-            //     const conditions = filter.map(char => `${column} ILIKE '%${char}%'`).join(' AND ');
-            //     return `(${conditions})`;
-            // }).join(' OR ');
 
             const keywords = filter.split(' ');
 
             // Tạo điều kiện LIKE với từng từ trên từng cột
             const likeConditions = columns.map(column => {// chưa sửa được việc xét các cột giá trị enum
-                // if (['gender', 'userType'].includes(column)) {
-                //     console.log(column)
-                //     // Nếu là ENUM, chỉ so sánh chính xác
-                //     const conditions = keywords.map(word => `${column} = '${word}'`).join(' OR ');
-                //     return `(${conditions})`;
-                // } else {
-                // Nếu không phải ENUM, sử dụng ILIKE
                 const conditions = keywords.map(word => `${column} ILIKE '%${word}%'`).join(' OR ');
                 return `(${conditions})`;
-                //}
             }).join(' OR '); // Kết hợp các điều kiện cột bằng OR
-            console.log("check", likeConditions)
-            const query = `SELECT * FROM users WHERE ${likeConditions} LIMIT $1 OFFSET $2`
+            //console.log("check", likeConditions)
+            //const query = `SELECT * FROM users WHERE ${likeConditions} LIMIT $1 OFFSET $2`
+            const query = `SELECT 
+                                u.*,
+                                array_agg(DISTINCT up.phone) AS phone,
+                                array_agg(DISTINCT jsonb_build_object(
+                                    'address', ua.address,
+                                    'isdefault', ua.isdefault
+                                )) AS address
+                            FROM users u
+                            LEFT JOIN user_phone up ON u.uid = up.uid
+                            LEFT JOIN user_address ua ON u.uid = ua.uid
+                            WHERE ${likeConditions}
+                            GROUP BY u.uid
+                            LIMIT $1 OFFSET $2`
             const countQuery = `SELECT COUNT(*) AS total FROM users WHERE ${likeConditions}`
             let count;
             try {
@@ -237,7 +250,19 @@ class UserService {
                     });
                 }
                 client.query(
-                    `SELECT * FROM users LIMIT $1 OFFSET $2`,
+                    //`SELECT * FROM users LIMIT $1 OFFSET $2`,
+                    `SELECT 
+                        u.*,
+                        array_agg(DISTINCT up.phone) AS phone,
+                        array_agg(DISTINCT jsonb_build_object(
+                            'address', ua.address,
+                            'isdefault', ua.isdefault
+                        )) AS address
+                    FROM users u
+                    LEFT JOIN user_phone up ON u.uid = up.uid
+                    LEFT JOIN user_address ua ON u.uid = ua.uid
+                    GROUP BY u.uid
+                    LIMIT $1 OFFSET $2`,
                     [limit, limit * page],
                     (err, res) => {
                         if (err) {
@@ -411,8 +436,18 @@ class UserService {
         return new Promise(async (resolve, reject) => {
             try {
                 client.query(`
-                SELECT * FROM users 
-                WHERE uid = $1
+                SELECT 
+                    u.*, 
+                    array_agg(DISTINCT up.phone) AS phone, 
+                    array_agg(DISTINCT jsonb_build_object(
+                        'address', ua.address,
+                        'isdefault', ua.isdefault
+                    )) AS address
+                FROM users u
+                LEFT JOIN user_phone up ON u.uid = up.uid
+                LEFT JOIN user_address ua ON u.uid = ua.uid
+                WHERE u.uid = $1
+                GROUP BY u.uid;
             `, [id], async (err, res) => {
                     if (err) {
                         reject({
