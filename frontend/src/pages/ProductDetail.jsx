@@ -83,7 +83,7 @@ export default function ProductDetail() {
                 }
             } catch (error) {
                 if (error.response) {
-                    alert(error.response.data.msg);
+                    // alert(error.response.data.msg);
                 } else {
                     console.error('Error:', error.message);
                 }
@@ -125,7 +125,7 @@ export default function ProductDetail() {
             })
             .catch((error) => {
                 if (error.response) {
-                    alert(error.response.data.msg);
+                    // alert(error.response.data.msg);
                 } else {
                     console.error('Error:', error.message);
                 }
@@ -155,7 +155,7 @@ export default function ProductDetail() {
                 <div className="prod-info w-10/12 mx-auto flex flex-row">
                     <div className="w-full flex flex-row">
                         <div className="col-1 w-1/5 flex flex-col">
-                            {imgList.length > 0 ? imgList.map((item, index) => (
+                            {Array.isArray(imgList) &&  imgList.length > 0 ? imgList.map((item, index) => (
                                 <div key={index} className="bg-gray-200 py-2 mb-2 rounded-md"
                                     onClick={() => handleDisplayImg(index)}
                                 >

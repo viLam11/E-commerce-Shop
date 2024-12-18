@@ -290,6 +290,7 @@ class PromotionService {
     
                     productDetails.push({
                         product_id:     products[i].product_id,
+                        quantity:      products[i].quantity,
                         old_subtotal:   oldSubtotal,
                         new_subtotal:   newSubtotal
                     });

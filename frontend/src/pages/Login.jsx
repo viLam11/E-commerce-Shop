@@ -43,8 +43,10 @@ export default function Login() {
           const token = response.data.data.token;
           const userType = response.data.data.userType;
           alert("Login by: " + userType + " - " + response.data.data.uid)
+          const user_id = response.data.data.userID;
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);
+          localStorage.setItem("userID", user_id);
           localStorage.setItem("role", userType);
           localStorage.setItem("uid", response.data.data.uid);
           if(userType == "customer") navigate("/user/homepage")

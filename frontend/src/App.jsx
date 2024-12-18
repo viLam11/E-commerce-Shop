@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import ProductsManagement from "./pages/ProductsManagement";
 import NewProduct from "./pages/NewProduct";
 import ProductUpdate from "./pages/ProductUpdate";
-//import Homepage2 from "./pages/Homepage2";
+import Homepage from "./pages/Homepage";
 import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
@@ -19,6 +19,7 @@ import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
 import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
+  
 import CategoryProduct from './components/customerGUI/CategoryCard'
 
 function App() {
@@ -31,8 +32,8 @@ function App() {
     >
       <AuthProvider >
         <Routes>
+        <Route path="/" element={<Login />} />
           <Route path="/test" element={<Test />} />
-          <Route path="/" element={<Login />} />
           <Route path="/user/homepage" element={<HomePage />} />
           <Route path="/user/info" element={<UserAccountManagement />}>
                     {/* Các route con */}
@@ -49,7 +50,7 @@ function App() {
           <Route path="/user/category/:id" element={<CategoryProduct/>} />
           <Route path="/product-detail/:id" element={<ViewDetail />}/>
           <Route path="/customer/pay" element={<Checkout />}  />
-      
+
 
 
           <Route path="/admin/history/:id" element={<TransactionHist />} />

@@ -10,19 +10,41 @@ import axios from "axios";
 export default function TransactionHist() {
     const {id} = useParams();
     const [userDetail, setUserDetail] = useState({});
+    const [orderList, setOrderList] = useState([]); 
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/user/get-detail/${id}`)
-            .then((response) => {
-                const detail = response.data.data;
-                setUserDetail(detail);
-            })
-            .catch((error) => {
+
+        const fetchData = async () => {
+            try {
+                const fetchUserData = axios.get(`http://localhost:8000/api/user/get-detail/${id}`);
+                const fetchHistoryData = axios.get(`http://localhost:8000/api/order/getAllOrder/${id}?limit=10&page=0&sort=desc&sort=estimated_delivery_time`);
+
+                const [userDataResponse, historyDataResponse] = await Promise.all([fetchUserData, fetchHistoryData]);
+
+                if (userDataResponse.status === 200) {
+                    console.log("Check user data: ", userDataResponse.data.data)
+
+                    setUserDetail(userDataResponse.data.data);
+                }
+
+                if (historyDataResponse.status === 200) {
+                    console.log("Check history data: ", historyDataResponse.data.data)
+                    const historyData = historyDataResponse.data.data;
+                    // setTotalPayment(historyData.sum_orders_price);
+                    // setTotalPage(historyData.page_count);
+                    setOrderList(historyData);
+                }
+
+            }
+            catch (error) {
                 if (error.response) {
                     alert(error.response.data.msg);
                 } else {
                     console.error('Error:', error.message);
                 }
-            })
+            }
+
+        }
+        fetchData();
     }, [])
 
     return (
@@ -92,47 +114,22 @@ export default function TransactionHist() {
                                 <td className="w-2/12"> Tùy chỉnh</td>
                             </tr>
                         </thead>
-                        {/* <tbody>
-                                    <>
-                                        <tr className="h-10 bg-white" ></tr>
-                                        <tr className="h-14 bg-purple-2">
-                                            <td></td>
-                                            <td className="text-left"></td>
-                                            <td className="text-left">
-                                                <span className="inline-block w-2/3 text-right p-4">{prod.price.toLocaleString()}</span>
-                                                 VND
-                                            </td>
-                                            <td>
-                                                <div className="bg-white flex border w-20 border-black border-solid rounded-sm text-center m-auto">
-                                                    <input type="number" className="text-center w-full" value={prod.quantity} onChange={() => { }} />
-                                                    <div className="flex flex-col ml-1">
-                                                        <button className="text-gray-600 hover:text-gray-900 focus:outline-none">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 10l5-5 5 5H5z" /></svg>
-                                                        </button>
-                                                        <button className="text-gray-600 hover:text-gray-900 focus:outline-none">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M15 10l-5 5-5-5h10z" /></svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="flex justify-center items-center">
-                                                    <button onClick={() => handleUpdateProduct(prod.product_id)} className="bg-green-600 px-4 rounded-md font-bold text-white uppercase">
-                                                        Sửa
-                                                    </button>
-                                                    <div className="w-2"></div>
-                                                    <div className="bg-red-600 px-4 rounded-md font-bold text-white uppercase " onClick={() => handleDeleteProduct(prod.product_id)} >
-                                                        Xóa
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </>
+                        <tbody>
+                        {orderList.length > 0 &&  orderList.map((order, index) => (
+                                 <tr className="h-14  border rounded-e-sm text-l">
+                                    <td className="w-1/12">{index+1}</td>
+                                    <td className="w-1/12">{order.products[0].product_id}</td>
+                                    <td className="w-2/12">{order.products[0].product_name}</td>
+                                    <td className="w-1/12">{order.products[0].buy_price}</td>
+                                    <td className="w-1/12">{order.products[0].buy_quantity}</td>
+                                    <td className="w-1/12">{order.products[0].subtotal_price}</td>
+                                    <td className="w-2/12">{order.creation_date}</td>
+                                    <td className="w-1/12">{order.status}</td>
+                                </tr>
+                                
+                            ))}
 
-                                );
-                            })}
-
-                        </tbody> */}
+                        </tbody>
                     </table>
 
                 </div>

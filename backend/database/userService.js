@@ -1,7 +1,10 @@
 const client = require('./database');
+const { v4: uuidv4 } = require('uuid');
 const CreateID = require('../createID')
 class UserService {
     constructor() { };
+
+
 
     async createCustomer(username, password, data) {
         return new Promise((resolve, reject) => {

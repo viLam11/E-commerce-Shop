@@ -7,7 +7,7 @@ const UserService = require('../../database/userService');
 class AuthController {
     async postSignUp(req, res) {
         // console.log('CHECK authData: ', req.body)
-        //const userId = uuidv4();
+        // const userId = uuidv4();
         const { email, password, confirmPassword } = req.body;
         let username = req.body.username;
         if (!username) {
@@ -146,7 +146,11 @@ class AuthController {
                 res.status(200).json({
                     status: 200,
                     msg: 'Authentication successful',
-                    data: { token: token, userType: loadedUser.usertype, uid: loadedUser.uid}
+                    data: { 
+                        token: token, 
+                        userType: loadedUser.usertype,
+                        userID: loadedUser.uid
+                    }
                 });
             })
             .catch(err => {

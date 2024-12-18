@@ -23,7 +23,7 @@ export default function Header({ page }) {
         setUser_id(userID);
     }, [])
     
-    if (role == "admin") {
+    if(role === "admin") {
         return (
             <header className="h-16 bg-black text-white w-full">
                 <div className="w-full h-full flex items-center">
