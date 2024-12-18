@@ -92,7 +92,6 @@ export default function Cart(){
     const [productData, setData] = useState([])
     const navigate = useNavigate()
     const uid = localStorage.getItem('uid')
-    console.warn(uid)
     useEffect(()=>{
         const fetchData = async() => {
             try{
@@ -126,8 +125,6 @@ export default function Cart(){
         const fetchCart = async() =>{
             try{
                 const response = await axios.get(`http://localhost:8000/api/cart/GetCart/${uid}?limit=1000`)
-                console.warn(response)
-                console.log(response)
                 if (response.status !== 200) {
                     alert('Lỗi khi lấy dữ liệu giỏ hàng');
                     return;

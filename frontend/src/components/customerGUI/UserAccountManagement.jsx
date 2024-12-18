@@ -687,9 +687,8 @@ function Review({currentUser, product, closePopup}){
 }
 
 export function History(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, totalPaid, setPaid } = useContext(UserContext);
     const [count, setCnt] = useState(0)
-    const [totalPaid, setPaid] = useState(0)
     const [totalQuantity, setTotal] = useState(0)
     const [orderList, setList] = useState([])
     const [startDate, setStartDate] = useState('');
@@ -716,6 +715,7 @@ export function History(){
     useEffect(()=>{
         const fetchOrder = async()=>{
             const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${currentUser.uid}?limit=1000`)
+            console.warn("Order: " + temp.data.data)
             if (temp.status != 200){
                 throw new Error("Lỗi khi lấy dữ liệu")
             }
@@ -1068,9 +1068,121 @@ export function History(){
 }
 
 export function Ranking(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, totalPaid, phone1 } = useContext(UserContext);
+    const [isEncode, setEncode] = useState(false)
+    const [progress, setProgress] = useState(10);
+    const Encode = (item) =>{
+        if(isEncode){
+            let encode = item.slice(0,2)
+            for (let i = 2; i < item.length - 2; i++)
+                encode += '*'
+            return encode + item.slice(item.length - 2)
+        }
+        return item
+    }
     return(
-        <div className="profile-form">Hạng của khách hàng {currentUser.lname} là: {currentUser.ranking}</div>
+        <div className="profile-form" style={{boxShadow:"none"}}>
+            <style>
+                {`
+                /* Container chứa thanh tiến trình */
+                .progress-container {
+                position: relative;
+                width: 100%;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                }
+
+                /* Đường track xám */
+                .progress-track {
+                position: absolute;
+                width: 100%;
+                height: 10px;
+                background-color: #aaa;
+                border-radius: 5px;
+                z-index: 1;
+                }
+
+                /* Phần đã hoàn thành màu đỏ */
+                .progress-bar {
+                position: absolute;
+                height: 10px;
+                background-color: red;
+                border-radius: 5px;
+                z-index: 2;
+                }
+
+                /* Hình tròn trượt trên thanh */
+                .progress-circle {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                background-color: red;
+                border-radius: 50%;
+                top: -5px; /* Đẩy hình tròn lên giữa thanh */
+                z-index: 3;
+                }
+
+                /* Lá cờ ở cuối thanh */
+                .progress-flag {
+                position: absolute;
+                right: 0;
+                top: -15px;
+                width: 20px;
+                height: 20px;
+                background: red;
+                clip-path: polygon(0 0, 100% 50%, 0 100%, 10% 50%);
+                z-index: 3;
+                }
+                `}
+            </style>
+            <div style={{display: "inline-flex"}}>
+                <div style={{marginRight: "20px"}}><img style={{width: "100px", borderRadius:"50px"}} src="../../../public/img/EX.png" alt="" /></div>
+                <div>
+                    <div style={{fontSize: "18px", fontWeight:"bold",marginBottom:"5px"}}>{currentUser.username.toUpperCase()}</div>
+                    <div style={{fontSize: "14px",marginBottom:"10px"}}>{Encode(phone1)} {!isEncode?<span onClick={()=>setEncode(!isEncode)}>&#128065;</span>:<span onClick={()=>setEncode(!isEncode)}>&#128065;&#65039;&#8205;&#128488;</span>}</div>
+                    <div style={{
+                    fontSize: "14px",
+                    marginBottom: "5px",
+                    border: `1px solid ${
+                        totalPaid < 5000000 ? "silver" : totalPaid < 20000000 ? "gold" : "blue"
+                    }`,
+                    textAlign: "center",
+                    width: "80px",
+                    backgroundColor: `${
+                        totalPaid < 5000000 ? "rgba(192, 192, 192, 0.5)" : totalPaid < 20000000 ? "rgba(255, 215, 0, 0.5)" : "rgba(135, 206, 235, 0.5)"
+                    }`,
+                    borderRadius: "6px"
+                    }}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
+                </div>
+            </div>
+            <div style={{width: "50%", marginBottom: "20px"}}><img style={{borderRadius: "10px"}} src={totalPaid < 5000000?"../../../public/img/silver.png":(totalPaid < 20000000?"../../../public/img/gold.png":"../../../public/img/diamond.png")} alt="" /></div>
+            <div style={{width: "50%",boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.3)", padding: "8px 8px 8px 8px", borderRadius: "10px"}}>
+                <div style={{display: "inline-flex", marginBottom: "30px"}}>
+                    <div>
+                        <div style={{fontSize: "16px", fontWeight:"bold",marginBottom:"1px"}}>{currentUser.username}</div>
+                        <div style={{fontSize: "20px", fontWeight:"bold", color: "red",marginBottom:"0px"}}>{fixPrice(totalPaid)}</div>
+                        <div style={{fontSize: "12px", fontWeight:"bold", color: "red"}}>(Tích lũy mua sắm)</div>
+                    </div>
+                    <div style={{ marginLeft:"320px"}}>
+                        <img style={{width:"50px", marginBottom:"2px"}} src={totalPaid < 5000000?"../../../public/img/2.png":(totalPaid < 20000000?"../../../public/img/1.png":"../../../public/img/3.png")} alt="" />
+                        <div style={{fontSize: "16px", fontWeight:"bold", color: "red",marginBottom:"0px", textAlign:"center"}}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
+                    </div>
+                </div>
+                <div className="progress-container">
+                <div
+                    className="progress-bar"
+                    style={{ width: `${progress}%` }}
+                ></div>
+                <div
+                    className="progress-circle"
+                    style={{ left: `calc(${progress}% - 10px)` , marginTop:"5px"}} // Điều chỉnh hình tròn theo tiến trình
+                ></div>
+                <div className="progress-flag"></div>
+                <div className="progress-track"></div>
+                </div>
+            </div>
+        </div>
     )
 }
 
@@ -1081,36 +1193,139 @@ export function UpdatePassword(){
         new_pass: "",
         confirm_pass: ""
     })
+
     const navigate = useNavigate()
+    const [Err, setErr] = useState("")
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+
     const handleSubmit = async() => {
-        //alert(phone)
-        if (!bcrypt.compare(pass.old_pass, currentUser.upassword)){
-            alert('Mật khẩu hiện tại không đúng. Khac hàng vui lòng nhập lại')
-        }
-        else if(pass.new_pass.length < 5){
-            alert('Vui lòng nhập mật khẩu có từ 5 kí tự')
-        }
-        else if (pass.new_pass != pass.confirm_pass){
-            alert('Mật khẩu mới không trùng khớp')
-        }
-        else{
-            const hashPw = await bcrypt.hash(pass.new_pass, 12);
-            const addPhone = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{upassword: hashPw})
-            if (addPhone.status != 200){
-                alert('Thay đổi mật khẩu thất bại')
+        const isMatch = await bcrypt.compare(pass.old_pass, currentUser.upassword);
+        if (!isMatch) {
+            //alert('Mật khẩu hiện tại không đúng. Khách hàng vui lòng nhập lại');
+            setErr('Mật khẩu hiện tại đã sai.\nVui lòng nhập lại')
+        } else {
+            //alert('Mật khẩu hợp lệ');
+            if(pass.new_pass.length < 5){
+                //alert('Vui lòng nhập mật khẩu có từ 5 kí tự')
+                setErr('Vui lòng nhập mật khẩu có từ 5 kí tự')
+            }
+            else if (pass.new_pass != pass.confirm_pass){
+                setErr('Mật khẩu mới không trùng khớp')
             }
             else{
-                alert('Thay đổi mật khẩu thành công')
-                setPass({
-                    old_pass: "",
-                    new_pass: "",
-                    confirm_pass: ""
-                })
+                const hashPw = await bcrypt.hash(pass.new_pass, 12);
+                const addPhone = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{upassword: hashPw})
+                if (addPhone.status != 200){
+                    setErr('Thay đổi mật khẩu thất bại')
+                }
+                else{
+                    setErr("")
+                    setPass({
+                        old_pass: "",
+                        new_pass: "",
+                        confirm_pass: ""
+                    })
+                }
             }
         }
+        setIsPopupOpen(true)
     }
     return (
         <div className="profile-form">
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
             <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thay đổi mật khẩu</h2>
             <div className="form-group">
                 <input type="password" className="full-width" placeholder="Mật khẩu hiện tại" value={pass.old_pass} onChange={(e) => setPass((prev) => ({...prev, old_pass: e.target.value}))}/>
@@ -1130,11 +1345,29 @@ export function UpdatePassword(){
 }
 
 export function UpdatePhone(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, setPhone1 } = useContext(UserContext);
     const [phone, setVal] = useState("")
     const navigate = useNavigate()
     const [Pnumber, setPhone] = useState([])
     const [toggle, setToggle] = useState(1)
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
     useEffect(() => {
         const fetchPhone = async () => {
             console.log(currentUser.uid)
@@ -1149,41 +1382,127 @@ export function UpdatePhone(){
         fetchPhone();
     }, [currentUser, toggle]);
 
+    useEffect(()=>{
+        setPhone1(Pnumber[0] || "")
+    },[Pnumber])
+
     const handleSubmit = async() => {
         //alert(phone)
         if(!phone || phone == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const addPhone = await axios.post(`http://localhost:8000/api/user/CreatePhone/${currentUser.uid}`,{phone: [phone]})
             if (addPhone.status != 200){
-                alert('Thêm số điện thoại thất bại')
+                setErr('Thêm số điện thoại thất bại')
             }
             else{
-                alert('Thêm số điện thoại thành công')
+                //set('Thêm số điện thoại thành công')
                 setVal("")
                 setToggle(!toggle)
+                setErr("")
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleRemove = async(index) => {
         if(!Pnumber[index] || Pnumber[index] == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const addPhone = await axios.post(`http://localhost:8000/api/user/DeletePhone/${currentUser.uid}`,{phone: Pnumber[index]})
             if (addPhone.status != 200){
-                alert('Xóa số điện thoại thất bại')
+                setErr('Xóa số điện thoại thất bại')
             }
             else{
-                alert('Xóa số điện thoại thành công')
+                //alert('Xóa số điện thoại thành công')
                 setToggle(!toggle)
+                setErr("")
             }
         }
+        setIsPopupOpen(true)
     }
     return(
         <div className="profile-form">
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
@@ -1234,6 +1553,24 @@ export function UpdateAdress(){
     const navigate = useNavigate()
     const [toggle, setToggle] = useState(1)
     const [defAdress, setAddress] = useState([])
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
     useEffect(() => {
         const fetchAdress = async () => {
             console.log(currentUser.uid)
@@ -1286,10 +1623,10 @@ export function UpdateAdress(){
         //alert(address.isdefault)
         let resAddress = address.street + ", " + address.district + ", " + address.city +", " +address.province
         if (address.province == "" || address.street == "" || address.city == "" || address.district == "" || !address.province || !address.street || !address.city || !address.district){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else if (defAdress.map(item => item.address).includes(resAddress)){
-            alert('Địa chỉ đã tồn tại')
+            setErr('Địa chỉ đã tồn tại')
             setToggle(!toggle)
                 setVal({
                     province: "",
@@ -1306,13 +1643,14 @@ export function UpdateAdress(){
                     isdefault: address.isdefault
                 }
             )
-            console.log("add",addAddress)
+            //console.log("add",addAddress)
             if(addAddress.data.status !== 200){
-                alert(addAddress.msg || "Thêm địa chỉ thất bại")
+                setErr(addAddress.msg || "Thêm địa chỉ thất bại")
             }
             else{
+                setErr("")
                 setToggle(!toggle)
-                alert('Thêm địa chỉ thành công')
+                //alert('Thêm địa chỉ thành công')
                 setVal({
                     province: "",
                     city: "",
@@ -1323,13 +1661,14 @@ export function UpdateAdress(){
                 //defAdress.push(address.street + ", " + address.district + ", " + address.city +", " +address.province)
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleUpdate = async(index) => {
         console.log(partitionedAddresses[index])
         // console.warn(prevState[index])
         if (partitionedAddresses[index].province == "" || partitionedAddresses[index].street == "" || partitionedAddresses[index].city == "" || partitionedAddresses[index].district == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const updateAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${currentUser.uid}`,
@@ -1340,21 +1679,23 @@ export function UpdateAdress(){
                 }
             )
             if(updateAddress.status !== 200){
-                alert(updateAddress.msg || "Thêm địa chỉ thất bại")
+                setErr(updateAddress.msg || "Thêm địa chỉ thất bại")
             }
             else{
+                setErr("")
                 setToggle(!toggle)
-                alert('Cập nhật địa chỉ thành công')
+                //alert('Cập nhật địa chỉ thành công')
                 //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleRemove = async(index) =>{
         console.log(defAdress[index].address)
         const item = partitionedAddresses[index]
         if (!defAdress[index].address){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${localStorage.getItem('uid')}`,
@@ -1363,7 +1704,7 @@ export function UpdateAdress(){
                 }
             )
             if(updateAddress.data.status !== 200){
-                alert(updateAddress.msg || "Xóa địa chỉ thất bại")
+                setErr(updateAddress.msg || "Xóa địa chỉ thất bại")
             }
             else{
                 if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
@@ -1377,14 +1718,93 @@ export function UpdateAdress(){
                         }
                     )
                 }
+                setErr("")
                 setToggle(!toggle)
                 //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
             }
         }
+        setIsPopupOpen(true)
     }
     return(
         <>
-        
+        <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
         <div className="profile-form" style={{backgroundColor:"white"}}>
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1);navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
@@ -1489,7 +1909,24 @@ export function UpdateData(){
     const [magnet, setMag] =useState(1)
     const { active, setActive, currentUser } = useContext(UserContext);
     const navigate = useNavigate()
-    console.log(currentUser)
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+    //console.log(currentUser)
     const [user, setUser] = useState({
         fname: currentUser.fname,
         lname: currentUser.lname,
@@ -1500,10 +1937,10 @@ export function UpdateData(){
     const [defAdress, setAddress] = useState("")
     useEffect(() => {
         const fetchAdress = async () => {
-            console.log(currentUser.uid)
+            //console.log(currentUser.uid)
             let adress = [];
             const res = await axios.get(`http://localhost:8000/api/user/GetAll/${currentUser.uid}`)
-            //console.log(res)
+            console.log(res)
             if (res.status != 200) throw new Error("Error while fetching address")
             adress = res.data.data?res.data.data: []
             setAddress(adress&&adress.length > 0?adress.find(item => item.isdefault == true).address:""); // Update images state once all images are fetched
@@ -1513,7 +1950,7 @@ export function UpdateData(){
     }, [currentUser]);
     useEffect(() => {
         const fetchPhone = async () => {
-            console.log(currentUser.uid)
+            //console.log(currentUser.uid)
             let rphone = [];
             const res = await axios.get(`http://localhost:8000/api/user/GetPhone/${currentUser.uid}`)
             //console.log(res)
@@ -1524,6 +1961,14 @@ export function UpdateData(){
 
         fetchPhone();
     }, [currentUser]);
+
+    //handle update error
+    const [emailErr, setEErr] = useState("")
+    const [unameErr, setUNErr] = useState("")
+    const [lErr, setLErr] = useState("")
+    const [fErr, setFErr] = useState("")
+    const [unexpectErr, setUErr] = useState("")
+
     const handleUpdate = async() =>{
         try{
             const { fname, lname, email, username } = user;  // Object destructuring for clarity
@@ -1532,29 +1977,30 @@ export function UpdateData(){
             const vietnameseNamePattern = /^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỹửữựỳỵýỷỹ\s]+$/;
 
             if (!emailPattern.test(email)){
-                alert('Định dạng email không hợp lệ vui lòng nhập lại')
+                setEErr('Định dạng email không hợp lệ vui lòng nhập lại')
                 return;
             }
             if (!usernamePattern.test(username)){
-                alert('Định dạng tên không hợp lệ')
+                setUNErr('Định dạng tên không hợp lệ')
                 return;
             }
             if (!vietnameseNamePattern.test(fname)){
-                alert('Định dạng tên không hợp lệ')
+                setFErr('Định dạng tên không hợp lệ')
                 return;
             }
             if (!vietnameseNamePattern.test(lname)){
-                alert('Định dạng tên không hợp lệ')
+                setLErr('Định dạng tên không hợp lệ')
                 return;
             }
             const uid = localStorage.getItem('uid');  // Destructure currentUser to get uid
-            console.log("Break id: ",uid)
+            //console.log("Break id: ",uid)
             const response = await axios.put(`http://localhost:8000/api/user/update-user/${uid}`,{
                 username: username,
                 lname: lname,
                 fname: fname,
                 email: email
             })
+            //console.warn("Res Update: " + response.data.msg)
             // username: username,
             //     lname: lname,
             //     fname: fname,
@@ -1563,41 +2009,153 @@ export function UpdateData(){
             //     lname: lname!=currentUser.lname?lname:null,
             //     fname: fname!=currentUser.fname?fname:null,
             //     email: email!=currentUser.email?email:null
-            console.log(response)
-            if (response.data.status != 200) {
-                alert(response.data.msg)
-                window.location.reload();
+            //console.log(response)
+            if (response.status != 200 || response.data.status != 200) {
+                console.log("Res: "+response.data)
+                let errField = response.data.msg.msg
+                errField = errField.match(/"([^"]*)"/)
+                errField = errField[1]
+                if (errField == "users_email_key"){
+                    setEErr('Email đã tồn tại')
+                    throw new Error('Email đã tồn tại')
+                }
+                else if(errField == "users_username_key"){
+                    setUNErr('Username đã tồn tại')
+                    throw new Error('Username đã tồn tại')
+                }
+                else {
+                    setUErr(response.data.msg)
+                    return
+                }
             }
             else {
-                alert('Cập nhật thông tin thành công')
-                window.location.reload();
+                //alert('Cập nhật thông tin thành công')
+                setIsPopupOpen(true)
+                //window.location.reload();
             }
         }
         catch(e){
-            throw new Error(e)
+            let errField = e.response.data.msg.msg
+                errField = errField.match(/"([^"]*)"/)
+                errField = errField[1]
+                if (errField == "users_email_key"){
+                    setEErr('Email đã tồn tại')
+                    throw new Error('Email đã tồn tại')
+                }
+                else if(errField == "users_username_key"){
+                    setUNErr('Username đã tồn tại')
+                    throw new Error('Username đã tồn tại')
+                }
+                else {
+                    setUErr(response.data.msg)
+                    return
+                }
         } 
     }
         return(
-            <div className="profile-form">
+            <>
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={unexpectErr == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {unexpectErr == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div>&#10060;</div>
+                                    <div>{unexpectErr}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
+                 <div className="profile-form">
                     <h2>Chỉnh sửa hồ sơ</h2>
                     <div className="form-group">
                         <div className="full-width">
                             <label htmlFor="firstName">Tên</label>
-                            <input type="text" id="firstName" value={user.lname} onChange={(e) => setUser((prev)=>({...prev,lname:e.target.value}))}/>
+                            <input type="text" id="firstName" value={user.lname} onChange={(e) => {setLErr("");setUser((prev)=>({...prev,lname:e.target.value}))}} style={lErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {lErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {lErr}</div>:null}
                         </div>
                         <div className="full-width">
                             <label htmlFor="lastName">Họ và tên lót</label>
-                            <input type="text" id="lastName" value={user.fname}  onChange={(e) => setUser((prev)=>({...prev,fname:e.target.value}))}/>
+                            <input type="text" id="lastName" value={user.fname}  onChange={(e) => {setFErr(""); setUser((prev)=>({...prev,fname:e.target.value}))}} style={fErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {fErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {fErr}</div>:null}
                         </div>
                     </div>
                     <div className="form-group">
                         <div className="full-width">
                             <label htmlFor="username">Username</label>
-                            <input type="text" id="username" value={user.username}  onChange={(e) => setUser((prev)=>({...prev,username:e.target.value}))}/>
+                            <input type="text" id="username" value={user.username}  onChange={(e) => {setUNErr(""); setUser((prev)=>({...prev,username:e.target.value}))}} style={unameErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {unameErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {unameErr}</div>:null}
                         </div>
                         <div className="full-width">
                             <label htmlFor="email">Email</label>
-                            <input type="email" id="email" value={user.email}  onChange={(e) => setUser((prev)=>({...prev,email:e.target.value}))}/>
+                            <input type="email" id="email" value={user.email}  onChange={(e) => {setEErr(""); setUser((prev)=>({...prev,email:e.target.value}))}} style={emailErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {emailErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {emailErr}</div>:null}
                         </div>
                     </div>
                     <div className="form-group">
@@ -1622,6 +2180,7 @@ export function UpdateData(){
                         <button className="btn-save" onClick={handleUpdate}>Lưu thay đổi</button>
                     </div>
                 </div>
+            </>
         )
 }
 
@@ -1649,8 +2208,10 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
     const uid = localStorage.getItem('uid')
-    console.log(uid)
+    //console.log(uid)
     const [currentUser, setUser] = useState(null)
+    const [totalPaid, setPaid] = useState(0)
+    const [phone1, setPhone1] = useState("")
     useEffect(()=>{
         const fetchUser = async()=>{
             try{
@@ -1669,11 +2230,15 @@ function UserAccountManagement() {
     const [active,setActive] = useState(1)
     const curPage = (number, path) => {
         setActive(number);
+        if (path == '/'){
+            localStorage.removeItem('uid')
+            localStorage.removeItem('token')
+        }
         navigate(path);
     };
     return ( currentUser &&
         <>
-         <UserContext.Provider value={{ active, setActive, currentUser }}>
+         <UserContext.Provider value={{ active, setActive, currentUser, totalPaid, setPaid, phone1, setPhone1 }}>
                 <Header />
                 <div className="acc-container">
                     <div className="acc-breadcrumb">
@@ -1693,7 +2258,7 @@ function UserAccountManagement() {
                             <div className={`item ${active === 3 ? "active" : ""}`} onClick={() => curPage(3, "/user/info/rank")}>
                                 Hạng thành viên
                             </div>
-                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/user/logout")}>
+                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/")}>
                                 Đăng xuất
                             </div>
                         </div>

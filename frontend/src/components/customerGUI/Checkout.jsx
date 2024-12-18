@@ -137,7 +137,7 @@ export default function Checkout() {
                 shipping_address: holdAddress,
                 shipping_fee: 0,
                 shipping_co: "Grab",
-                quantity: productList.reduce((sum, i) => sum + i.quantity, 0),
+                quantity: productList.reduce((sum, i) => sum + i.pquantity, 0),
                 total_price: location.state.total
             })
             console.warn(addOrder)

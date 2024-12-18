@@ -122,7 +122,7 @@ function Detail({reviews, product }) {
                                 <input
                                     type="text"
                                     value={buyQuantity}
-                                    onChange={handleInputChange}
+                                    onChange={(e)=>handleInputChange(e)}
                                     style={{ width: "40px", textAlign: "center" }}
                                 />
                                 <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
