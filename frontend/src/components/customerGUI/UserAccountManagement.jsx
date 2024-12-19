@@ -182,6 +182,34 @@ function Review({currentUser, product, closePopup}){
           })
     
     }
+    const switchToModify = (str) =>{
+        let scrumb = str.split('\n')
+        console.log("Scrumble: " + scrumb)
+        for (const i of scrumb){
+            let indexing = i.slice(i.indexOf(':')+1)
+            if (i.includes("Thời lượng pin")) 
+                Coloring1(indexing.includes("Rất mạnh")?5:
+                (indexing.includes(" Mạnh")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes(" Yếu")?2:1))))
+            else if (i.includes("Tốc độ phản hồi")) 
+                Coloring2(indexing.includes("Rất nhanh")?5:
+                (indexing.includes("Nhanh")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes("Chậm")?2:1))))
+            else if (i.includes("Tiện ích thông minh")) 
+                Coloring3(indexing.includes("Rất hiệu quả")?5:
+                (indexing.includes("Tiện lợi")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes("Tệ")?2:1))))
+            else if (i.includes("Dịch vụ đính kèm")) 
+                Coloring4(indexing.includes("Rất tốt")?5:
+                (indexing.includes("Tốt")?4:
+                (indexing.includes("Bình thường")?3:
+                (indexing.includes("Kém")?2:1))))
+            else setComment(i)
+        }
+    }
     if (isView)
     return(
         <>
@@ -442,7 +470,7 @@ function Review({currentUser, product, closePopup}){
             
        </div>
        {myReview?
-        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{setView(false);}}>
+        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{setView(false); switchToModify(myReview.comment)}}>
         Chỉnh sửa đánh giá
         </button>
        :
@@ -678,12 +706,18 @@ function Review({currentUser, product, closePopup}){
                             
                         </textarea>
                     </div>
-                    <button style={{marginTop:"10px"}} className="closePopup">
+                    <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>switchToModify(myReview.comment)}>
                     Chỉnh sửa đánh giá
                     </button>
             </>
         )
     }
+}
+
+export function Notification(){
+    return(
+        <div>Notification</div>
+    )
 }
 
 export function History(){
@@ -2269,6 +2303,9 @@ function UserAccountManagement() {
                             </div>
                             <div className={`item ${active === 3 ? "active" : ""}`} onClick={() => curPage(3, "/user/info/rank")}>
                                 Hạng thành viên
+                            </div>
+                            <div className={`item ${active === 5 ? "active" : ""}`} onClick={() => curPage(5, "/user/info/notification")}>
+                                Thông báo
                             </div>
                             <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/")}>
                                 Đăng xuất

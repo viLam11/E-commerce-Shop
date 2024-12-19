@@ -18,7 +18,7 @@ import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
-import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
+import {Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
 //import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
 
@@ -43,6 +43,7 @@ function App() {
                     <Route path="password" element={<UpdatePassword />} />
                     <Route path="history-log" element={<History />} />
                     <Route path="rank" element={<Ranking />} />
+                    <Route path="notification" element={<Notification/>} />
           </Route>
            <Route path="/user/cart" element={<Cart/>} />
           <Route path="/user/shopping" element={<ShoppingPage/>}/>

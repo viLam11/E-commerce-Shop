@@ -43,6 +43,568 @@ const fixPrice = (price) =>{
     return token;
 }
 
+export function UpdatePhone(){
+    const { active, setActive, currentUser, setPhone1 } = useContext(UserContext);
+    const [phone, setVal] = useState("")
+    const navigate = useNavigate()
+    const [Pnumber, setPhone] = useState([])
+    const [toggle, setToggle] = useState(1)
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+    useEffect(() => {
+        const fetchPhone = async () => {
+            console.log(currentUser.uid)
+            let rphone = [];
+            const res = await axios.get(`http://localhost:8000/api/user/GetPhone/${currentUser.uid}`)
+            //console.log(res)
+            if (res.status != 200) throw new Error("Error while fetching phone number")
+            rphone = res.data.data?res.data.data: []
+            setPhone(rphone&& rphone.length>0?rphone.map(item => item.phone):[]); // Update images state once all images are fetched
+        };
+
+        fetchPhone();
+    }, [currentUser, toggle]);
+
+    useEffect(()=>{
+        setPhone1(Pnumber[0] || "")
+    },[Pnumber])
+
+    const handleSubmit = async() => {
+        //alert(phone)
+        if(!phone || phone == ""){
+            setErr('Vui lòng nhập đầy đủ thông tin')
+        }
+        else{
+            const addPhone = await axios.post(`http://localhost:8000/api/user/CreatePhone/${currentUser.uid}`,{phone: [phone]})
+            if (addPhone.status != 200){
+                setErr('Thêm số điện thoại thất bại')
+            }
+            else{
+                //set('Thêm số điện thoại thành công')
+                setVal("")
+                setToggle(!toggle)
+                setErr("")
+            }
+        }
+        setIsPopupOpen(true)
+    }
+
+    const handleRemove = async(index) => {
+        if(!Pnumber[index] || Pnumber[index] == ""){
+            setErr('Vui lòng nhập đầy đủ thông tin')
+        }
+        else{
+            const addPhone = await axios.post(`http://localhost:8000/api/user/DeletePhone/${currentUser.uid}`,{phone: Pnumber[index]})
+            if (addPhone.status != 200){
+                setErr('Xóa số điện thoại thất bại')
+            }
+            else{
+                //alert('Xóa số điện thoại thành công')
+                setToggle(!toggle)
+                setErr("")
+            }
+        }
+        setIsPopupOpen(true)
+    }
+    return(
+        <div className="profile-form">
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
+                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
+                <table className="address-table">
+                    <thead>
+                        <th>STT</th>
+                        <th>Số điện thoại</th>
+                        <th style={{width: "40px"}}>Chỉnh sửa</th>
+                    </thead>
+                    <tbody>
+                        {Pnumber&& Pnumber.length>0?
+                        Pnumber.map((p, index)=>{
+                            //console.log(Pnumber)
+                            return(
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{p}</td>
+                                    <td style={{display: "inline-flex", width: "60px"}}><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red"}}>Xóa</button></td> {/* Close button */}
+                                </tr>
+                            )
+                            
+                        }):null}
+                    </tbody>
+                </table>
+                {!Pnumber || Pnumber.length <= 0?<div style={{marginBottom: "10px", marginTop: "-14px"}}>Khách hàng hiện chưa cập nhật số điện thoại</div>:null}
+                <div className="form-group">
+                    <div className="full-width">
+                        <label htmlFor="phone">Nhập số điện thoại</label>
+                        <input type="text" id="phone" value={phone} onChange={(e) => setVal(e.target.value)}/>
+                    </div>
+                </div>
+                
+                <div className="form-actions">
+                    <button className="btn-cancel">Hủy</button>
+                    <button className="btn-save" onClick={handleSubmit}>Thêm số điện thoại</button>
+                </div>
+            </div>
+    )
+}
+
+export function UpdateAdress(){
+    const { active, setActive, currentUser } = useContext(UserContext);
+    const [address, setVal] = useState({
+        province: "",
+        city: "",
+        district: "",
+        street: "",
+        isdefault: false
+    })
+    const navigate = useNavigate()
+    const [toggle, setToggle] = useState(1)
+    const [defAdress, setAddress] = useState([])
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+    useEffect(() => {
+        const fetchAdress = async () => {
+            console.log(currentUser.uid)
+            let adress = [];
+            const res = await axios.get(`http://localhost:8000/api/user/GetAll/${currentUser.uid}`)
+            //console.log(res)
+            if (res.status != 200) throw new Error("Error while fetching address")
+            adress = res.data.data?res.data.data: []
+            setAddress(adress); // Update images state once all images are fetched
+        };
+
+        fetchAdress();
+        console.log(defAdress)
+    }, [currentUser, toggle]);
+    const sample = ['57 A Street C, District 1, City DN','58 A Street D, District 3, City HN','98 A Street C, District 3, City HN']
+    const [partitionedAddresses, setPar] = useState(defAdress
+        .map((addr) => {
+            const parts = addr.address.split(',').map((item) => item.trim());
+            return {
+                street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                district: parts[1] || "",
+                city: parts[2] || "",
+                province: parts[3] || "",
+                isdefault: addr.isdefault || false
+            };
+        })
+        .sort((a, b) => b.isdefault - a.isdefault));
+    const [prevState, setPrev] = useState(partitionedAddresses)
+    useEffect(()=>{
+        setPar(
+            defAdress
+                .map((addr) => {
+                    const parts = addr.address.split(',').map((item) => item.trim());
+                    return {
+                        street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                        district: parts[1] || "",
+                        city: parts[2] || "",
+                        province: parts[3] || "",
+                        isdefault: addr.isdefault || false
+                    };
+                })
+                .sort((a, b) => b.isdefault - a.isdefault) // Đưa các phần tử có isdefault: true lên đầu
+        );
+          
+    },[defAdress])
+    // useEffect(()=>{
+    //     setPrev([...partitionedAddresses])
+    // },[defAdress])
+    const handleSubmit = async() =>{
+        //alert(address.isdefault)
+        let resAddress = address.street + ", " + address.district + ", " + address.city +", " +address.province
+        if (address.province == "" || address.street == "" || address.city == "" || address.district == "" || !address.province || !address.street || !address.city || !address.district){
+            setErr('Vui lòng nhập đầy đủ thông tin')
+        }
+        else if (defAdress.map(item => item.address).includes(resAddress)){
+            setErr('Địa chỉ đã tồn tại')
+            setToggle(!toggle)
+                setVal({
+                    province: "",
+                    city: "",
+                    district: "",
+                    street: "",
+                    isdefault: false
+                })
+        }
+        else{
+            const addAddress = await axios.post(`http://localhost:8000/api/user/CreateAddress/${currentUser.uid}`,
+                {
+                    address: resAddress,
+                    isdefault: address.isdefault
+                }
+            )
+            //console.log("add",addAddress)
+            if(addAddress.data.status !== 200){
+                setErr(addAddress.msg || "Thêm địa chỉ thất bại")
+            }
+            else{
+                setErr("")
+                setToggle(!toggle)
+                //alert('Thêm địa chỉ thành công')
+                setVal({
+                    province: "",
+                    city: "",
+                    district: "",
+                    street: "",
+                    isdefault: false
+                })
+                //defAdress.push(address.street + ", " + address.district + ", " + address.city +", " +address.province)
+            }
+        }
+        setIsPopupOpen(true)
+    }
+
+    const handleUpdate = async(index) => {
+        console.log(partitionedAddresses[index])
+        // console.warn(prevState[index])
+        if (partitionedAddresses[index].province == "" || partitionedAddresses[index].street == "" || partitionedAddresses[index].city == "" || partitionedAddresses[index].district == ""){
+            setErr('Vui lòng nhập đầy đủ thông tin')
+        }
+        else{
+            const updateAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${currentUser.uid}`,
+                {
+                    old_address: defAdress[index].address,
+                    new_address: partitionedAddresses[index].street + ", " + partitionedAddresses[index].district + ", " + partitionedAddresses[index].city +", " + partitionedAddresses[index].province,
+                    isdefault: partitionedAddresses[index].isdefault
+                }
+            )
+            if(updateAddress.status !== 200){
+                setErr(updateAddress.msg || "Thêm địa chỉ thất bại")
+            }
+            else{
+                setErr("")
+                setToggle(!toggle)
+                //alert('Cập nhật địa chỉ thành công')
+                //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
+            }
+        }
+        setIsPopupOpen(true)
+    }
+
+    const handleRemove = async(index) =>{
+        console.log(defAdress[index].address)
+        const item = partitionedAddresses[index]
+        if (!defAdress[index].address){
+            setErr('Vui lòng nhập đầy đủ thông tin')
+        }
+        else{
+            const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${localStorage.getItem('uid')}`,
+                {
+                    address: defAdress[index].address
+                }
+            )
+            if(updateAddress.data.status !== 200){
+                setErr(updateAddress.msg || "Xóa địa chỉ thất bại")
+            }
+            else{
+                if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
+                    let temp = defAdress.map(adrr => adrr.address)
+                    temp = temp.filter(item => item != defAdress[index].address)
+                    const resAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${localStorage.getItem('uid')}`,
+                        {
+                            old_address: temp[0],
+                            new_address: temp[0],
+                            isdefault: true
+                        }
+                    )
+                }
+                setErr("")
+                setToggle(!toggle)
+                //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
+            }
+        }
+        setIsPopupOpen(true)
+    }
+    return(
+        <>
+        <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
+        <div className="profile-form" style={{backgroundColor:"white"}}>
+                <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1);navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
+                <table className="address-table">
+                    <thead>
+                        <tr>
+                        <th>STT</th>
+                        <th>Số nhà</th>
+                        <th>Phường/Xã</th>
+                        <th>Quận/Huyện</th>
+                        <th>Tỉnh/Thành phố</th>
+                        <th>Mặc định</th>
+                        <th style={{width: "95px"}}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                        partitionedAddresses && partitionedAddresses.length > 0 ? partitionedAddresses.map((item, index) => {
+                            return (
+                            <tr key={index}>
+                                <td>{index + 1}</td> {/* Display the index + 1 for STT */}
+                                <td><input type="text" id={`province${index}`} value={item.street} onChange={(e)=> {
+                                    const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
+                                    tempArr[index] = {
+                                      ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
+                                      street: e.target.value, // Cập nhật trường `street`
+                                    };
+                                    setPar(tempArr); // Cập nhật trạng thái với bản sao mới
+                                }}/></td>
+                                <td><input type="text" id={`province${index}`} value={item.district} onChange={(e)=> {
+                                    const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
+                                    tempArr[index] = {
+                                      ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
+                                      district: e.target.value, // Cập nhật trường `street`
+                                    };
+                                    setPar(tempArr); // Cập nhật trạng thái với bản sao mới
+                                }}/></td>
+                                <td><input type="text" id={`province${index}`} value={item.city}onChange={(e)=> {
+                                    const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
+                                    tempArr[index] = {
+                                      ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
+                                      city: e.target.value, // Cập nhật trường `street`
+                                    };
+                                    setPar(tempArr); // Cập nhật trạng thái với bản sao mới
+                                }}/></td>
+                                <td><input type="text" id={`province${index}`} value={item.province}onChange={(e)=> {
+                                    const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
+                                    tempArr[index] = {
+                                      ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
+                                      province: e.target.value, // Cập nhật trường `street`
+                                    };
+                                    setPar(tempArr); // Cập nhật trạng thái với bản sao mới
+                                }}/></td>
+                                <td><input type="checkbox" name="subscribe" checked={item.isdefault}onChange={(e)=> {
+                                    const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
+                                    tempArr[index] = {
+                                      ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
+                                      isdefault: e.target.checked, // Cập nhật trường `street`
+                                    };
+                                    setPar(tempArr); // Cập nhật trạng thái với bản sao mới
+                                }}/></td>
+                                <td style={{display: "inline-flex", alignItems: "center"}}><button style={{width: "75px", backgroundColor: "greenyellow", color: "gray", marginRight: "30px", alignItems: "center"}} onClick={()=> handleUpdate(index)}>Cập nhật</button><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red", marginLeft: "10px", alignItems: "center"}}>Xóa</button></td> {/* Close button */}
+                            </tr>
+                            )
+                        }) : <span style={{paddingTop: "5px", textAlign: "center"}}>Người dùng không có thông tin địa chỉ</span>
+                        }
+                    </tbody>
+                </table>
+                <div className="form-group">
+                    <div className="full-width">
+                        <label htmlFor="province">Nhập Tỉnh/thành phố</label>
+                        <input type="text" id="province" value={address.province} onChange={(e) => setVal((prev)=>({...prev,province:e.target.value}))}/>
+                    </div>
+                    <div className="full-width">
+                        <label htmlFor="city">Nhập Quận/Huyện</label>
+                        <input type="text" id="city" value={address.city}  onChange={(e) => setVal((prev)=>({...prev,city:e.target.value}))}/>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="full-width">
+                        <label htmlFor="district">Nhập Phường/Xã</label>
+                        <input type="text" id="district" value={address.district}  onChange={(e) => setVal((prev)=>({...prev,district:e.target.value}))}/>
+                    </div>
+                    <div className="full-width">
+                        <label htmlFor="street">Nhập số nhà/tên đường</label>
+                        <input type="text" id="street" value={address.street}  onChange={(e) => setVal((prev)=>({...prev,street:e.target.value}))}/>
+                    </div>
+                </div> 
+                <label style={{display: "inline-flex", width:"200px"}}>
+                    <input style={{width: "10px"}} type="checkbox" name="subscribe" checked={address.isdefault} onChange={(e) => setVal((prev)=>({...prev,isdefault:e.target.checked}))} />
+                     <span style={{marginTop: "5px", marginLeft: "10px"}}>Địa chỉ mặc định</span>
+                </label>
+                <div className="form-actions">
+                    <button className="btn-cancel">Hủy</button>
+                    <button className="btn-save" onClick={handleSubmit}>Thêm địa chỉ</button>
+                </div>
+            </div>
+            </>
+    )
+}
+
+
 function Voucher({state, buyList, setVoucher, setIsPopupOpen, total}){
     const [vouchers, setList] = useState([])
     const [fitVoucher, setFit] = useState([])
@@ -371,13 +933,31 @@ export default function Checkout() {
             console.error("Log Error: ",err.message)
         }
     }
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [isPopupOpen, setIsPopup] = useState(false);
     const openPopup = () => {
-        setIsPopupOpen(true);
+        setIsPopup(true);
     };
 
     const closePopup = () => {
-        setIsPopupOpen(false);
+        setIsPopup(false);
+    };
+
+    const [isPopupPhone, setIsPopupPhone] = useState(false);
+    const openPopupPhone = () => {
+        setIsPopupPhone(true);
+    };
+
+    const closePopupPhone = () => {
+        setIsPopupPhone(false);
+    };
+
+    const [isPopupAd, setIsPopupAd] = useState(false);
+    const openPopupAd = () => {
+        setIsPopupAd(true);
+    };
+
+    const closePopupAd = () => {
+        setIsPopupAd(false);
     };
     const [voucher, setVoucher] = useState(location.state.voucher)
     useEffect(() => {
@@ -469,8 +1049,28 @@ export default function Checkout() {
                     <div className="popup" onClick={closePopup}>
                         <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
                             <h2 style={{fontWeight: "bold", color:"red", fontSize:"20px", backgroundColor:"#F3F6F8", width:"500px", marginLeft:"-20px", height:"50px", marginTop:"-20px", paddingTop: "10px", borderRadius:"8px 8px 0px 0px", boxShadow:"0 5px 10px 0 rgba(0, 0, 0, 0.3)"}}>Chọn Voucher</h2>
-                            <Voucher buyList={location.state.list} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen} total={location.state.total}/>
+                            <Voucher buyList={location.state.list} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total}/>
                             <button className="closePopup" onClick={closePopup} style={{marginTop: "-30px"}}>
+                            Đóng
+                            </button>
+                        </div>
+                    </div>
+                )}
+                {isPopupPhone && (
+                    <div className="popup" onClick={closePopupPhone}>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
+                            <h2 style={{fontWeight: "bold", color:"red", fontSize:"20px", backgroundColor:"#F3F6F8", width:"500px", marginLeft:"-20px", height:"50px", marginTop:"-20px", paddingTop: "10px", borderRadius:"8px 8px 0px 0px", boxShadow:"0 5px 10px 0 rgba(0, 0, 0, 0.3)"}}>Chọn Số điện thoại</h2>
+                            <button className="closePopup" onClick={closePopupPhone} style={{marginTop: "-30px"}}>
+                            Đóng
+                            </button>
+                        </div>
+                    </div>
+                )}
+                {isPopupAd && (
+                    <div className="popup" onClick={closePopupAd}>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
+                            <h2 style={{fontWeight: "bold", color:"red", fontSize:"20px", backgroundColor:"#F3F6F8", width:"500px", marginLeft:"-20px", height:"50px", marginTop:"-20px", paddingTop: "10px", borderRadius:"8px 8px 0px 0px", boxShadow:"0 5px 10px 0 rgba(0, 0, 0, 0.3)"}}>Chọn Voucher</h2>
+                            <button className="closePopup" onClick={closePopupAd} style={{marginTop: "-30px"}}>
                             Đóng
                             </button>
                         </div>
@@ -521,10 +1121,11 @@ export default function Checkout() {
                                         id="phone"
                                         name="phone"
                                         className={`mt-1 p-2  w-4/5  bg-blue-50 hover:bg-blue-100 `}
+                                        style={{width: "190px"}}
                                         value={holdPhone}
                                         onChange={(e)=>setP(e.target.value)}
                                 />
-
+                                <span className={`bg-blue-50 hover:bg-blue-100`} style={{cursor:"pointer", padding: "9px"}} onClick={openPopupPhone}>&#128221;</span>
                                 </div>
 
                                 <div className="mb-4">
@@ -534,9 +1135,11 @@ export default function Checkout() {
                                         id="address"
                                         name="address"
                                         className={`mt-1 p-2 w-4/5 bg-blue-50 hover:bg-blue-100 `}
+                                        style={{width: "190px"}}
                                         value={holdAddress}
                                        onChange={(e) => setA(e.target.value)}
                                     />
+                                    <span className={`bg-blue-50 hover:bg-blue-100`} style={{cursor:"pointer", padding: "9px"}} onClick={openPopupAd}>&#128221;</span>
                                 </div>
 
                                 <div className="mb-4">
