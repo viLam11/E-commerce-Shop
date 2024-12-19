@@ -42,6 +42,221 @@ const fixPrice = (price) =>{
     }
     return token;
 }
+
+function Voucher({state, buyList, setVoucher, setIsPopupOpen, total}){
+    const [vouchers, setList] = useState([])
+    const [fitVoucher, setFit] = useState([])
+    const [unReach, setReach] = useState([])
+    const [unApplied, setApply] = useState([])
+    useEffect(()=>{
+        const fetchVoucher = async() => {
+            const res = await fetch('http://localhost:8000/api/promotion/GetAll')
+            const data = await res.json()
+            console.log(data)
+            if (data.status != 200) throw new Error("Error while fetching data")
+            setList(data.data)
+        }
+
+        fetchVoucher()
+    },[])
+    const discountValue = (voucher) =>{
+        switch(voucher.apply_range){
+            case 'all':
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * total, voucher.max_amount))
+                break;
+            case 'category':
+                let tempArr = [...buyList].filter(item => item.cate_id == voucher.apply_id)
+                let tempSum = tempArr.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+            case 'product':
+                let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
+                let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+        }
+    }
+    //buyList.map(i => i.product_id).includes(item.apply_id) || buyList.map(i => i.cate_id).includes(item.apply_id) ||
+    useEffect(()=>{
+        const product_con = (item)=>{
+            return (item.apply_range == "product" 
+            && buyList.map(i => i.product_id).includes(item.apply_id) 
+            && item.minspent <= buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
+        }   
+
+        const category_con = (item)=>{
+            return (item.apply_range == "category_id"
+                && buyList.map(i => i.cate_id).includes(item.apply_id)
+                && minspent <= buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
+            )
+        }
+        
+        const uproduct_con = (item)=>{
+            return (item.apply_range == "product" 
+                && buyList.map(i => i.product_id).includes(item.apply_id) 
+                && item.minspent > buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
+        }   
+
+        const ucategory_con = (item)=>{
+            return (item.apply_range == "category_id"
+                && buyList.map(i => i.cate_id).includes(item.apply_id)
+                && minspent > buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
+            )
+        }
+
+        setFit([...vouchers].filter(item => item.quantity > 0 
+            && (product_con(item) || category_con(item) || (item.apply_range == "all" && item.minspent <= buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            .sort((a, b) => discountValue(b) - discountValue(a))
+        )
+        setReach([...vouchers].filter(item => item.quantity > 0 
+            && (uproduct_con(item) || ucategory_con(item) || (item.apply_range == "all" && item.minspent > buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            .sort((a, b) => discountValue(b) - discountValue(a))
+        )
+        setApply([...vouchers].filter(item => !uproduct_con(item) && !ucategory_con(item) && item.apply_range !='all')
+                .sort((a, b) => discountValue(b) - discountValue(a))
+        )
+    },[vouchers])
+    return (
+        <div style={{width: "450px", height:"500px"}}>
+            <style>
+                {`
+                  .body-ticket {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
+                        margin: 0;
+                        background-color: #f5f5f5;
+                    }
+
+                    .ticket {
+                        display: flex;
+                        width: 400px;
+                        height: 200px;
+                        background-color: #fffacd;
+                        border: 2px solid #f2b647;
+                        border-radius: 10px;
+                        position: relative;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .ticket::before,
+                    .ticket::after {
+                        content: '';
+                        position: absolute;
+                        width: 20px;
+                        height: 20px;
+                        background-color: #fff;
+                        border: 2px solid #f2b647;
+                        border-radius: 50%;
+                    }
+
+                    .ticket::before {
+                        top: 0;
+                        left: -12px;
+                    }
+
+                    .ticket::after {
+                        bottom: 0;
+                        left: -12px;
+                    }
+
+                    .divider {
+                        border: 3px dashed white;
+                        margin: auto;
+                    }
+                    .element {
+                        overflow: auto; /* Cho phép cuộn nội dung */
+                        scrollbar-width: none; /* Firefox */
+                        -ms-overflow-style: none; /* Internet Explorer 10+ */
+                    }
+                    .element::-webkit-scrollbar {
+                        display: none; /* Chrome, Safari và Edge */
+                    }
+                `}
+            </style>
+            <div className='element' style={{overflowY: "scroll", height: "450px", marginTop: "15px", width:"500px", marginLeft:"-20px"}}>
+                <h3 style={{marginTop:"10px", marginBottom:"10px"}}>Bạn có thể chọn 1 voucher</h3>
+                <div style={{width: "500px", height:"8px", backgroundColor: "#F3F6F8", marginLeft:"0px"}}></div>
+                <div style={{marginTop:"15px", textAlign:"left", paddingLeft:"10px", fontWeight:"bold"}}>Mã giảm giá</div>
+                {fitVoucher&&fitVoucher.length>0?fitVoucher.map((item, index)=>{
+                return(<>
+                 {index == 0?<div style={{borderRadius:"10px 10px 0px 10px", backgroundColor:"#F7D9E1", height:"25px", width:"120px", marginBottom:"-26px", marginLeft:"320px", padding:"4px", fontSize:"12px", color:"red", zIndex:"2", paddingTop:"2px"}}>Lựa chọn tốt nhất</div>:null}
+                    <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}} onClick={()=>{setVoucher(item); setIsPopupOpen(false)}}>
+                        <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                            <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                            <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
+                        </div>
+                        <div className='divider' style={{height: "100%"}}></div>
+                        <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                            {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                :<>
+                                    <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                    <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                            </>}
+                            <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                            <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
+                        </div>
+                    </div>
+                    </>
+                )
+            }):<div>Không có voucher phù hợp</div>}
+            {unReach && unReach.length > 0?
+            <>
+                <div style={{width: "500px", height:"8px", backgroundColor: "#F3F6F8", marginLeft:"0px", marginTop:"20px"}}></div>
+                <div style={{marginTop:"15px", textAlign:"left", paddingLeft:"10px", fontWeight:"bold"}}>Voucher không khả dụng</div>
+                {unReach.map((item,index)=>{
+                    return(
+                        <>
+                        <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px 8px 0px 0px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}}>
+                            <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                                <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                                <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
+                            </div>
+                            <div className='divider' style={{height: "100%"}}></div>
+                            <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                                {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                    :<>
+                                        <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                        <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                                </>}
+                                <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                                <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
+                            </div>
+                        </div>
+                        <div style={{width: "380px", border: "1px solid gray", borderRadius:"0px 0px 8px 8px", backgroundColor:"#F3F6F8", marginLeft: "60px", fontSize: "12px", padding:"2px", color:"gray", textAlign:"left", paddingLeft:"10px"}}>Chưa đạt giá trị đơn hàng tối thiểu</div>
+                    </>
+                    )
+                })}
+            </>:null}
+            {unApplied?unApplied.map((item,index)=>{
+                    return(
+                        <>
+                        <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px 8px 0px 0px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}}>
+                            <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                                <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                                <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
+                            </div>
+                            <div className='divider' style={{height: "100%"}}></div>
+                            <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                                {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                    :<>
+                                        <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                        <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                                </>}
+                                <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                                <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
+                            </div>
+                        </div>
+                        <div style={{width: "380px", border: "1px solid gray", borderRadius:"0px 0px 8px 8px", backgroundColor:"#F3F6F8", marginLeft: "60px", fontSize: "12px", padding:"2px", color:"gray", textAlign:"left", paddingLeft:"10px"}}>Voucher không áp dụng cho sản phẩm này</div>
+                    </>
+                    )
+                }):null}
+            </div>
+        </div>
+    )
+}
+
 export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -53,7 +268,7 @@ export default function Checkout() {
     // console.log(userID)
     const [orderItems, setOrderItems] = useState([]);
     const [userData, setUserData] = useState(null);
-
+    const [discount, setDiscount] = useState(location.state.discount)
     useEffect(()=>{
         const fetchUser = async() =>{
             try{
@@ -131,6 +346,7 @@ export default function Checkout() {
                 quantity: productList.reduce((sum, i) => sum + i.pquantity, 0),
                 total_price: location.state.total
             })
+            //alert(voucher.promotion_id)
             const addOrder = await axios.post(`http://localhost:8000/api/order/CreateOrder/${localStorage.getItem('uid')}`,{
                 orderItems: Torder,
                 status: "Pending",
@@ -138,7 +354,8 @@ export default function Checkout() {
                 shipping_fee: 0,
                 shipping_co: "Grab",
                 quantity: productList.reduce((sum, i) => sum + i.pquantity, 0),
-                total_price: location.state.total
+                total_price: location.state.total,
+                promotion_id: voucher && voucher.promotion_id?voucher.promotion_id: null
             })
             console.warn(addOrder)
             if (addOrder.data.status !==200) {
@@ -154,12 +371,112 @@ export default function Checkout() {
             console.error("Log Error: ",err.message)
         }
     }
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const openPopup = () => {
+        setIsPopupOpen(true);
+    };
 
+    const closePopup = () => {
+        setIsPopupOpen(false);
+    };
+    const [voucher, setVoucher] = useState(location.state.voucher)
+    useEffect(() => {
+        switch(voucher.apply_range){
+            case 'all':
+                setDiscount(voucher.value?voucher.value:Math.min(voucher.percentage * location.state.total, voucher.max_amount))
+                break;
+            case 'category':
+                let tempArr = [...buyList].filter(item => item.cate_id == voucher.apply_id)
+                let tempSum = tempArr.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                setDiscount(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+            case 'product':
+                let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
+                let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                setDiscount(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+        }
+    }, [voucher]);
     return (userData && userData.lname && <>
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">
-                <div className="w-11/12 m-auto">
+            <style>{`
+                    .btn-css{
+                        padding: 5px;
+                        border: 1px solid #C0C0C0;
+                        background-color: #F7FFF7;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    }
+                    .btn-css:hover{
+                        background-color: #D32F2F;
+                        color: #F7FFF7;
+                    }
+                    .openPopup {
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                    }
+
+                    .openPopup:hover {
+                        background-color: #0056b3;
+                    }
+
+                    .popup {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 9999;
+                    }
+
+                    .popupContent {
+                        background: #fff;
+                        padding: 20px;
+                        border-radius: 10px;
+                        text-align: center;
+                        width: 300px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .closePopup {
+                        padding: 10px 20px;
+                        background-color: #ff4d4d;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-top: -10px;
+                    }
+
+                    .closePopup:hover {
+                        background-color: #cc0000;
+                    }
+                `}
+                </style>
+            {isPopupOpen && (
+                    <div className="popup" onClick={closePopup}>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
+                            <h2 style={{fontWeight: "bold", color:"red", fontSize:"20px", backgroundColor:"#F3F6F8", width:"500px", marginLeft:"-20px", height:"50px", marginTop:"-20px", paddingTop: "10px", borderRadius:"8px 8px 0px 0px", boxShadow:"0 5px 10px 0 rgba(0, 0, 0, 0.3)"}}>Chọn Voucher</h2>
+                            <Voucher buyList={location.state.list} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen} total={location.state.total}/>
+                            <button className="closePopup" onClick={closePopup} style={{marginTop: "-30px"}}>
+                            Đóng
+                            </button>
+                        </div>
+                    </div>
+                )}
+                <div className="w-11/12 m-auto" style={{marginTop:"90px"}}>
                     <div className="my-4 ml-10">
                         <span className="text-gray-600">Cửa hàng / </span>
                         <span className="font-medium">Thanh toán</span>
@@ -260,17 +577,22 @@ export default function Checkout() {
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
                                     <div>Phí vận chuyển</div>
-                                    <div>100.000 VND</div>
+                                    <div>Free</div>
+                                </div>
+                                <div className="border-b border-gray-600 mr-20"></div>
+                                <div className="flex justify-between mr-20">
+                                    <div>Giảm giá</div>
+                                    <div>{fixPrice(discount)}</div>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>  
                                 <div className="promotion flex justify-between mr-20">
-                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5" />
-                                    <button className="bg-red-600 text-white p-2 rounded-md">Áp dụng</button>
+                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5" value={voucher.promotion_id} onChange={(e) => setVoucher({ ...voucher, promotion_id: e.target.value })}/>
+                                    <button className="bg-red-600 text-white p-2 rounded-md" onClick={openPopup}>Áp dụng</button>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>  
                                 <div className="flex justify-between mr-20">
                                     <div className="font-semibold">Tổng tiền</div>
-                                    <div>{fixPrice(location.state.total - location.state.discount)}</div>
+                                    <div>{fixPrice(location.state.total - discount)}</div>
                                 </div>
 
                                 <div className="payment-method">
@@ -289,7 +611,7 @@ export default function Checkout() {
                                 </div>
 
                                 <div className="flex justify-center items-center">
-                                    <div className="bg-red-600 text-white font-bold p-2 rounded-md" onClick={handleOrder}>Đặt hàng</div>
+                                    <div className="bg-red-600 text-white font-bold p-2 rounded-md" onClick={handleOrder} style={{cursor:"pointer"}}>Đặt hàng</div>
                                 </div>
                             </div>
 

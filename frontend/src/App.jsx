@@ -9,7 +9,7 @@ import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
-import AllPromotion from "./pages/AllPromotion";
+import AllPromotion from "./components/customerGUI/AllPromotion";
 import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./components/customerGUI/HomePage";
@@ -19,7 +19,7 @@ import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
 import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
-  
+//import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
 
 function App() {
@@ -50,7 +50,7 @@ function App() {
           <Route path="/user/category/:id" element={<CategoryProduct/>} />
           <Route path="/product-detail/:id" element={<ViewDetail />}/>
           <Route path="/customer/pay" element={<Checkout />}  />
-
+          <Route path="/user/promotion" element={<AllPromotion />} />
 
 
           <Route path="/admin/history/:id" element={<TransactionHist />} />

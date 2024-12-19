@@ -27,9 +27,11 @@ const fixPrice = (price) =>{
     return token;
 }
 
-function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
+function Voucher({state, buyList, setVoucher, setIsPopupOpen, total}){
     const [vouchers, setList] = useState([])
     const [fitVoucher, setFit] = useState([])
+    const [unReach, setReach] = useState([])
+    const [unApplied, setApply] = useState([])
     useEffect(()=>{
         const fetchVoucher = async() => {
             const res = await fetch('http://localhost:8000/api/promotion/GetAll')
@@ -41,6 +43,23 @@ function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
 
         fetchVoucher()
     },[])
+    const discountValue = (voucher) =>{
+        switch(voucher.apply_range){
+            case 'all':
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * total, voucher.max_amount))
+                break;
+            case 'category':
+                let tempArr = [...buyList].filter(item => item.cate_id == voucher.apply_id)
+                let tempSum = tempArr.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+            case 'product':
+                let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
+                let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return(voucher.value?voucher.value:Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+        }
+    }
     //buyList.map(i => i.product_id).includes(item.apply_id) || buyList.map(i => i.cate_id).includes(item.apply_id) ||
     useEffect(()=>{
         const product_con = (item)=>{
@@ -56,34 +75,168 @@ function Voucher({state, buyList, setVoucher, setIsPopupOpen}){
             )
         }
         
+        const uproduct_con = (item)=>{
+            return (item.apply_range == "product" 
+                && buyList.map(i => i.product_id).includes(item.apply_id) 
+                && item.minspent > buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
+        }   
+
+        const ucategory_con = (item)=>{
+            return (item.apply_range == "category_id"
+                && buyList.map(i => i.cate_id).includes(item.apply_id)
+                && minspent > buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
+            )
+        }
+
         setFit([...vouchers].filter(item => item.quantity > 0 
-            && (product_con(item) || category_con(item) || item.apply_range == "all")))
+            && (product_con(item) || category_con(item) || (item.apply_range == "all" && item.minspent <= buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            .sort((a, b) => discountValue(b) - discountValue(a))
+        )
+        setReach([...vouchers].filter(item => item.quantity > 0 
+            && (uproduct_con(item) || ucategory_con(item) || (item.apply_range == "all" && item.minspent > buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            .sort((a, b) => discountValue(b) - discountValue(a))
+        )
+        setApply([...vouchers].filter(item => !uproduct_con(item) && !ucategory_con(item) && item.apply_range !='all')
+                .sort((a, b) => discountValue(b) - discountValue(a))
+        )
     },[vouchers])
     return (
         <div style={{width: "450px", height:"500px"}}>
-            <h3>Bạn có thể chọn 1 voucher</h3>
-            <div style={{overflowY: "scroll", height: "400px", marginTop: "10px"}}>
+            <style>
+                {`
+                  .body-ticket {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
+                        margin: 0;
+                        background-color: #f5f5f5;
+                    }
+
+                    .ticket {
+                        display: flex;
+                        width: 400px;
+                        height: 200px;
+                        background-color: #fffacd;
+                        border: 2px solid #f2b647;
+                        border-radius: 10px;
+                        position: relative;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .ticket::before,
+                    .ticket::after {
+                        content: '';
+                        position: absolute;
+                        width: 20px;
+                        height: 20px;
+                        background-color: #fff;
+                        border: 2px solid #f2b647;
+                        border-radius: 50%;
+                    }
+
+                    .ticket::before {
+                        top: 0;
+                        left: -12px;
+                    }
+
+                    .ticket::after {
+                        bottom: 0;
+                        left: -12px;
+                    }
+
+                    .divider {
+                        border: 3px dashed white;
+                        margin: auto;
+                    }
+                    .element {
+                        overflow: auto; /* Cho phép cuộn nội dung */
+                        scrollbar-width: none; /* Firefox */
+                        -ms-overflow-style: none; /* Internet Explorer 10+ */
+                    }
+                    .element::-webkit-scrollbar {
+                        display: none; /* Chrome, Safari và Edge */
+                    }
+                `}
+            </style>
+            <div className='element' style={{overflowY: "scroll", height: "450px", marginTop: "15px", width:"500px", marginLeft:"-20px"}}>
+                <h3 style={{marginTop:"10px", marginBottom:"10px"}}>Bạn có thể chọn 1 voucher</h3>
+                <div style={{width: "500px", height:"8px", backgroundColor: "#F3F6F8", marginLeft:"0px"}}></div>
+                <div style={{marginTop:"15px", textAlign:"left", paddingLeft:"10px", fontWeight:"bold"}}>Mã giảm giá</div>
                 {fitVoucher&&fitVoucher.length>0?fitVoucher.map((item, index)=>{
-                return(
-                    <div key={index} style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px", width: "340px", height:"120px", cursor: "pointer"}} onClick={()=>{setVoucher(item); setIsPopupOpen(false)}}>
-                        <div style={{backgroundColor: "#EF8D82", padding:"10px"}}>
-                            <img src='https://static.vecteezy.com/system/resources/previews/022/039/886/non_2x/discount-coupons-icon-style-vector.jpg' alt='Vouchers' style={{width: "60px", height: "60px"}}/>
-                            <br />
-                            {item.name}
+                return(<>
+                 {index == 0?<div style={{borderRadius:"10px 10px 0px 10px", backgroundColor:"#F7D9E1", height:"25px", width:"120px", marginBottom:"-26px", marginLeft:"320px", padding:"4px", fontSize:"12px", color:"red", zIndex:"2", paddingTop:"2px"}}>Lựa chọn tốt nhất</div>:null}
+                    <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}} onClick={()=>{setVoucher(item); setIsPopupOpen(false)}}>
+                        <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                            <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                            <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
                         </div>
-                        <div style={{padding:"10px", textAlign: "left"}}>
-                            <div>Số lượng còn lại: {item.quantity}</div>
-                            <div>Ngày hết hạn: {formatToDDMMYYYY(item.endtime)}</div>
-                            <div>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
-                            {item.value?<div>Giảm {fixPrice(item.value)}</div>
-                            :<>
-                                <div>Giảm {item.percentage}%</div>
-                                <div>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                        <div className='divider' style={{height: "100%"}}></div>
+                        <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                            {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                :<>
+                                    <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                    <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
                             </>}
+                            <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                            <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
                         </div>
                     </div>
+                    </>
                 )
-            }):<div>Không có voucher phù hợp</div>}</div>
+            }):<div>Không có voucher phù hợp</div>}
+            {unReach && unReach.length > 0?
+            <>
+                <div style={{width: "500px", height:"8px", backgroundColor: "#F3F6F8", marginLeft:"0px", marginTop:"20px"}}></div>
+                <div style={{marginTop:"15px", textAlign:"left", paddingLeft:"10px", fontWeight:"bold"}}>Voucher không khả dụng</div>
+                {unReach.map((item,index)=>{
+                    return(
+                        <>
+                        <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px 8px 0px 0px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}}>
+                            <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                                <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                                <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
+                            </div>
+                            <div className='divider' style={{height: "100%"}}></div>
+                            <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                                {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                    :<>
+                                        <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                        <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                                </>}
+                                <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                                <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
+                            </div>
+                        </div>
+                        <div style={{width: "380px", border: "1px solid gray", borderRadius:"0px 0px 8px 8px", backgroundColor:"#F3F6F8", marginLeft: "60px", fontSize: "12px", padding:"2px", color:"gray", textAlign:"left", paddingLeft:"10px"}}>Chưa đạt giá trị đơn hàng tối thiểu</div>
+                    </>
+                    )
+                })}
+            </>:null}
+            {unApplied?unApplied.map((item,index)=>{
+                    return(
+                        <>
+                        <div key={index} className="ticket" style={{display: "inline-flex", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)", marginTop:"20px", borderRadius: "8px 8px 0px 0px", width: "380px", height:"120px", cursor: "pointer", zIndex:"1"}}>
+                            <div className='left-section' style={{ padding:"10px", width: "140px", alignItems:"center"}}>
+                                <img  src='../../../public/img/vouchersx.png' alt='Vouchers' style={{width: "60px", height: "60px", marginLeft: "30px"}}/>
+                                <div style={{marginTop: "10px", fontWeight: "bold", color:"red"}}>{item.name}</div>
+                            </div>
+                            <div className='divider' style={{height: "100%"}}></div>
+                            <div className='right-section' style={{padding:"10px", textAlign: "left", width:"240px", paddingLeft:"20px"}}>
+                                {item.value?<div style={{fontWeight: "bold"}}>Giảm {fixPrice(item.value)}</div>
+                                    :<>
+                                        <div style={{fontWeight: "bold"}}>Giảm {item.percentage}%</div>
+                                        <div style={{fontWeight: "bold"}}>Giảm tối đa: {fixPrice(item.max_amount)}</div>
+                                </>}
+                                <div style={{fontSize: "14px", color:"black"}}>Đơn tối thiểu: {fixPrice(item.minspent)}</div>
+                                <div style={{fontSize: "12px", color:"gray"}}>Ngày hết hạn: <span style={{color:"red"}}>{formatToDDMMYYYY(item.endtime)}</span></div>
+                            </div>
+                        </div>
+                        <div style={{width: "380px", border: "1px solid gray", borderRadius:"0px 0px 8px 8px", backgroundColor:"#F3F6F8", marginLeft: "60px", fontSize: "12px", padding:"2px", color:"gray", textAlign:"left", paddingLeft:"10px"}}>Voucher không áp dụng cho sản phẩm này</div>
+                    </>
+                    )
+                }):null}
+            </div>
         </div>
     )
 }
@@ -210,7 +363,7 @@ export default function Cart(){
 
     const handleDelete = async(item) =>{
         try {
-            const update = await axios.post(`http://localhost:8000/api/cart/DeleteCart/${currentUser.uid}`, {
+            const update = await axios.post(`http://localhost:8000/api/cart/DeleteCart/${uid}`, {
                 product_id: item,
             });
     
@@ -244,15 +397,6 @@ export default function Cart(){
         setEnd((prev) => Math.max(prev - 5, 5));
     };
 
-    const handleMakeOrder = async() =>{
-        try{
-            const uid = localStorage.getItem('user')
-            const order = await axios.post(`http://localhost:8000/api/order/CreateOrder/${uid}`)
-        }
-        catch(err){
-            console.error(err.message)
-        }
-    }
     return (prodList && 
         <>
         <Header/>
@@ -314,9 +458,9 @@ export default function Cart(){
                             };
                             setList(tempArr)
                         }}/></div>
-                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center"}}><img src={item.image[0]} style={{height: "40px", marginTop: "-8px"}}/> <div style={{paddingBottom:"0px", marginLeft:"10px"}}>{item.pname}</div></div>
-                        <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.price)}</div>
-                        <div style={{display: "inline-flex", width: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
+                        <div style={{display: "inline-flex", alignItems:"center",marginLeft:"50px", justifyItems:"center", paddingRight:"10px"}}><img src={item.image[0]} style={{height: "40px", marginTop: "-8px"}}/> <div style={{paddingBottom:"0px", marginLeft:"10px"}}>{item.pname}</div></div>
+                        <div style={{paddingTop: "5px",alignItems:"center"}}>{fixPrice(item.price)}</div>
+                        <div style={{display: "inline-flex", width: "40px", height: "40px", marginLeft: "30px", border: "2px solid #696969", borderRadius: "6px", paddingLeft:"5px", paddingTop: "3px"}}>
                             <input type='number' value={item.pquantity} style={{width: "20px", height: "30px", border: "none", backgroundColor: "transparent", cursor: "pointer"}} 
                             onChange={(e)=>{
                                     const tempArr = [...prodList]
@@ -348,10 +492,24 @@ export default function Cart(){
                                 }}>⮟</div>
                             </div>
                         </div>
-                        <div style={{paddingTop: "10px"}}>{fixPrice(item.price * item.pquantity)}</div>
+                        <div style={{paddingTop: "5px"}}>{fixPrice(item.price * item.pquantity)}</div>
                         <div style={{paddingTop: "0px"}}>
                         {/* Lựa chọn button */}
-                        <button style={{ padding: "5px 10px" }} onClick={()=> handleDelete(item.product_id)}>Xóa</button>
+                        <style>
+                            {`
+                                .dbutton{
+                                    background-color: lightblue;
+                                    color: black
+                                }
+                                .dbutton:hover{
+                                    background-color: red;
+                                    color: white
+                                }
+                            `}
+                        </style>
+                        <button className='dbutton' style={{ padding: "5px 10px", border:"1px solid gray", borderRadius: "8px"}} 
+                        onClick={()=> handleDelete(item.product_id)}
+                        >Xóa</button>
 
                         </div>
                     </div>
@@ -434,9 +592,9 @@ export default function Cart(){
                 {isPopupOpen && (
                     <div className="popup" onClick={closePopup}>
                         <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "500px", height:"600px"}}>
-                            <h2>Chọn Voucher</h2>
-                            <Voucher buyList={buyList} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen}/>
-                            <button className="closePopup" onClick={closePopup}>
+                            <h2 style={{fontWeight: "bold", color:"red", fontSize:"20px", backgroundColor:"#F3F6F8", width:"500px", marginLeft:"-20px", height:"50px", marginTop:"-20px", paddingTop: "10px", borderRadius:"8px 8px 0px 0px", boxShadow:"0 5px 10px 0 rgba(0, 0, 0, 0.3)"}}>Chọn Voucher</h2>
+                            <Voucher buyList={buyList} setVoucher={setVoucher} setIsPopupOpen={setIsPopupOpen} total={total}/>
+                            <button className="closePopup" onClick={closePopup} style={{marginTop: "-30px"}}>
                             Đóng
                             </button>
                         </div>
@@ -444,14 +602,14 @@ export default function Cart(){
                 )}
                 <div style={{display: "inline-flex"}}>
                     <div style={{marginTop: "50px", display:"inline-flex", height: '40px'}}>
-                        <input type='text' placeholder='Mã giảm giá' value={voucher.promotion_id} style={{padding: "5px", borderRadius: "8px", width: "210px"}}/>
-                        <div className='btn-css' onClick={openPopup} style={{width: "160px", textAlign:"center", paddingTop:"10px", marginLeft: "20px"}}>Chọn mã giảm giá</div>
+                        <input type='text' placeholder='Mã giảm giá' value={voucher.promotion_id} style={{padding: "5px", borderRadius: "8px", width: "210px", border: "1px solid black"}}/>
+                        <div className='btn-css' onClick={openPopup} style={{width: "160px", textAlign:"center", paddingTop:"6px", marginLeft: "20px"}}>Chọn mã giảm giá</div>
                     </div>
                     <div style={{marginLeft: "410px", width: "400px", border: "2px solid #ADC1C6", padding:"20px",borderRadius: "10px"}}>
                         <div style={{marginBottom: "20px", color: "#D41545", fontSize: "18px", fontWeight: "bold"}}>Tổng cộng</div>
                         <div style={{display: 'inline-flex'}}>
                             <div>Thành tiền: </div>
-                            <div style={{marginLeft: "180px"}}>{fixPrice(total)}</div>
+                            <div style={{marginLeft: "170px"}}>{fixPrice(total)}</div>
                         </div>
                         <div className='underline' style={{marginBottom: "10px", width: "350px" }}></div>
                         <div style={{display: 'inline-flex'}}>
@@ -461,14 +619,14 @@ export default function Cart(){
                         <div className='underline' style={{marginBottom: "10px", width: "350px" }}></div>
                         <div style={{display: 'inline-flex'}}>
                             <div>Vận chuyển: </div>
-                            <div style={{marginLeft: "180px"}}>Free</div>
+                            <div style={{marginLeft: "160px"}}>Free</div>
                         </div>
                         <div className='underline' style={{marginBottom: "10px", width: "350px" }}></div>
                         <div style={{display: 'inline-flex', marginBottom: "10px"}}>
                             <div>Tổng cộng: </div>
-                            <div style={{marginLeft: "180px"}}>{fixPrice(total-discount)}</div>
+                            <div style={{marginLeft: "170px"}}>{fixPrice(total-discount)}</div>
                         </div>
-                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}} onClick={() => navigate('/customer/pay',{state: {list: buyList, total: total, discount: discount, voucher_code: voucher.promotion_id}})}>Mua hàng</div>
+                        <div className='btn-css' style={{width: "100px", alignItems: "center", textAlign: "center", marginLeft: "120px"}} onClick={() => navigate('/customer/pay',{state: {list: buyList, total: total, discount: discount, voucher: voucher}})}>Mua hàng</div>
                     </div>
                 </div>
                 </div>

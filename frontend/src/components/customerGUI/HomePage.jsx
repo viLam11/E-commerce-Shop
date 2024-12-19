@@ -28,7 +28,7 @@ function Banner({productData}) {
     }
     return (
         <div className="banner">
-            <div className="side">
+            <div className="side" style={{marginLeft:"-520px"}}>
                 <div className="item">
                     <h2 onClick={()=>navigate('/category/c01')}>Điện thoại</h2>
                     <div className="underline"></div>
@@ -51,11 +51,11 @@ function Banner({productData}) {
                 </div>
             </div>
             <div className="horizon"></div>
-            <div className="ads">
+            <div className="ads" style={{width: "1200px"}}>
                 <img src={images[activeIndex]} alt="ADS" />
                 
             </div>
-            <div className="pagination">
+            <div className="pagination" style={{marginLeft: "-650px"}}>
                 {Array.from({ length: 5 }).map((_, index) => (
                     <span
                         key={index}

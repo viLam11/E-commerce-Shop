@@ -3,10 +3,11 @@ import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../design/Home/header.css'
 export default function Header() {
-    const [searchQuery, setSearchQuery] = useState(localStorage.getItem('Squery'||""));
+    const [searchQuery, setSearchQuery] = useState("");
     const handleSearch = () =>{
         console.log("Searching: "+searchQuery)
         localStorage.setItem('Squery', searchQuery)
+        setSearchQuery("")
         window.location.reload();
     }
     const navigate = useNavigate()

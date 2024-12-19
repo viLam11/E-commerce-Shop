@@ -700,9 +700,9 @@ export function History(){
     useEffect(()=>{
         const fetchData = async() => {
             try{
-                console.log(localStorage.getItem('Squery') || "")
-                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000&filter=${localStorage.getItem('Squery') || ""}`)
-                console.log(rdata)
+                //console.log(localStorage.getItem('Squery') || "")
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                //console.log(rdata)
                 if (rdata.status != 200) throw new Error("Feth data fail")
                 setDataSet(rdata.data.data)
             }
@@ -1070,7 +1070,7 @@ export function History(){
 export function Ranking(){
     const { active, setActive, currentUser, totalPaid, phone1 } = useContext(UserContext);
     const [isEncode, setEncode] = useState(false)
-    const [progress, setProgress] = useState(10);
+    const [progress, setProgress] = useState(totalPaid < 5000000?(totalPaid)/50000:(totalPaid < 20000000?(totalPaid)/200000:100));
     const Encode = (item) =>{
         if(isEncode){
             let encode = item.slice(0,2)
@@ -1081,7 +1081,8 @@ export function Ranking(){
         return item
     }
     return(
-        <div className="profile-form" style={{boxShadow:"none"}}>
+        <div className="profile-form" style={{boxShadow:"none", marginTop: "-30px"}}>
+            <h2>Hạng của khách hàng</h2>
             <style>
                 {`
                 /* Container chứa thanh tiến trình */
@@ -1156,20 +1157,20 @@ export function Ranking(){
                     }}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
                 </div>
             </div>
-            <div style={{width: "50%", marginBottom: "20px"}}><img style={{borderRadius: "10px"}} src={totalPaid < 5000000?"../../../public/img/silver.png":(totalPaid < 20000000?"../../../public/img/gold.png":"../../../public/img/diamond.png")} alt="" /></div>
-            <div style={{width: "50%",boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.3)", padding: "8px 8px 8px 8px", borderRadius: "10px"}}>
+            <div style={{width: "80%", marginBottom: "20px"}}><img style={{borderRadius: "10px"}} src={totalPaid < 5000000?"../../../public/img/silver.png":(totalPaid < 20000000?"../../../public/img/gold.png":"../../../public/img/diamond.png")} alt="" /></div>
+            <div style={{width: "75%",boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.3)", padding: "8px 8px 8px 8px", borderRadius: "10px"}}>
                 <div style={{display: "inline-flex", marginBottom: "30px"}}>
                     <div>
                         <div style={{fontSize: "16px", fontWeight:"bold",marginBottom:"1px"}}>{currentUser.username}</div>
                         <div style={{fontSize: "20px", fontWeight:"bold", color: "red",marginBottom:"0px"}}>{fixPrice(totalPaid)}</div>
                         <div style={{fontSize: "12px", fontWeight:"bold", color: "red"}}>(Tích lũy mua sắm)</div>
                     </div>
-                    <div style={{ marginLeft:"320px"}}>
+                    <div style={{ marginLeft:"600px"}}>
                         <img style={{width:"50px", marginBottom:"2px"}} src={totalPaid < 5000000?"../../../public/img/2.png":(totalPaid < 20000000?"../../../public/img/1.png":"../../../public/img/3.png")} alt="" />
                         <div style={{fontSize: "16px", fontWeight:"bold", color: "red",marginBottom:"0px", textAlign:"center"}}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
                     </div>
                 </div>
-                <div className="progress-container">
+                <div className="progress-container" style={{width: "90%", alignItems:"center", alignContent:"center", justifyItems:"center", marginLeft:"40px"}}>
                 <div
                     className="progress-bar"
                     style={{ width: `${progress}%` }}
@@ -1177,10 +1178,21 @@ export function Ranking(){
                 <div
                     className="progress-circle"
                     style={{ left: `calc(${progress}% - 10px)` , marginTop:"5px"}} // Điều chỉnh hình tròn theo tiến trình
-                ></div>
-                <div className="progress-flag"></div>
-                <div className="progress-track"></div>
+                >
+                    <img src="../../../public/img/chibi.png" alt="" style={{ left: `calc(${progress}% - 10px)` , marginTop:"-25px", width:"50px"}}/>
                 </div>
+                
+                
+                {/* <div className="progress-flag">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADnSURBVHgB7dQ7CsJAFIXhMyGDBEUsLC1S2OgG3IVgLRYuwY34ALW2DhauwMcKxE5sAiJYJCIBQ5Q8xmhrBpKQBIT8zcDc4oPhMkBAk7mijmfKBgkn8gYVQ5OfjeoAMSIuUwun2yo0VnzcZcIwRBxMwNQ/fjABKURAlkH3aWBnetR3yAZja94kcUwAWfBm3AWxXy60q4moaYZ1QFTM8xgs00bUSqLYh+OMgmZpLEibN0gcI0Br7/8JyAJjgFSmtIMssC/IWDfonrsger25lSjtIW6OEx77VLOsCxIslWfMsRzLsRz7c+wNLD45oCEwMZoAAAAASUVORK5CYII=" alt="cps-flag"/>
+                </div> */}
+                <div className="progress-track"></div>
+                <img style={{marginLeft:"745px", marginTop:"-20px"}} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADnSURBVHgB7dQ7CsJAFIXhMyGDBEUsLC1S2OgG3IVgLRYuwY34ALW2DhauwMcKxE5sAiJYJCIBQ5Q8xmhrBpKQBIT8zcDc4oPhMkBAk7mijmfKBgkn8gYVQ5OfjeoAMSIuUwun2yo0VnzcZcIwRBxMwNQ/fjABKURAlkH3aWBnetR3yAZja94kcUwAWfBm3AWxXy60q4moaYZ1QFTM8xgs00bUSqLYh+OMgmZpLEibN0gcI0Br7/8JyAJjgFSmtIMssC/IWDfonrsger25lSjtIW6OEx77VLOsCxIslWfMsRzLsRz7c+wNLD45oCEwMZoAAAAASUVORK5CYII=" alt="cps-flag"/>
+                
+                </div>
+                {totalPaid < 5000000?<div style={{textAlign:"center", marginTop:"20px"}}>Bạn cần mua thêm <span style={{fontWeight: "bold"}}>{fixPrice(5000000 - totalPaid)}</span> để lên hạng Gold</div>:
+                (totalPaid < 20000000?<div style={{textAlign:"center", marginTop:"20px"}}>Bạn cần mua thêm <span style={{fontWeight: "bold"}}>{fixPrice(20000000 - totalPaid)}</span> để lên hạng Diamond</div>:
+                <div style={{textAlign:"center", marginTop:"20px"}}>Chúc mừng bạn đã đạt hạng <span style={{fontWeight: "bold"}}>Diamond</span> - hạng cao nhất của sàn</div>)}
             </div>
         </div>
     )
