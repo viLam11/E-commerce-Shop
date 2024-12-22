@@ -4,9 +4,9 @@ const { Client } = require('pg');
 const client = new Client({
     user: 'postgres',
     host: 'localhost',
-    database: process.env.DB_name,
-    password: process.env.DB_pass,
-    port: 5433,
+    database: 'HTTT',
+    password: '02032004',
+    port: 5432,
 });
 
 client.connect();

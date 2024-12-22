@@ -186,11 +186,8 @@ class OrderService {
 
             await client.query('COMMIT');
             return { status: 200, msg: 'SUCCESS' };
-        } catch (err) {
-            console.error("Error during order creation:", err.message);
-            await client.query('ROLLBACK');
-            throw { status: 400, msg: err.message };
         }
+        )
     }
 
     async findsomethingExist(table, column, value) {
