@@ -707,6 +707,10 @@ function Detail({reviews, product }) {
         }
     };
     
+    const handleBuyProduct = () => {
+        navigate(`/customer/pay`,{state: {product: product, quantity: buyQuantity}});
+    };
+
     return (
         <>
             <div className="breadcrumbs">
@@ -746,7 +750,7 @@ function Detail({reviews, product }) {
                                 />
                                 <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
                             </div>
-                            <button className="buy-now">Mua ngay</button>
+                            <button className="buy-now" onClick={handleBuyProduct}>Mua ngay</button>
                             <button className="add-to-cart" onClick={handleAddCart}>Thêm vào giỏ hàng</button>
                         </div>
                         <div className="info-box">
