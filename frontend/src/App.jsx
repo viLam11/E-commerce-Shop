@@ -29,7 +29,7 @@ import UserAccountManagement from "./components/customerGUI/UserAccountManagemen
 import {Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
 // import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
-
+//import ViewDetail from "./components/customerGUI/ViewProductDetail";
 function App() {
   return (
     <Router
@@ -57,7 +57,7 @@ function App() {
           <Route path="/user/shopping" element={<ShoppingPage/>}/>
           <Route path="/category/:id" element={<Categories />}/>
           <Route path="/user/category/:id" element={<CategoryProduct/>} />
-          {/* <Route path="/product-detail/:prodID" element={<P />}/> */}
+          <Route path="/product-detail/:id" element={<ViewDetail />}/>
           <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<UsersManagement />} />
           <Route path="/customer/shopping" element={<Shopping />} />

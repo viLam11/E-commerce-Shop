@@ -1119,7 +1119,7 @@ function ViewDetail() {
         const fetchReviews = async () => {
             let newReviews = [];
             try {
-                const response = await fetch(`http://localhost:8000/api/product/GetReview/${product.product_id}`);
+                const response = await fetch(`http://localhost:8000/api/product/GetReview?product_id=${product.product_id}&limit=1000&page=0`);
                 if (!response.ok) throw new Error("Failed to fetch image");
                 const data = await response.json();
                 newReviews = data.data||[];

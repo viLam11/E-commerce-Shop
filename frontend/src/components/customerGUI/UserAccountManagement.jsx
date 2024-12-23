@@ -111,7 +111,7 @@ function Review({currentUser, product, closePopup}){
         const fetchMyReview = async()=>{
             console.log(product.product_id + " " + currentUser.uid)
             try{
-                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview/${product.product_id}`)
+                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview?product_id=${product.product_id}&limit=1000&page=0`)
                 console.log(rreview)
                 if (rreview.data.status != 200){
                     alert('Error')
