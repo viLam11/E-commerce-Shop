@@ -39,7 +39,7 @@ router.get('/get-detail/:id', authController.getDetailUser);
 
 router.post('/CreateAddress/:id', authController.createAddress);
 router.get('/GetAll/:id', authController.getAllAddress);
-router.delete('/DeleteAddress/:id', authController.deleteAddress);
+router.post('/DeleteAddress/:id', authController.deleteAddress);
 router.put('/UpdateAddress/:id', authController.updateAddress);
 router.get('/GetAdd/:id', authController.getAddressById);
 
@@ -47,7 +47,7 @@ router.get('/GetAdd/:id', authController.getAddressById);
 
 router.post('/CreatePhone/:id', authController.createPhone);
 router.put('/UpdatePhone/:id', authController.updatePhone);
-router.delete('/DeletePhone/:id', authController.deletePhone);
+router.post('/DeletePhone/:id', authController.deletePhone);
 router.get('/GetPhone/:id', authController.getPhone); //tất cả số điện thoại của người dùng
 
 

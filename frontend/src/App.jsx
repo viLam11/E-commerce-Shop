@@ -9,8 +9,8 @@ import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
-import AllPromotion from "./pages/AllPromotion";
-import Checkout from "./pages/Checkout";
+import AllPromotion from "./components/customerGUI/AllPromotion";
+import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./components/customerGUI/HomePage";
 import ViewDetail from './components/customerGUI/ViewProductDetail'
@@ -18,10 +18,9 @@ import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
-import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
-import Shopping from "./pages/Shopping";
-import ProductDetail from "./pages/ProductDetail";
-import ProductByCat from "./pages/ProductByCat";  
+import {Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
+//import AllPromotion from "./pages/AllPromotion";
+import CategoryProduct from './components/customerGUI/CategoryCard'
 
 function App() {
   return (
@@ -44,10 +43,12 @@ function App() {
                     <Route path="password" element={<UpdatePassword />} />
                     <Route path="history-log" element={<History />} />
                     <Route path="rank" element={<Ranking />} />
+                    <Route path="notification" element={<Notification/>} />
           </Route>
            <Route path="/user/cart" element={<Cart/>} />
           <Route path="/user/shopping" element={<ShoppingPage/>}/>
           <Route path="/category/:id" element={<Categories />}/>
+          <Route path="/user/category/:id" element={<CategoryProduct/>} />
           {/* <Route path="/product-detail/:prodID" element={<P />}/> */}
           <Route path="/customer/pay" element={<Checkout />}  />
           <Route path="/customer/homepage" element={<Homepage />} />

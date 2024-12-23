@@ -8,7 +8,7 @@ class UserService {
 
     async createCustomer(username, password, data) {
         return new Promise((resolve, reject) => {
-            const userId = uuidv4();
+            const userId = CreateID.generateID('uid');
             const { lname, fname, gender, email, userType, birthday } = data
             client.query(
                 `INSERT INTO users( uid, username, upassword, email, userType, lname, fname, gender, birthday, ranking) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
@@ -353,10 +353,10 @@ class UserService {
                                 data: null
                             });
                         }
-                        else if (res.rows.length !== 0) {
+                        else if (res.rows.length > 1) {
                             resolve({
                                 status: 404,
-                                msg: 'The Pname is already exist',
+                                msg: `${data.username} đã tồn tại`,
                                 data: null
                             });
                         }
@@ -591,13 +591,20 @@ class UserService {
                         VALUES ($1, $2, $3)
                     `,[uid, body.address, true])
                 }
+                else{
+                    await client.query(`
+                        INSERT INTO user_address (uid, address, isdefault)
+                        VALUES ($1, $2, $3)
+                    `,[uid, body.address, body.isdefault])
+                }
+                
             }
             await client.query('COMMIT')
-            return {
-                status: 200,
-                msg: "Add successfully",
-                data: body
-            }
+                return {
+                    status: 200,
+                    msg: "Add successfully",
+                    data: body
+                }
         }
         catch (err){
             await client.query('ROLLBACK')

@@ -1,4 +1,4 @@
-import Header from "../components/Header";
+import Header from "../components/customerGUI/Header";
 import Footer from "../components/Footer";
 import Promotion from "../components/Promotion";
 import Pagination from "../components/Pagination";

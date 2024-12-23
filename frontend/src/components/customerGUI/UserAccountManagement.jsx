@@ -96,11 +96,633 @@ const PieChart = ({chartData, total}) => {
 //       fontFamily: "Roboto, Arial, sans-serif",
 //     },
 //   });
+function Review({currentUser, product, closePopup}){
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState("");
+    const [count, setCount] = useState(0);
+    const [onColor, setOn] = useState([0,0,0,0,0])
+    const [battery, setBattery] = useState("")
+    const [speed, setSpeed] = useState("")
+    const [tool, setTool] = useState("")
+    const [service, setService] = useState("")
+    const [myReview, setMine] = useState(null)
+    const [isView, setView] = useState(true)
+    useEffect(()=>{
+        const fetchMyReview = async()=>{
+            console.log(product.product_id + " " + currentUser.uid)
+            try{
+                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview/${product.product_id}`)
+                console.log(rreview)
+                if (rreview.data.status != 200){
+                    alert('Error')
+                    throw new Error(rreview.data.msg)
+                }
+                else {
+                    setMine(rreview.data.data.find(i => i.uid == currentUser.uid))
+                    Coloring(rreview.data.data.find(i => i.uid == currentUser.uid).rating)
+                }
+            }
+            catch(e){
+                console.error(e.message)
+            }
+        }
+        fetchMyReview()
+    },[])
+
+    const Coloring = (idx) => {
+        const temp = onColor.map((_, index) => (index < idx ? 1 : 0));
+        setOn(temp);
+    };
+
+    const [onColor1, setOn1] = useState([0,0,0,0,0])
+    const Coloring1 = (idx) => {
+      const temp = onColor1.map((_, index) => (index < idx ? 1 : 0));
+      setOn1(temp);
+    };
+
+    const [onColor2, setOn2] = useState([0,0,0,0,0])
+    const Coloring2 = (idx) => {
+      const temp = onColor2.map((_, index) => (index < idx ? 1 : 0));
+      setOn2(temp);
+    };
+
+    const [onColor3, setOn3] = useState([0,0,0,0,0])
+    const Coloring3 = (idx) => {
+      const temp = onColor3.map((_, index) => (index < idx ? 1 : 0));
+      setOn3(temp);
+    };
+    const [onColor4, setOn4] = useState([0,0,0,0,0])
+    const Coloring4 = (idx) => {
+      const temp = onColor4.map((_, index) => (index < idx ? 1 : 0));
+      setOn4(temp);
+    };
+    function hanldePostReview() {
+        console.log("Rating: ", rating),
+        console.log("Comment: ", (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment),
+        axios.post(`http://localhost:8000/api/product/CreateReview/${product.product_id}`, {
+            "uid": currentUser.uid,
+            "rating": rating,
+            "comment": (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment
+        })
+        .then((response) => {
+            console.log("CHECK RESPONSE: " , response);
+
+            if(response.status === 200) {
+                alert("Đã thêm nhận xét");
+                setCount(count + 1);        
+            }
+        })
+        .catch((error) => {
+            if (error.response.data) {
+              //alert(error.response.data.msg);
+              console.error(error.response.data)
+            } else {
+              console.error('Error:', error.message);
+            }
+          })
+    
+    }
+    const switchToModify = (str) =>{
+        let scrumb = str.split('\n')
+        console.log("Scrumble: " + scrumb)
+        for (const i of scrumb){
+            let indexing = i.slice(i.indexOf(':')+1)
+            if (i.includes("Thời lượng pin")) 
+                Coloring1(indexing.includes("Rất mạnh")?5:
+                (indexing.includes(" Mạnh")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes(" Yếu")?2:1))))
+            else if (i.includes("Tốc độ phản hồi")) 
+                Coloring2(indexing.includes("Rất nhanh")?5:
+                (indexing.includes("Nhanh")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes("Chậm")?2:1))))
+            else if (i.includes("Tiện ích thông minh")) 
+                Coloring3(indexing.includes("Rất hiệu quả")?5:
+                (indexing.includes("Tiện lợi")?4:
+                (indexing.includes("Vừa đủ")?3:
+                (indexing.includes("Tệ")?2:1))))
+            else if (i.includes("Dịch vụ đính kèm")) 
+                Coloring4(indexing.includes("Rất tốt")?5:
+                (indexing.includes("Tốt")?4:
+                (indexing.includes("Bình thường")?3:
+                (indexing.includes("Kém")?2:1))))
+            else setComment(i)
+        }
+    }
+    if (isView)
+    return(
+        <>
+       <div style={{
+        overflowY: "scroll",
+        height: "450px",
+        scrollbarWidth: "none", // Firefox
+        msOverflowStyle: "none", // IE & Edge
+      }}>
+        <style>
+            {`
+            div::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+                .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+            `}
+        </style>
+            <div style={{display: "inline-flex"}}>
+                <div><img style={{width: "100px"}} src={product.image[0]} alt="" /></div>
+                <div style={{fontWeight: "bold", marginTop:"10px"}}>{product.pname}</div>
+            </div>
+            {myReview?
+            <>
+            <div style={{ display: "inline-flex", marginTop: "20px", gap: "70px", marginBottom: "20px" }}>
+            {Array.from({ length: 5 }).map((_, idx) => (
+                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                    <div
+                        key={idx}
+                        style={onColor[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                        >
+                        <svg
+                            height="20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            fill="currentColor"
+                        >
+                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                        </svg>
+                    </div>
+                    <div style={{fontSize: "12px", width: "70px", marginTop:"10px"}}>{idx == 0?"Rất tệ":(idx==1?"Tệ":(idx==2?"Bình thường":(idx==3?"Tốt":"Tuyệt vời")))}</div>
+                </div>
+            ))}
+            </div>
+            <textarea className="comment border border-black w-full p-1"
+                    value={myReview.comment}
+                    style={{height: "100px", borderRadius:"8px", padding:"4px 8px 8px 8px", marginTop:"20px"}}
+                >
+                    
+                </textarea>
+            </>:
+            <>
+            <div style={{ display: "inline-flex", marginTop: "20px", gap: "70px", marginBottom: "20px" }}>
+            {Array.from({ length: 5 }).map((_, idx) => (
+                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                    <div
+                        key={idx}
+                        onMouseOver={() => {
+                            Coloring(idx + 1);
+                            setRating(idx + 1)
+                        }}
+                        style={onColor[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                        >
+                        <svg
+                            height="20"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 576 512"
+                            fill="currentColor"
+                        >
+                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                        </svg>
+                    </div>
+                    <div style={{fontSize: "12px", width: "70px", marginTop:"10px"}}>{idx == 0?"Rất tệ":(idx==1?"Tệ":(idx==2?"Bình thường":(idx==3?"Tốt":"Tuyệt vời")))}</div>
+                </div>
+            ))}
+            </div>
+            <div style={{height: "1px", backgroundColor:"#E5E5E5", border: "1px solid #E5E5E5", marginBottom:"30px", alignItems:"left"}}></div>
+            <div>
+                <div style={{textAlign:"left", fontSize:"16px", fontWeight:"bold", marginBottom: "20px"}}>Theo trải nghiệm</div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-40px", marginBottom: "15px"}}>
+                    <div style={{marginLeft: "-65px", marginRight:"285px", fontSize:"14px"}}>Thời lượng pin</div>
+                    <div style={{ display: "inline-flex", gap: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring1(idx + 1);
+                                    setBattery(onColor1[4] == 1?"Rất mạnh":
+                                        (onColor1[3]==1?"Mạnh":
+                                        (onColor1[2]==1?"Vừa đủ":
+                                        (onColor1[1]==1?"Yếu":
+                                        (onColor1[0]==1?"Rất yếu":"")))))
+                                    }}
+                                style={onColor1[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor1[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-52px"}:
+                        onColor1[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-29px"}:
+                        onColor1[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-38px"}:
+                        onColor1[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-19px"}:
+                        onColor1[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-41px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"2px"}}>
+                            {onColor1[4] == 1?"Rất mạnh":(onColor1[3]==1?"Mạnh":(onColor1[2]==1?"Vừa đủ":(onColor1[1]==1?"Yếu":(onColor1[0]==1?"Rất yếu":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-132px", marginRight:"278px", fontSize:"14px"}}>Tốc độ phản hồi</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() =>{ 
+                                    Coloring2(idx + 1);
+                                    setSpeed(
+                                        onColor2[4] == 1?"Rất nhanh":
+                                        (onColor2[3]==1?"Nhanh":
+                                        (onColor2[2]==1?"Vừa đủ":
+                                        (onColor2[1]==1?"Chậm":
+                                        (onColor2[0]==1?"Rất chậm":""))))
+                                    )
+                                }}
+                                style={onColor2[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor2[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-102px"}:
+                        onColor2[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-81px"}:
+                        onColor2[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-86px"}:
+                        onColor2[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-79px"}:
+                        onColor2[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-101px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-42px"}}>
+                            {onColor2[4] == 1?"Rất nhanh":(onColor2[3]==1?"Nhanh":(onColor2[2]==1?"Vừa đủ":(onColor2[1]==1?"Chậm":(onColor2[0]==1?"Rất chậm":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-36px", marginRight:"253px", fontSize:"14px"}}>Tiện ích thông minh</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring3(idx + 1);
+                                    setTool(onColor3[4] == 1?"Rất hữu ích":
+                                        (onColor3[3]==1?"Tiện lợi":
+                                        (onColor3[2]==1?"Vừa đủ":
+                                        (onColor3[1]==1?"Tệ":
+                                        (onColor3[0]==1?"Rất tệ":"")))))
+                                }}
+                                style={onColor3[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor3[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-15px"}:
+                        onColor3[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"9px"}:
+                        onColor3[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"10px"}:
+                        onColor3[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"37px"}:
+                        onColor3[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"19px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                            {onColor3[4] == 1?"Rất hữu ích":(onColor3[3]==1?"Tiện lợi":(onColor3[2]==1?"Vừa đủ":(onColor3[1]==1?"Tệ":(onColor3[0]==1?"Rất tệ":""))))}
+                    </div>
+                </div>
+                <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                    <div style={{marginLeft: "-36px", marginRight:"273px", fontSize:"14px"}}>Dịch vụ đính kèm</div>
+                    <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring4(idx + 1);
+                                    setService(
+                                        onColor4[4] == 1?"Rất tốt":
+                                        (onColor4[3]==1?"Tốt":
+                                        (onColor4[2]==1?"Bình thường":
+                                        (onColor4[1]==1?"Kém":
+                                        (onColor4[0]==1?"Rất kém":""))))
+                                    )
+                                }}
+                                style={onColor4[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="15"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={onColor4[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"12px"}:
+                        onColor4[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"31px"}:
+                        onColor4[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-21px"}:
+                        onColor4[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"25px"}:
+                        onColor4[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"3px"}:
+                        {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                            {onColor4[4] == 1?"Rất tốt":(onColor4[3]==1?"Tốt":(onColor4[2]==1?"Bình thường":(onColor4[1]==1?"Kém":(onColor4[0]==1?"Rất kém":""))))}
+                    </div>
+                </div>
+            </div>
+            <textarea className="comment border border-black w-full p-1"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Xin mời chia sẻ một số cảm nhận về sản phẩm"
+                    style={{height: "100px", borderRadius:"8px", padding:"4px 8px 8px 8px", marginTop:"20px"}}
+                >
+                    
+                </textarea>
+            </>}
+            
+       </div>
+       {myReview?
+        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{setView(false); switchToModify(myReview.comment)}}>
+        Chỉnh sửa đánh giá
+        </button>
+       :
+        <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>{hanldePostReview();closePopup()}}>
+        Thêm đánh giá
+        </button>}
+       </>
+    )
+    else{
+        return (
+            <>
+            <div style={{
+                overflowY: "scroll",
+                height: "450px",
+                scrollbarWidth: "none", // Firefox
+                msOverflowStyle: "none", // IE & Edge
+            }}>
+                <style>
+                    {`
+                    div::-webkit-scrollbar {
+                        display: none; /* Chrome, Safari */
+                    }
+                        .closePopup {
+                                    padding: 10px 20px;
+                                    background-color: #ff4d4d;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    font-size: 16px;
+                                    margin-top: -10px;
+                                }
+
+                                .closePopup:hover {
+                                    background-color: #cc0000;
+                                }
+                    `}
+                </style>
+                    <div style={{display: "inline-flex"}}>
+                        <div><img style={{width: "100px"}} src={product.image[0]} alt="" /></div>
+                        <div style={{fontWeight: "bold", marginTop:"10px"}}>{product.pname}</div>
+                    </div>
+                    <div style={{ display: "inline-flex", marginTop: "20px", gap: "70px", marginBottom: "20px" }}>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                            <div
+                                key={idx}
+                                onMouseOver={() => {
+                                    Coloring(idx + 1);
+                                    setRating(idx + 1)
+                                }}
+                                style={onColor[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                >
+                                <svg
+                                    height="20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 576 512"
+                                    fill="currentColor"
+                                >
+                                    <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                </svg>
+                            </div>
+                            <div style={{fontSize: "12px", width: "70px", marginTop:"10px"}}>{idx == 0?"Rất tệ":(idx==1?"Tệ":(idx==2?"Bình thường":(idx==3?"Tốt":"Tuyệt vời")))}</div>
+                        </div>
+                    ))}
+                    </div>
+                    <div style={{height: "1px", backgroundColor:"#E5E5E5", border: "1px solid #E5E5E5", marginBottom:"30px", alignItems:"left"}}></div>
+                    <div>
+                        <div style={{textAlign:"left", fontSize:"16px", fontWeight:"bold", marginBottom: "20px"}}>Theo trải nghiệm</div>
+                        <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-40px", marginBottom: "15px"}}>
+                            <div style={{marginLeft: "-65px", marginRight:"285px", fontSize:"14px"}}>Thời lượng pin</div>
+                            <div style={{ display: "inline-flex", gap: "20px" }}>
+                            {Array.from({ length: 5 }).map((_, idx) => (
+                                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                                    <div
+                                        key={idx}
+                                        onMouseOver={() => {
+                                            Coloring1(idx + 1);
+                                            setBattery(onColor1[4] == 1?"Rất mạnh":
+                                                (onColor1[3]==1?"Mạnh":
+                                                (onColor1[2]==1?"Vừa đủ":
+                                                (onColor1[1]==1?"Yếu":
+                                                (onColor1[0]==1?"Rất yếu":"")))))
+                                            }}
+                                        style={onColor1[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                        >
+                                        <svg
+                                            height="15"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 576 512"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
+                            <div style={onColor1[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-52px"}:
+                                onColor1[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-29px"}:
+                                onColor1[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-38px"}:
+                                onColor1[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-19px"}:
+                                onColor1[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-41px"}:
+                                {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"2px"}}>
+                                    {onColor1[4] == 1?"Rất mạnh":(onColor1[3]==1?"Mạnh":(onColor1[2]==1?"Vừa đủ":(onColor1[1]==1?"Yếu":(onColor1[0]==1?"Rất yếu":""))))}
+                            </div>
+                        </div>
+                        <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                            <div style={{marginLeft: "-132px", marginRight:"278px", fontSize:"14px"}}>Tốc độ phản hồi</div>
+                            <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                            {Array.from({ length: 5 }).map((_, idx) => (
+                                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                                    <div
+                                        key={idx}
+                                        onMouseOver={() =>{ 
+                                            Coloring2(idx + 1);
+                                            setSpeed(
+                                                onColor2[4] == 1?"Rất nhanh":
+                                                (onColor2[3]==1?"Nhanh":
+                                                (onColor2[2]==1?"Vừa đủ":
+                                                (onColor2[1]==1?"Chậm":
+                                                (onColor2[0]==1?"Rất chậm":""))))
+                                            )
+                                        }}
+                                        style={onColor2[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                        >
+                                        <svg
+                                            height="15"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 576 512"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
+                            <div style={onColor2[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-102px"}:
+                                onColor2[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-81px"}:
+                                onColor2[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-86px"}:
+                                onColor2[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-79px"}:
+                                onColor2[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-101px"}:
+                                {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-42px"}}>
+                                    {onColor2[4] == 1?"Rất nhanh":(onColor2[3]==1?"Nhanh":(onColor2[2]==1?"Vừa đủ":(onColor2[1]==1?"Chậm":(onColor2[0]==1?"Rất chậm":""))))}
+                            </div>
+                        </div>
+                        <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                            <div style={{marginLeft: "-36px", marginRight:"253px", fontSize:"14px"}}>Tiện ích thông minh</div>
+                            <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                            {Array.from({ length: 5 }).map((_, idx) => (
+                                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                                    <div
+                                        key={idx}
+                                        onMouseOver={() => {
+                                            Coloring3(idx + 1);
+                                            setTool(onColor3[4] == 1?"Rất hữu ích":
+                                                (onColor3[3]==1?"Tiện lợi":
+                                                (onColor3[2]==1?"Vừa đủ":
+                                                (onColor3[1]==1?"Tệ":
+                                                (onColor3[0]==1?"Rất tệ":"")))))
+                                        }}
+                                        style={onColor3[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                        >
+                                        <svg
+                                            height="15"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 576 512"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
+                            <div style={onColor3[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-15px"}:
+                                onColor3[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"9px"}:
+                                onColor3[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"10px"}:
+                                onColor3[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"37px"}:
+                                onColor3[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"19px"}:
+                                {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                                    {onColor3[4] == 1?"Rất hữu ích":(onColor3[3]==1?"Tiện lợi":(onColor3[2]==1?"Vừa đủ":(onColor3[1]==1?"Tệ":(onColor3[0]==1?"Rất tệ":""))))}
+                            </div>
+                        </div>
+                        <div style={{display: "inline-flex", textAlign: "left", marginLeft:"-20px"}}>
+                            <div style={{marginLeft: "-36px", marginRight:"273px", fontSize:"14px"}}>Dịch vụ đính kèm</div>
+                            <div style={{ display: "inline-flex", gap: "20px", marginBottom: "20px" }}>
+                            {Array.from({ length: 5 }).map((_, idx) => (
+                                <div style={{alignItems: "center", justifyContent:"center", justifyItems:"center"}}>
+                                    <div
+                                        key={idx}
+                                        onMouseOver={() => {
+                                            Coloring4(idx + 1);
+                                            setService(
+                                                onColor4[4] == 1?"Rất tốt":
+                                                (onColor4[3]==1?"Tốt":
+                                                (onColor4[2]==1?"Bình thường":
+                                                (onColor4[1]==1?"Kém":
+                                                (onColor4[0]==1?"Rất kém":""))))
+                                            )
+                                        }}
+                                        style={onColor4[idx] === 1 ? { color: "yellow" } : { color: "gray" }}
+                                        >
+                                        <svg
+                                            height="15"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 576 512"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            ))}
+                            </div>
+                            <div style={onColor4[4] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"12px"}:
+                                onColor4[3] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"31px"}:
+                                onColor4[2] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"-21px"}:
+                                onColor4[1] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"25px"}:
+                                onColor4[0] == 1?{textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"3px"}:
+                                {textAlign:"left", fontSize:"13px", marginTop: "-1px", marginLeft:"10px", marginRight:"52px"}}>
+                                    {onColor4[4] == 1?"Rất tốt":(onColor4[3]==1?"Tốt":(onColor4[2]==1?"Bình thường":(onColor4[1]==1?"Kém":(onColor4[0]==1?"Rất kém":""))))}
+                            </div>
+                        </div>
+                    </div>
+                    <textarea className="comment border border-black w-full p-1"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Xin mời chia sẻ một số cảm nhận về sản phẩm"
+                            style={{height: "100px", borderRadius:"8px", padding:"4px 8px 8px 8px", marginTop:"20px"}}
+                        >
+                            
+                        </textarea>
+                    </div>
+                    <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>switchToModify(myReview.comment)}>
+                    Chỉnh sửa đánh giá
+                    </button>
+            </>
+        )
+    }
+}
+
+export function Notification(){
+    return(
+        <div>Notification</div>
+    )
+}
 
 export function History(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, totalPaid, setPaid } = useContext(UserContext);
     const [count, setCnt] = useState(0)
-    const [totalPaid, setPaid] = useState(0)
     const [totalQuantity, setTotal] = useState(0)
     const [orderList, setList] = useState([])
     const [startDate, setStartDate] = useState('');
@@ -108,9 +730,26 @@ export function History(){
     const [hook, setHook] = useState(0)
     const [curOrder, setCurrent] = useState(null)
     const [isdetail, setIsDetail] = useState(false)
+    const [productData, setDataSet] = useState([])
+    useEffect(()=>{
+        const fetchData = async() => {
+            try{
+                //console.log(localStorage.getItem('Squery') || "")
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                //console.log(rdata)
+                if (rdata.status != 200) throw new Error("Feth data fail")
+                setDataSet(rdata.data.data)
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchData()
+    },[])
     useEffect(()=>{
         const fetchOrder = async()=>{
             const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${currentUser.uid}?limit=1000`)
+            console.warn("Order: " + temp.data.data)
             if (temp.status != 200){
                 throw new Error("Lỗi khi lấy dữ liệu")
             }
@@ -215,11 +854,20 @@ export function History(){
                 setOrderDetail(response.data.data)
             }
             catch(err){
-                console.err("Error: " + err.message)
+                console.error("Error: " + err.message)
             }
         }
         fetchDetail()
-    },[curOrder,active])    
+    },[curOrder,active]) 
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+    const [curProduct, setCur] = useState({})
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -281,7 +929,7 @@ export function History(){
                 <div
                         style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 150px 200px 150px 150px",
+                        gridTemplateColumns: "1fr 200px 250px 200px 250px",
                         backgroundColor: "#A0C4FF",
                         fontWeight: "bold",
                         padding: "10px",
@@ -303,7 +951,7 @@ export function History(){
                             key={index}
                             style={{
                             display: "grid",
-                            gridTemplateColumns: "1fr 150px 200px 150px 150px",
+                            gridTemplateColumns: "1fr 200px 250px 200px 250px",
                             backgroundColor: index % 2 === 0 ? "#A0C4FF" : "#A0C4FF",
                             padding: "10px",
                             textAlign: "center",
@@ -314,13 +962,13 @@ export function History(){
                             justifyContent: "center"
                             }}
                         >
-                            <div style={{display: "inline-flex", alignItems:"center",marginLeft:"100px", justifyItems:"center", textAlign:"center"}}>{item.oid}</div>
-                            <div style={{paddingTop: "10px",alignItems:"center"}}>{formatToDDMMYYYY(item.create_time)}</div>
-                            <div style={{paddingTop: "10px",alignItems:"center"}}>{fixPrice(item.final_price)}</div>
-                            <div style={{paddingTop: "10px"}}>{item.status}</div>
+                            <div style={{display: "inline-flex", alignItems:"center",marginLeft:"80px", justifyItems:"center", textAlign:"center"}}>{item.oid}</div>
+                            <div style={{paddingTop: "5px",alignItems:"center"}}>{formatToDDMMYYYY(item.create_time)}</div>
+                            <div style={{paddingTop: "5px",alignItems:"center"}}>{fixPrice(item.final_price)}</div>
+                            <div style={{paddingTop: "5px"}}>{item.status}</div>
                             <div style={{paddingTop: "0px"}}>
                             {/* Lựa chọn button */}
-                            <button style={{ padding: "5px 10px" }} onClick={()=> {setIsDetail(!isdetail); setCurrent(item)}}>Chi tiết đơn hàng</button>
+                            <button style={{ padding: "5px 10px", border: "1px solid black", backgroundColor: "white", borderRadius:"6px" }} onClick={()=> {setIsDetail(!isdetail); setCurrent(item)}}>Chi tiết đơn hàng</button>
                             </div>
                         </div>
                         ))
@@ -345,28 +993,100 @@ export function History(){
                     <div style={{display: "inline-flex", marginBottom:"10px"}}>
                         <div style={{marginRight: "200px"}}>Mã đơn hàng: <strong>{curOrder?curOrder.oid:""}</strong></div>
                     {curOrder?(
-                        curOrder.status == "Completed"?<div style={{backgroundColor: "rgba(0, 128, 0, 0.3)",color: "green" ,padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px"}}>Đã giao hàng</div>:
-                        curOrder.status == "Pending"?<div style={{backgroundColor:"rgba(255, 255, 0, 0.3)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang chờ duyệt đơn</div>:
-                        curOrder.status == "Cancelled"?<div style={{backgroundColor: "rgba(255, 0, 0, 0.3)",color: "red", padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px" }}>Đã hủy</div>:""):null}
+                        curOrder.status == "Completed"?<div style={{backgroundColor: "rgba(0, 128, 0, 0.2)",color: "#FFC312" ,padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px"}}>Đã giao hàng</div>:
+                        curOrder.status == "Pending"?<div style={{backgroundColor:"rgba(255, 255, 0, 0.2)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang chờ duyệt đơn</div>:
+                        curOrder.status == "Cancelled"?<div style={{backgroundColor: "rgba(255, 0, 0, 0.2)",color: "red", padding: "4px 4px 4px 4px", fontSize:"10px", borderRadius: "4px" }}>Đã hủy</div>:""):<div style={{backgroundColor:"rgba(255, 255, 0, 0.2)",color: "yellow" ,padding: "4px 4px 4px 4px",fontSize:"10px", borderRadius: "4px"}}>Đang đang được giao</div>}
                     </div>
                     <div style={{marginBottom: "10px"}}>{formatToDDMMYYYY(curOrder.create_time)}</div>
                     <div>
                         {orderDetail?orderDetail.map((item, index)=>{
                             const product_ = productData.find(i => i.product_id == item.product_id)
                             return(
-                                <div style={{display: "inline-flex", backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px"}}>
+                                <div style={{display: "inline-flex", backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px", boxShadow: "5px 5px 10px rgba(0, 0, 0, 0.3)"}}>
                                     <img src={product_.image[0]} style={{height: "100px"}}/>
                                     <div style={{marginLeft: "120px"}}>
                                         <div style={{marginBottom:"30px", color:"#448AFF"}}>{product_.pname}</div>
                                         <div style={{marginLeft: "360px", marginBottom: "10px", color: "#FF005A"}}>Số lượng: {item.quantity}</div>
-                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A"}}>Đánh giá</div>
+                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer"}} onClick={()=>{setCur(product_); openPopup()}}>Đánh giá</div>
                                     </div>
                                 </div>
                             )
                         }):null}
                     </div>
+                    <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.5);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                    {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{width: "700px", height:"600px"}}>
+                                <h2 style={{backgroundColor: "#E5E5E5", marginLeft: "-20px", padding: "10px 0px 10px 0px", width:"700px", marginTop:"-20px", borderRadius: "8px 8px 0px 0px"}}>Đánh giá và nhận xét</h2>
+                                <Review currentUser={currentUser} product={curProduct} closePopup={closePopup} />
+                            </div>
+                        </div>
+                    )}
                     <div style={{marginBottom:"40px"}}></div>
-                    <div style={{backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px"}}>
+                    <div style={{backgroundColor:"white", padding:"20px 30px 20px 30px", width: "80%", borderRadius: "8px", marginBottom: "10px", boxShadow: "5px 5px 10px rgba(0, 0, 0, 0.3)"}}>
                         <div style={{fontFamily: "Roboto, san-serif", fontSize:"20px", fontWeight:"bold", marginBottom: "20px"}}><span style={{fontSize: "24px"}}>&#128179;</span> Thông tin thanh toán</div>
                         <div style={{marginBottom: "10px"}}>Tổng tiền sản phẩm: <span style={{textAlign: "right", marginLeft: "400px", width: "200px"}}>{fixPrice(curOrder.total_price)}</span></div>
                         <div style={{marginBottom: "10px"}}>Giảm giá: <span style={{textAlign: "right", marginLeft: "485px", width: "200px"}}>{fixPrice(curOrder.total_price - curOrder.final_price +curOrder.shipping_fee)}</span></div>
@@ -382,9 +1102,133 @@ export function History(){
 }
 
 export function Ranking(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, totalPaid, phone1 } = useContext(UserContext);
+    const [isEncode, setEncode] = useState(false)
+    const [progress, setProgress] = useState(totalPaid < 5000000?(totalPaid)/50000:(totalPaid < 20000000?(totalPaid)/200000:100));
+    const Encode = (item) =>{
+        if(isEncode){
+            let encode = item.slice(0,2)
+            for (let i = 2; i < item.length - 2; i++)
+                encode += '*'
+            return encode + item.slice(item.length - 2)
+        }
+        return item
+    }
     return(
-        <div className="profile-form">Hạng của khách hàng {currentUser.lname} là: {currentUser.ranking}</div>
+        <div className="profile-form" style={{boxShadow:"none", marginTop: "-30px"}}>
+            <h2>Hạng của khách hàng</h2>
+            <style>
+                {`
+                /* Container chứa thanh tiến trình */
+                .progress-container {
+                position: relative;
+                width: 100%;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                }
+
+                /* Đường track xám */
+                .progress-track {
+                position: absolute;
+                width: 100%;
+                height: 10px;
+                background-color: #aaa;
+                border-radius: 5px;
+                z-index: 1;
+                }
+
+                /* Phần đã hoàn thành màu đỏ */
+                .progress-bar {
+                position: absolute;
+                height: 10px;
+                background-color: red;
+                border-radius: 5px;
+                z-index: 2;
+                }
+
+                /* Hình tròn trượt trên thanh */
+                .progress-circle {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                background-color: red;
+                border-radius: 50%;
+                top: -5px; /* Đẩy hình tròn lên giữa thanh */
+                z-index: 3;
+                }
+
+                /* Lá cờ ở cuối thanh */
+                .progress-flag {
+                position: absolute;
+                right: 0;
+                top: -15px;
+                width: 20px;
+                height: 20px;
+                background: red;
+                clip-path: polygon(0 0, 100% 50%, 0 100%, 10% 50%);
+                z-index: 3;
+                }
+                `}
+            </style>
+            <div style={{display: "inline-flex"}}>
+                <div style={{marginRight: "20px"}}><img style={{width: "100px", borderRadius:"50px"}} src="../../../public/img/EX.png" alt="" /></div>
+                <div>
+                    <div style={{fontSize: "18px", fontWeight:"bold",marginBottom:"5px"}}>{currentUser.username.toUpperCase()}</div>
+                    <div style={{fontSize: "14px",marginBottom:"10px"}}>{Encode(phone1)} {!isEncode?<span onClick={()=>setEncode(!isEncode)}>&#128065;</span>:<span onClick={()=>setEncode(!isEncode)}>&#128065;&#65039;&#8205;&#128488;</span>}</div>
+                    <div style={{
+                    fontSize: "14px",
+                    marginBottom: "5px",
+                    border: `1px solid ${
+                        totalPaid < 5000000 ? "silver" : totalPaid < 20000000 ? "gold" : "blue"
+                    }`,
+                    textAlign: "center",
+                    width: "80px",
+                    backgroundColor: `${
+                        totalPaid < 5000000 ? "rgba(192, 192, 192, 0.5)" : totalPaid < 20000000 ? "rgba(255, 215, 0, 0.5)" : "rgba(135, 206, 235, 0.5)"
+                    }`,
+                    borderRadius: "6px"
+                    }}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
+                </div>
+            </div>
+            <div style={{width: "80%", marginBottom: "20px"}}><img style={{borderRadius: "10px"}} src={totalPaid < 5000000?"../../../public/img/silver.png":(totalPaid < 20000000?"../../../public/img/gold.png":"../../../public/img/diamond.png")} alt="" /></div>
+            <div style={{width: "75%",boxShadow: "10px 10px 15px rgba(0, 0, 0, 0.3)", padding: "8px 8px 8px 8px", borderRadius: "10px"}}>
+                <div style={{display: "inline-flex", marginBottom: "30px"}}>
+                    <div>
+                        <div style={{fontSize: "16px", fontWeight:"bold",marginBottom:"1px"}}>{currentUser.username}</div>
+                        <div style={{fontSize: "20px", fontWeight:"bold", color: "red",marginBottom:"0px"}}>{fixPrice(totalPaid)}</div>
+                        <div style={{fontSize: "12px", fontWeight:"bold", color: "red"}}>(Tích lũy mua sắm)</div>
+                    </div>
+                    <div style={{ marginLeft:"600px"}}>
+                        <img style={{width:"50px", marginBottom:"2px"}} src={totalPaid < 5000000?"../../../public/img/2.png":(totalPaid < 20000000?"../../../public/img/1.png":"../../../public/img/3.png")} alt="" />
+                        <div style={{fontSize: "16px", fontWeight:"bold", color: "red",marginBottom:"0px", textAlign:"center"}}>{totalPaid < 5000000?"silver":(totalPaid < 20000000?"gold":"diamond")}</div>
+                    </div>
+                </div>
+                <div className="progress-container" style={{width: "90%", alignItems:"center", alignContent:"center", justifyItems:"center", marginLeft:"40px"}}>
+                <div
+                    className="progress-bar"
+                    style={{ width: `${progress}%` }}
+                ></div>
+                <div
+                    className="progress-circle"
+                    style={{ left: `calc(${progress}% - 10px)` , marginTop:"5px"}} // Điều chỉnh hình tròn theo tiến trình
+                >
+                    <img src="../../../public/img/chibi.png" alt="" style={{ left: `calc(${progress}% - 10px)` , marginTop:"-25px", width:"50px"}}/>
+                </div>
+                
+                
+                {/* <div className="progress-flag">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADnSURBVHgB7dQ7CsJAFIXhMyGDBEUsLC1S2OgG3IVgLRYuwY34ALW2DhauwMcKxE5sAiJYJCIBQ5Q8xmhrBpKQBIT8zcDc4oPhMkBAk7mijmfKBgkn8gYVQ5OfjeoAMSIuUwun2yo0VnzcZcIwRBxMwNQ/fjABKURAlkH3aWBnetR3yAZja94kcUwAWfBm3AWxXy60q4moaYZ1QFTM8xgs00bUSqLYh+OMgmZpLEibN0gcI0Br7/8JyAJjgFSmtIMssC/IWDfonrsger25lSjtIW6OEx77VLOsCxIslWfMsRzLsRz7c+wNLD45oCEwMZoAAAAASUVORK5CYII=" alt="cps-flag"/>
+                </div> */}
+                <div className="progress-track"></div>
+                <img style={{marginLeft:"745px", marginTop:"-20px"}} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAbCAYAAACN1PRVAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADnSURBVHgB7dQ7CsJAFIXhMyGDBEUsLC1S2OgG3IVgLRYuwY34ALW2DhauwMcKxE5sAiJYJCIBQ5Q8xmhrBpKQBIT8zcDc4oPhMkBAk7mijmfKBgkn8gYVQ5OfjeoAMSIuUwun2yo0VnzcZcIwRBxMwNQ/fjABKURAlkH3aWBnetR3yAZja94kcUwAWfBm3AWxXy60q4moaYZ1QFTM8xgs00bUSqLYh+OMgmZpLEibN0gcI0Br7/8JyAJjgFSmtIMssC/IWDfonrsger25lSjtIW6OEx77VLOsCxIslWfMsRzLsRz7c+wNLD45oCEwMZoAAAAASUVORK5CYII=" alt="cps-flag"/>
+                
+                </div>
+                {totalPaid < 5000000?<div style={{textAlign:"center", marginTop:"20px"}}>Bạn cần mua thêm <span style={{fontWeight: "bold"}}>{fixPrice(5000000 - totalPaid)}</span> để lên hạng Gold</div>:
+                (totalPaid < 20000000?<div style={{textAlign:"center", marginTop:"20px"}}>Bạn cần mua thêm <span style={{fontWeight: "bold"}}>{fixPrice(20000000 - totalPaid)}</span> để lên hạng Diamond</div>:
+                <div style={{textAlign:"center", marginTop:"20px"}}>Chúc mừng bạn đã đạt hạng <span style={{fontWeight: "bold"}}>Diamond</span> - hạng cao nhất của sàn</div>)}
+            </div>
+        </div>
     )
 }
 
@@ -395,36 +1239,139 @@ export function UpdatePassword(){
         new_pass: "",
         confirm_pass: ""
     })
+
     const navigate = useNavigate()
+    const [Err, setErr] = useState("")
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+
     const handleSubmit = async() => {
-        //alert(phone)
-        if (!bcrypt.compare(pass.old_pass, currentUser.upassword)){
-            alert('Mật khẩu hiện tại không đúng. Khac hàng vui lòng nhập lại')
-        }
-        else if(pass.new_pass.length < 5){
-            alert('Vui lòng nhập mật khẩu có từ 5 kí tự')
-        }
-        else if (pass.new_pass != pass.confirm_pass){
-            alert('Mật khẩu mới không trùng khớp')
-        }
-        else{
-            const hashPw = await bcrypt.hash(pass.new_pass, 12);
-            const addPhone = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{upassword: hashPw})
-            if (addPhone.status != 200){
-                alert('Thay đổi mật khẩu thất bại')
+        const isMatch = await bcrypt.compare(pass.old_pass, currentUser.upassword);
+        if (!isMatch) {
+            //alert('Mật khẩu hiện tại không đúng. Khách hàng vui lòng nhập lại');
+            setErr('Mật khẩu hiện tại đã sai.\nVui lòng nhập lại')
+        } else {
+            //alert('Mật khẩu hợp lệ');
+            if(pass.new_pass.length < 5){
+                //alert('Vui lòng nhập mật khẩu có từ 5 kí tự')
+                setErr('Vui lòng nhập mật khẩu có từ 5 kí tự')
+            }
+            else if (pass.new_pass != pass.confirm_pass){
+                setErr('Mật khẩu mới không trùng khớp')
             }
             else{
-                alert('Thay đổi mật khẩu thành công')
-                setPass({
-                    old_pass: "",
-                    new_pass: "",
-                    confirm_pass: ""
-                })
+                const hashPw = await bcrypt.hash(pass.new_pass, 12);
+                const addPhone = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{upassword: hashPw})
+                if (addPhone.status != 200){
+                    setErr('Thay đổi mật khẩu thất bại')
+                }
+                else{
+                    setErr("")
+                    setPass({
+                        old_pass: "",
+                        new_pass: "",
+                        confirm_pass: ""
+                    })
+                }
             }
         }
+        setIsPopupOpen(true)
     }
     return (
         <div className="profile-form">
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
             <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thay đổi mật khẩu</h2>
             <div className="form-group">
                 <input type="password" className="full-width" placeholder="Mật khẩu hiện tại" value={pass.old_pass} onChange={(e) => setPass((prev) => ({...prev, old_pass: e.target.value}))}/>
@@ -444,11 +1391,29 @@ export function UpdatePassword(){
 }
 
 export function UpdatePhone(){
-    const { active, setActive, currentUser } = useContext(UserContext);
+    const { active, setActive, currentUser, setPhone1 } = useContext(UserContext);
     const [phone, setVal] = useState("")
     const navigate = useNavigate()
     const [Pnumber, setPhone] = useState([])
     const [toggle, setToggle] = useState(1)
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
     useEffect(() => {
         const fetchPhone = async () => {
             console.log(currentUser.uid)
@@ -463,41 +1428,127 @@ export function UpdatePhone(){
         fetchPhone();
     }, [currentUser, toggle]);
 
+    useEffect(()=>{
+        setPhone1(Pnumber[0] || "")
+    },[Pnumber])
+
     const handleSubmit = async() => {
         //alert(phone)
         if(!phone || phone == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const addPhone = await axios.post(`http://localhost:8000/api/user/CreatePhone/${currentUser.uid}`,{phone: [phone]})
             if (addPhone.status != 200){
-                alert('Thêm số điện thoại thất bại')
+                setErr('Thêm số điện thoại thất bại')
             }
             else{
-                alert('Thêm số điện thoại thành công')
+                //set('Thêm số điện thoại thành công')
                 setVal("")
                 setToggle(!toggle)
+                setErr("")
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleRemove = async(index) => {
         if(!Pnumber[index] || Pnumber[index] == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const addPhone = await axios.post(`http://localhost:8000/api/user/DeletePhone/${currentUser.uid}`,{phone: Pnumber[index]})
             if (addPhone.status != 200){
-                alert('Xóa số điện thoại thất bại')
+                setErr('Xóa số điện thoại thất bại')
             }
             else{
-                alert('Xóa số điện thoại thành công')
+                //alert('Xóa số điện thoại thành công')
                 setToggle(!toggle)
+                setErr("")
             }
         }
+        setIsPopupOpen(true)
     }
     return(
         <div className="profile-form">
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1); navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
@@ -548,6 +1599,24 @@ export function UpdateAdress(){
     const navigate = useNavigate()
     const [toggle, setToggle] = useState(1)
     const [defAdress, setAddress] = useState([])
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [Err, setErr] = useState("")
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
     useEffect(() => {
         const fetchAdress = async () => {
             console.log(currentUser.uid)
@@ -563,27 +1632,34 @@ export function UpdateAdress(){
         console.log(defAdress)
     }, [currentUser, toggle]);
     const sample = ['57 A Street C, District 1, City DN','58 A Street D, District 3, City HN','98 A Street C, District 3, City HN']
-    const [partitionedAddresses, setPar] = useState(defAdress.map((addr) => {
-        const parts = addr.address.split(',').map((item) => item.trim());
-        return {
-          street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
-          district: parts[1] || "",
-          city: parts[2] || "",
-          province: parts[3] || "",
-        };
-      }));
-    const [prevState, setPrev] = useState(partitionedAddresses)
-    useEffect(()=>{
-        setPar(defAdress.map((addr) => {
+    const [partitionedAddresses, setPar] = useState(defAdress
+        .map((addr) => {
             const parts = addr.address.split(',').map((item) => item.trim());
             return {
-              street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
-              district: parts[1] || "",
-              city: parts[2] || "",
-              province: parts[3] || "",
-              isdefault: addr.isdefault || false
+                street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                district: parts[1] || "",
+                city: parts[2] || "",
+                province: parts[3] || "",
+                isdefault: addr.isdefault || false
             };
-          }))
+        })
+        .sort((a, b) => b.isdefault - a.isdefault));
+    const [prevState, setPrev] = useState(partitionedAddresses)
+    useEffect(()=>{
+        setPar(
+            defAdress
+                .map((addr) => {
+                    const parts = addr.address.split(',').map((item) => item.trim());
+                    return {
+                        street: parts[0] || "", // Nếu thiếu thì trả về chuỗi rỗng
+                        district: parts[1] || "",
+                        city: parts[2] || "",
+                        province: parts[3] || "",
+                        isdefault: addr.isdefault || false
+                    };
+                })
+                .sort((a, b) => b.isdefault - a.isdefault) // Đưa các phần tử có isdefault: true lên đầu
+        );
           
     },[defAdress])
     // useEffect(()=>{
@@ -593,10 +1669,10 @@ export function UpdateAdress(){
         //alert(address.isdefault)
         let resAddress = address.street + ", " + address.district + ", " + address.city +", " +address.province
         if (address.province == "" || address.street == "" || address.city == "" || address.district == "" || !address.province || !address.street || !address.city || !address.district){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else if (defAdress.map(item => item.address).includes(resAddress)){
-            alert('Địa chỉ đã tồn tại')
+            setErr('Địa chỉ đã tồn tại')
             setToggle(!toggle)
                 setVal({
                     province: "",
@@ -613,13 +1689,14 @@ export function UpdateAdress(){
                     isdefault: address.isdefault
                 }
             )
-            console.log(addAddress)
-            if(addAddress.status !== 200){
-                alert(addAddress.msg || "Thêm địa chỉ thất bại")
+            //console.log("add",addAddress)
+            if(addAddress.data.status !== 200){
+                setErr(addAddress.msg || "Thêm địa chỉ thất bại")
             }
             else{
+                setErr("")
                 setToggle(!toggle)
-                alert('Thêm địa chỉ thành công')
+                //alert('Thêm địa chỉ thành công')
                 setVal({
                     province: "",
                     city: "",
@@ -630,13 +1707,14 @@ export function UpdateAdress(){
                 //defAdress.push(address.street + ", " + address.district + ", " + address.city +", " +address.province)
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleUpdate = async(index) => {
         console.log(partitionedAddresses[index])
         // console.warn(prevState[index])
         if (partitionedAddresses[index].province == "" || partitionedAddresses[index].street == "" || partitionedAddresses[index].city == "" || partitionedAddresses[index].district == ""){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
             const updateAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${currentUser.uid}`,
@@ -647,52 +1725,133 @@ export function UpdateAdress(){
                 }
             )
             if(updateAddress.status !== 200){
-                alert(updateAddress.msg || "Thêm địa chỉ thất bại")
+                setErr(updateAddress.msg || "Thêm địa chỉ thất bại")
             }
             else{
+                setErr("")
                 setToggle(!toggle)
-                alert('Cập nhật địa chỉ thành công')
+                //alert('Cập nhật địa chỉ thành công')
                 //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
             }
         }
+        setIsPopupOpen(true)
     }
 
     const handleRemove = async(index) =>{
         console.log(defAdress[index].address)
         const item = partitionedAddresses[index]
         if (!defAdress[index].address){
-            alert('Vui lòng nhập đầy đủ thông tin')
+            setErr('Vui lòng nhập đầy đủ thông tin')
         }
         else{
-            const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${currentUser.uid}`,
+            const updateAddress = await axios.post(`http://localhost:8000/api/user/DeleteAddress/${localStorage.getItem('uid')}`,
                 {
                     address: defAdress[index].address
                 }
             )
-            if(updateAddress.status !== 200){
-                alert(updateAddress.msg || "Xóa địa chỉ thất bại")
+            if(updateAddress.data.status !== 200){
+                setErr(updateAddress.msg || "Xóa địa chỉ thất bại")
             }
             else{
-                // if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
-                //     let temp = defAdress.map(adrr => adrr.address)
-                //     temp = temp.filter(item => item != defAdress[index].address)
-                //     const resAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${currentUser.uid}`,
-                //         {
-                //             old_address: temp[0],
-                //             new_address: temp[0],
-                //             isdefault: true
-                //         }
-                //     )
-                // }
+                if (defAdress && defAdress.length > 1 && defAdress[index].isdefault){
+                    let temp = defAdress.map(adrr => adrr.address)
+                    temp = temp.filter(item => item != defAdress[index].address)
+                    const resAddress = await axios.put(`http://localhost:8000/api/user/UpdateAddress/${localStorage.getItem('uid')}`,
+                        {
+                            old_address: temp[0],
+                            new_address: temp[0],
+                            isdefault: true
+                        }
+                    )
+                }
+                setErr("")
                 setToggle(!toggle)
                 //defAdress.push(item.street + ", " + item.district + ", " + item.city +", " +item.province)
             }
         }
+        setIsPopupOpen(true)
     }
     return(
         <>
-        
-        <div className="profile-form">
+        <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={Err == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {Err == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{Err}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
+        <div className="profile-form" style={{backgroundColor:"white"}}>
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>{setActive(1);navigate('/user/info')}}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
@@ -703,7 +1862,7 @@ export function UpdateAdress(){
                         <th>Quận/Huyện</th>
                         <th>Tỉnh/Thành phố</th>
                         <th>Mặc định</th>
-                        <th></th>
+                        <th style={{width: "95px"}}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -752,7 +1911,7 @@ export function UpdateAdress(){
                                     };
                                     setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                 }}/></td>
-                                <td style={{display: "inline-flex"}}><button style={{width: "75px", backgroundColor: "greenyellow", color: "gray"}} onClick={()=> handleUpdate(index)}>Cập nhật</button><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red"}}>Xóa</button></td> {/* Close button */}
+                                <td style={{display: "inline-flex", alignItems: "center"}}><button style={{width: "75px", backgroundColor: "greenyellow", color: "gray", marginRight: "30px", alignItems: "center"}} onClick={()=> handleUpdate(index)}>Cập nhật</button><button onClick={() => handleRemove(index)} style={{color: "white",backgroundColor: "red", marginLeft: "10px", alignItems: "center"}}>Xóa</button></td> {/* Close button */}
                             </tr>
                             )
                         }) : <span style={{paddingTop: "5px", textAlign: "center"}}>Người dùng không có thông tin địa chỉ</span>
@@ -779,9 +1938,9 @@ export function UpdateAdress(){
                         <input type="text" id="street" value={address.street}  onChange={(e) => setVal((prev)=>({...prev,street:e.target.value}))}/>
                     </div>
                 </div> 
-                <label>
-                    <input type="checkbox" name="subscribe" checked={address.isdefault} onChange={(e) => setVal((prev)=>({...prev,isdefault:e.target.checked}))}/>
-                     Địa chỉ mặc định
+                <label style={{display: "inline-flex", width:"200px"}}>
+                    <input style={{width: "10px"}} type="checkbox" name="subscribe" checked={address.isdefault} onChange={(e) => setVal((prev)=>({...prev,isdefault:e.target.checked}))} />
+                     <span style={{marginTop: "5px", marginLeft: "10px"}}>Địa chỉ mặc định</span>
                 </label>
                 <div className="form-actions">
                     <button className="btn-cancel">Hủy</button>
@@ -796,7 +1955,24 @@ export function UpdateData(){
     const [magnet, setMag] =useState(1)
     const { active, setActive, currentUser } = useContext(UserContext);
     const navigate = useNavigate()
-    console.log(currentUser)
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+        const openPopup = () => {
+            setIsPopupOpen(true);
+        };
+    
+        const closePopup = () => {
+            setIsPopupOpen(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupOpen) {
+              timer = setTimeout(() => {
+                setIsPopupOpen(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupOpen]);
+    //console.log(currentUser)
     const [user, setUser] = useState({
         fname: currentUser.fname,
         lname: currentUser.lname,
@@ -807,10 +1983,10 @@ export function UpdateData(){
     const [defAdress, setAddress] = useState("")
     useEffect(() => {
         const fetchAdress = async () => {
-            console.log(currentUser.uid)
+            //console.log(currentUser.uid)
             let adress = [];
             const res = await axios.get(`http://localhost:8000/api/user/GetAll/${currentUser.uid}`)
-            //console.log(res)
+            console.log(res)
             if (res.status != 200) throw new Error("Error while fetching address")
             adress = res.data.data?res.data.data: []
             setAddress(adress&&adress.length > 0?adress.find(item => item.isdefault == true).address:""); // Update images state once all images are fetched
@@ -820,7 +1996,7 @@ export function UpdateData(){
     }, [currentUser]);
     useEffect(() => {
         const fetchPhone = async () => {
-            console.log(currentUser.uid)
+            //console.log(currentUser.uid)
             let rphone = [];
             const res = await axios.get(`http://localhost:8000/api/user/GetPhone/${currentUser.uid}`)
             //console.log(res)
@@ -831,50 +2007,201 @@ export function UpdateData(){
 
         fetchPhone();
     }, [currentUser]);
+
+    //handle update error
+    const [emailErr, setEErr] = useState("")
+    const [unameErr, setUNErr] = useState("")
+    const [lErr, setLErr] = useState("")
+    const [fErr, setFErr] = useState("")
+    const [unexpectErr, setUErr] = useState("")
+
     const handleUpdate = async() =>{
         try{
             const { fname, lname, email, username } = user;  // Object destructuring for clarity
             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const usernamePattern = /^[a-zA-Z0-9]+$/;
+            const vietnameseNamePattern = /^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỹửữựỳỵýỷỹ\s]+$/;
+
             if (!emailPattern.test(email)){
-                alert('Định dạng email không hợp lệ vui lòng nhập lại')
+                setEErr('Định dạng email không hợp lệ vui lòng nhập lại')
                 return;
             }
-            const uid = localStorage.getItem('user');  // Destructure currentUser to get uid
-            const response = await axios.put(`http://localhost:8000/api/user/update-user/${currentUser.uid}`,{
-                fname,
-                lname,
-                username,
-                email
+            if (!usernamePattern.test(username)){
+                setUNErr('Định dạng tên không hợp lệ')
+                return;
+            }
+            if (!vietnameseNamePattern.test(fname)){
+                setFErr('Định dạng tên không hợp lệ')
+                return;
+            }
+            if (!vietnameseNamePattern.test(lname)){
+                setLErr('Định dạng tên không hợp lệ')
+                return;
+            }
+            const uid = localStorage.getItem('uid');  // Destructure currentUser to get uid
+            //console.log("Break id: ",uid)
+            const response = await axios.put(`http://localhost:8000/api/user/update-user/${uid}`,{
+                username: username,
+                lname: lname,
+                fname: fname,
+                email: email
             })
-            if (response.status != 200) throw new Error("Update fail!")
-            
-            alert('Cập nhật thông tin thành công')
+            //console.warn("Res Update: " + response.data.msg)
+            // username: username,
+            //     lname: lname,
+            //     fname: fname,
+            //     email: email
+            // username: username!=currentUser.username?username:null,
+            //     lname: lname!=currentUser.lname?lname:null,
+            //     fname: fname!=currentUser.fname?fname:null,
+            //     email: email!=currentUser.email?email:null
+            //console.log(response)
+            if (response.status != 200 || response.data.status != 200) {
+                console.log("Res: "+response.data)
+                let errField = response.data.msg.msg
+                errField = errField.match(/"([^"]*)"/)
+                errField = errField[1]
+                if (errField == "users_email_key"){
+                    setEErr('Email đã tồn tại')
+                    throw new Error('Email đã tồn tại')
+                }
+                else if(errField == "users_username_key"){
+                    setUNErr('Username đã tồn tại')
+                    throw new Error('Username đã tồn tại')
+                }
+                else {
+                    setUErr(response.data.msg)
+                    return
+                }
+            }
+            else {
+                //alert('Cập nhật thông tin thành công')
+                setIsPopupOpen(true)
+                //window.location.reload();
+            }
         }
         catch(e){
-            throw new Error(e)
+            let errField = e.response.data.msg.msg
+                errField = errField.match(/"([^"]*)"/)
+                errField = errField[1]
+                if (errField == "users_email_key"){
+                    setEErr('Email đã tồn tại')
+                    throw new Error('Email đã tồn tại')
+                }
+                else if(errField == "users_username_key"){
+                    setUNErr('Username đã tồn tại')
+                    throw new Error('Username đã tồn tại')
+                }
+                else {
+                    setUErr(response.data.msg)
+                    return
+                }
         } 
     }
         return(
-            <div className="profile-form">
+            <>
+            <style>{`
+                        .btn-css{
+                            padding: 5px;
+                            border: 1px solid #C0C0C0;
+                            background-color: #F7FFF7;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        }
+                        .btn-css:hover{
+                            background-color: #D32F2F;
+                            color: #F7FFF7;
+                        }
+                        .openPopup {
+                            padding: 10px 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                        }
+
+                        .openPopup:hover {
+                            background-color: #0056b3;
+                        }
+
+                        .popup {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                        }
+
+                        .popupContent {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            text-align: center;
+                            width: 300px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .closePopup {
+                            padding: 10px 20px;
+                            background-color: #ff4d4d;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin-top: -10px;
+                        }
+
+                        .closePopup:hover {
+                            background-color: #cc0000;
+                        }
+                    `}
+                    </style>
+                {isPopupOpen && (
+                        <div className="popup" onClick={closePopup}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={unexpectErr == ""?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {unexpectErr == ""?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>Cập nhật thành công</div>
+                                </>:
+                                <>
+                                    <div>&#10060;</div>
+                                    <div>{unexpectErr}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
+                 <div className="profile-form">
                     <h2>Chỉnh sửa hồ sơ</h2>
                     <div className="form-group">
                         <div className="full-width">
                             <label htmlFor="firstName">Tên</label>
-                            <input type="text" id="firstName" value={user.lname} onChange={(e) => setUser((prev)=>({...prev,lname:e.target.value}))}/>
+                            <input type="text" id="firstName" value={user.lname} onChange={(e) => {setLErr("");setUser((prev)=>({...prev,lname:e.target.value}))}} style={lErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {lErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {lErr}</div>:null}
                         </div>
                         <div className="full-width">
                             <label htmlFor="lastName">Họ và tên lót</label>
-                            <input type="text" id="lastName" value={user.fname}  onChange={(e) => setUser((prev)=>({...prev,fname:e.target.value}))}/>
+                            <input type="text" id="lastName" value={user.fname}  onChange={(e) => {setFErr(""); setUser((prev)=>({...prev,fname:e.target.value}))}} style={fErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {fErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {fErr}</div>:null}
                         </div>
                     </div>
                     <div className="form-group">
                         <div className="full-width">
                             <label htmlFor="username">Username</label>
-                            <input type="text" id="username" value={user.username}  onChange={(e) => setUser((prev)=>({...prev,username:e.target.value}))}/>
+                            <input type="text" id="username" value={user.username}  onChange={(e) => {setUNErr(""); setUser((prev)=>({...prev,username:e.target.value}))}} style={unameErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {unameErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {unameErr}</div>:null}
                         </div>
                         <div className="full-width">
                             <label htmlFor="email">Email</label>
-                            <input type="email" id="email" value={user.email}  onChange={(e) => setUser((prev)=>({...prev,email:e.target.value}))}/>
+                            <input type="email" id="email" value={user.email}  onChange={(e) => {setEErr(""); setUser((prev)=>({...prev,email:e.target.value}))}} style={emailErr != ""?{border: "1px solid red"}:{border: "1px solid gray"}}/>
+                            {emailErr != ""?<div style={{color: "red", fontSize:"10px"}}>* {emailErr}</div>:null}
                         </div>
                     </div>
                     <div className="form-group">
@@ -893,12 +2220,13 @@ export function UpdateData(){
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => {setActive(1); navigate('/user/info/password')}} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer"}}>Đổi mật khẩu</button>
+                    <button onClick={() => {setActive(1); navigate('/user/info/password')}} style={{borderRadius: "8px", width: "120px", height:"40px", cursor: "pointer", backgroundColor: "white", border: "1px, solid gray"}}>Đổi mật khẩu</button>
                     <div className="form-actions">
                         <button className="btn-cancel">Hủy</button>
                         <button className="btn-save" onClick={handleUpdate}>Lưu thay đổi</button>
                     </div>
                 </div>
+            </>
         )
 }
 
@@ -925,16 +2253,17 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
-    //const uid = localStorage.getItem('user')
-    const uid ='uid3'
-    console.log(uid)
+    const uid = localStorage.getItem('uid')
+    //console.log(uid)
     const [currentUser, setUser] = useState(null)
+    const [totalPaid, setPaid] = useState(0)
+    const [phone1, setPhone1] = useState("")
     useEffect(()=>{
         const fetchUser = async()=>{
             try{
                 const ruser = await axios.get(`http://localhost:8000/api/user/get-detail/${uid}`)
                 console.log(ruser)
-                if (ruser.status != 200) throw new Error("Bug Data")
+                if (ruser.data.status != 200) throw new Error("Bug Data")
                 setUser(ruser.data.data)
             }
             catch(err){
@@ -947,11 +2276,15 @@ function UserAccountManagement() {
     const [active,setActive] = useState(1)
     const curPage = (number, path) => {
         setActive(number);
+        if (path == '/'){
+            localStorage.removeItem('uid')
+            localStorage.removeItem('token')
+        }
         navigate(path);
     };
     return ( currentUser &&
         <>
-         <UserContext.Provider value={{ active, setActive, currentUser }}>
+         <UserContext.Provider value={{ active, setActive, currentUser, totalPaid, setPaid, phone1, setPhone1 }}>
                 <Header />
                 <div className="acc-container">
                     <div className="acc-breadcrumb">
@@ -971,7 +2304,10 @@ function UserAccountManagement() {
                             <div className={`item ${active === 3 ? "active" : ""}`} onClick={() => curPage(3, "/user/info/rank")}>
                                 Hạng thành viên
                             </div>
-                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/user/logout")}>
+                            <div className={`item ${active === 5 ? "active" : ""}`} onClick={() => curPage(5, "/user/info/notification")}>
+                                Thông báo
+                            </div>
+                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/")}>
                                 Đăng xuất
                             </div>
                         </div>

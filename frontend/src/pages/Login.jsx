@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/customerGUI/Header.jsx";
 import Footer from "../components/Footer";
 import axios from "axios";
 import DayPick from "../components/DayPick.jsx";
@@ -42,12 +42,14 @@ export default function Login() {
         if (response.status == 200) {
           const token = response.data.data.token;
           const userType = response.data.data.userType;
+          alert("Login by: " + userType + " - " + response.data.data.userID)
           const user_id = response.data.data.userID;
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);
           localStorage.setItem("userID", user_id);
           localStorage.setItem("role", userType);
-          if(userType == "customer") navigate("/customer/homepage")
+          localStorage.setItem("uid", response.data.data.userID);
+          if(userType == "customer") navigate("/user/homepage")
           else navigate("/admin/product-manage")
         }
       })
@@ -106,7 +108,7 @@ export default function Login() {
       <div className="flex flex-col min-h-screen">
         <Header role="customer" />
 
-        <div className="flex-grow flex">
+        <div className="flex-grow flex" style={{marginTop: "80px"}}>
           <div className="w-6/12 p-4 flex items-center justify-center">
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
@@ -185,14 +187,14 @@ export default function Login() {
       <div className="">
         <Header role="customer" />
 
-        <div className="flex w-full">
-          <div className="w-6/12 p-4 flex items-center justify-center">
+        <div className="flex w-full" >
+          <div className="w-6/12 p-4 flex items-center justify-center" style={{marginTop: "80px"}}>
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
 
           <div className="w-5/12 p-4 flex justify-center items-center">
             <div className="w-full">
-              <h1 className="text-3xl font-bold text-left mt-6 mb-4">Tạo tài khoản</h1>
+              <h1 className="text-3xl font-bold text-left mt-6 mb-4" style={{marginTop: "80px"}}>Tạo tài khoản</h1>
               <div className="text-sm mb-6">Vui lòng điền các thông tin sau </div>
 
               <form action="#" method="POST">

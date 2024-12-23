@@ -17,6 +17,7 @@ function Banner({productData}) {
 
         return () => clearInterval(interval); // Dọn dẹp khi component unmount
     }, []);
+    const navigate = useNavigate()
     const images = ['../../../public/img/ads8.jpg',
         '../../../public/img/ads13.jpg',
         '../../../public/img/maxresdefault (1).jpg',
@@ -27,34 +28,34 @@ function Banner({productData}) {
     }
     return (
         <div className="banner">
-            <div className="side">
+            <div className="side" style={{marginLeft:"-520px"}}>
                 <div className="item">
-                    <h2 onClick={()=>navigate('/user/category/c01')}>Điện thoại</h2>
+                    <h2 onClick={()=>navigate('/category/c01')}>Điện thoại</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>navigate('/user/category/c02')}>Laptop</h2>
+                    <h2 onClick={()=>navigate('/category/c02')}>Laptop</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>navigate('/user/category/c03')}>Máy tính bảng</h2>
+                    <h2 onClick={()=>navigate('/category/c03')}>Máy tính bảng</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>navigate('/user/category/c04')}>Đồng hồ thông minh</h2>
+                    <h2 onClick={()=>navigate('/category/c04')}>Đồng hồ thông minh</h2>
                     <div className="underline"></div>
                 </div>
                 <div className="item">
-                    <h2 onClick={()=>navigate('/user/category/c05')}>Phụ kiện</h2>
+                    <h2 onClick={()=>navigate('/category/c05')}>Phụ kiện</h2>
                     <div className="underline"></div>
                 </div>
             </div>
             <div className="horizon"></div>
-            <div className="ads">
+            <div className="ads" style={{width: "1200px"}}>
                 <img src={images[activeIndex]} alt="ADS" />
                 
             </div>
-            <div className="pagination">
+            <div className="pagination" style={{marginLeft: "-650px"}}>
                 {Array.from({ length: 5 }).map((_, index) => (
                     <span
                         key={index}
@@ -246,11 +247,13 @@ function FlashProduct({productData}) {
 function HomePage(){
     //console.log("Home Data: " + state.productData)
     const [productData, setData] = useState([])
+
     const navigate = useNavigate()
     useEffect(()=>{
         const fetchData = async() => {
             try{
-                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                console.log(localStorage.getItem('Squery') || "")
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000&filter=${localStorage.getItem('Squery') || ""}`)
                 console.log(rdata)
                 if (rdata.status != 200) throw new Error("Feth data fail")
                 setData(rdata.data.data)
