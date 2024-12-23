@@ -868,6 +868,19 @@ export function History(){
             setIsPopupOpen(false);
         };   
     const [curProduct, setCur] = useState({})
+    const [sortType, setSortType] = useState("none")
+    const handleSort = (type, field) => {
+        let temp = [...sortOrder]
+        if (type == "asc"){
+            setSortType("asc")
+            temp.sort((a, b) => a[field] - b[field])
+        }
+        else{
+            setSortType("desc")
+            temp.sort((a, b) => b[field] - a[field])
+        }
+        setSort(temp)
+    }
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -939,9 +952,9 @@ export function History(){
                         marginTop: "20px"
                         }}
                     >
-                        <div>Mã đơn hàng</div>
-                        <div>Ngày mua</div>
-                        <div>Tổng tiền</div>
+                        <div onClick={() => handleSort(sortType == 'none'?'asc':(sortType == 'asc'?'desc':'asc'),'oid')}>Mã đơn hàng <span>{sortType == 'none'?' ═':(sortType == 'asc'?' 🔼':' 🔽')}</span></div>
+                        <div onClick={() => handleSort(sortType == 'none'?'asc':(sortType == 'asc'?'desc':'asc'),'create_time')}>Thời gian đặt <span>{sortType == 'none'?' ═':(sortType == 'asc'?' 🔼':' 🔽')}</span></div>
+                        <div onClick={() => handleSort(sortType == 'none'?'asc':(sortType == 'asc'?'desc':'asc'),'final_price')}>Tổng tiền <span>{sortType == 'none'?' ═':(sortType == 'asc'?' 🔼':' 🔽')}</span></div>
                         <div>Tình trạng</div>
                         <div></div>
                     </div>
