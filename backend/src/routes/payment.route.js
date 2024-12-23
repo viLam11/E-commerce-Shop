@@ -14,18 +14,19 @@ router.post('/config', async (req, res) => {
     //     data: process.env.CLIENT_ID
     // })
 
+    
     //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
     //parameters
     var accessKey = 'F8BBA842ECF85';
     var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
     var orderInfo = 'pay with MoMo';
     var partnerCode = 'MOMO';
-    var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b'; //link chuyển hướng đến trang mong muốn
+    var redirectUrl = 'http://localhost:5173/customer/pay'; //link chuyển hướng đến trang mong muốn
     var ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b'; //chú ý: cần dùng ngrok thì momo mới post đến url này được 
     //(mở cmd với lệnh "ngrok http <PORT cần gọi phía backend>"), cần cài ngrok trước khi sdung lệnh
     //lấy link từ Forwarding ./callback
     var requestType = "payWithMethod";
-    var amount = '200000';
+    var amount = '2000';
     var orderId = partnerCode + new Date().getTime();
     var requestId = orderId;
     var extraData = '';

@@ -17,7 +17,7 @@ export default function Header({ page }) {
 
     useEffect(() => {
         const userID = localStorage.getItem("userID");
-        const accountRole = localStorage.getItem("userRole");
+        const accountRole = localStorage.getItem("role");
         setRole(accountRole);
         console.log("userID: ", userID);
         setUser_id(userID);
@@ -37,6 +37,16 @@ export default function Header({ page }) {
                             <li className={`${page === "user-manage" ? "border-b" : null} `}>
                                 
                                 <a href="/admin/user-management">Quản lý người dùng</a>    
+                            </li>
+
+                            <li className={`${page === "user-manage" ? "border-b" : null} `}>
+                                
+                                <a href="/admin/all-promo">Quản lý mã giảm giá</a>    
+                            </li>
+
+                            <li className={`${page === "user-manage" ? "border-b" : null} `}>
+                                
+                                <a href="/admin/order-management">Quản lý đơn hàng</a>    
                             </li>
                         </ul>
                     </div>

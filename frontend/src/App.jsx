@@ -58,7 +58,7 @@ function App() {
 
 
 
-          <Route path="/admin/history/:id" element={<TransactionHist />} />
+          <Route path="/admin/history/:userID" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
           <Route path="/admin//product-update" element={<ProductUpdate />} />

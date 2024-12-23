@@ -167,6 +167,21 @@ export default function Checkout() {
             .catch((error) => {
                 console.log(error);
             })
+
+
+        // axios.post(`http://localhost:8000/api/payment/config`)
+        //     .then((response) => {
+        //         const data = response.data.data;    
+        //         console.log(data);
+
+        //     })  
+        //     .catch((error) => {
+        //         if(error.response) {
+        //             alert(error.response.data.msg);
+        //         }  else {
+        //             console.log(error);
+        //         }
+        //     })
     }
 
     return (
