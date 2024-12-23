@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios')
+const crypto = require('crypto')
 
 // const dotenv = require('dotenv');
 // dotenv.config()
-
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }))
 
 //phải tải momo sandbox về mới xài được -> có trong trang momo developer
 
 router.post('/config', async (req, res) => {
+    const { oid, final_price } = req.body
     // return res.status(200).json({
     //     status: 200,
     //     data: process.env.CLIENT_ID
@@ -20,13 +23,13 @@ router.post('/config', async (req, res) => {
     var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
     var orderInfo = 'pay with MoMo';
     var partnerCode = 'MOMO';
-    var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b'; //link chuyển hướng đến trang mong muốn
-    var ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b'; //chú ý: cần dùng ngrok thì momo mới post đến url này được 
+    var redirectUrl = 'http://localhost:5173/user/info/notification'; //link chuyển hướng đến trang mong muốn
+    var ipnUrl = 'https://1a62-116-110-40-231.ngrok-free.app/api/payment/callback'; //chú ý: cần dùng ngrok thì momo mới post đến url này được 
     //(mở cmd với lệnh "ngrok http <PORT cần gọi phía backend>"), cần cài ngrok trước khi sdung lệnh
     //lấy link từ Forwarding ./callback
     var requestType = "payWithMethod";
-    var amount = '200000';
-    var orderId = partnerCode + new Date().getTime();
+    var amount = final_price;
+    var orderId = oid;
     var requestId = orderId;
     var extraData = '';
     //var paymentCode = 'T8Qii53fAXyUftPV3m9ysyRhEanUs9KlOPfHgpMR0ON50U10Bh+vZdpJU7VY4z+Z2y77fJHkoDc69scwwzLuW5MzeUKTwPo3ZMaB29imm6YulqnWfTkgzqRaion+EuD7FN9wZ4aXE1+mRt0gHsU193y+yxtRgpmY7SDMU9hCKoQtYyHsfFR5FUAOAKMdw2fzQqpToei3rnaYvZuYaxolprm9+/+WIETnPUDlxCYOiw7vPeaaYQQH0BF0TxyU3zu36ODx980rJvPAgtJzH1gUrlxcSS1HQeQ9ZaVM1eOK/jl8KJm6ijOwErHGbgf/hVymUQG65rHU2MWz9U8QUjvDWA==';

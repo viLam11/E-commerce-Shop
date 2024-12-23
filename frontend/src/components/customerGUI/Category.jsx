@@ -73,14 +73,14 @@ function CategoryProduct({cate_id, cate_name, productData}){
     const [end, setEnd] = useState(4); // Quản lý điểm kết thúc
     const handleNext = () => {
         //console.log("Next")
-        setStart((prev) => Math.min(prev + 4, sortedItems.length - 4));
-        setEnd((prev) => Math.min(prev + 4, sortedItems.length));
+        setStart((prev) => Math.min(prev + 3, prod.length / 3));
+        //setEnd((prev) => Math.min(prev + 4, sortedItems.length));
     };
     
     const handlePrevious = () => {
         //console.log("Prev")
-        setStart((prev) => Math.max(prev - 4, 0));
-        setEnd((prev) => Math.max(prev - 4, 4));
+        setStart((prev) => Math.max(prev - 3, 0));
+        //setEnd((prev) => Math.max(prev - 4, 4));
     };
     //console.log(images)
     const formatPrice = (price) =>{
@@ -123,12 +123,13 @@ function CategoryProduct({cate_id, cate_name, productData}){
                         {/* Chia danh sách sản phẩm thành các nhóm 4 sản phẩm */}
                         {Array.from({ length: 3 }, (_, i) => (
                         <div className="row" key={i}>
-                            {prod.slice(i * 4, i * 4 + 4).map((item, index) => {
+                            {prod.slice((i+start) * 4,Math.min(i * 4 + 4, prod.length)).map((item, index) => {
                             const img = images[item.product_id];
                             return (
                                 <div
                                 key={item.product_id} // Sử dụng product_id làm key nếu là duy nhất
-                                className="product-card"
+                                className="product-card" // Sửa từ `col` thành `product-card`
+                                // style={{ display: i * 4 + index >= start && i * 4 + index < end ? "block" : "none" }}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     navigate(`/product-detail/${item.product_id}`); // Sửa từ `row` thành `item`
@@ -136,7 +137,7 @@ function CategoryProduct({cate_id, cate_name, productData}){
                                 >
                                 {/* Hiển thị hình ảnh sản phẩm */}
                                 <div className="product-view" onClick={() => navigate(`/product-detail/${item.product_id}`)}>
-                                      <img
+                                      <img style={{paddingLeft: "25px"}}
                                           className="product-img"
                                           src={img ? img.image_url : "default_image.png"}
                                           alt="Product"
@@ -169,6 +170,60 @@ function CategoryProduct({cate_id, cate_name, productData}){
                         </div>
                         ))}
                     </div>
+                    </div>
+                    <style>
+                        {
+                            `.page-button {
+                                display: flex;
+                                justify-content: center;
+                                margin-bottom: 40px;
+                                margin-top: -20px;
+                                align-items: center;
+                            }
+                            .page-button button {
+                                width: 50px;
+                                height: 50px;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                                background-color: white;
+                                border: 1px solid gray;   
+                                color: black;   
+                                padding: 10px 20px;
+                                text-align: center;
+                                text-decoration: none;
+                                display: inline-block;
+                                font-size: 16px;
+                                margin: 4px 2px;
+                                cursor: pointer;
+                                border-radius: 16px;
+                                transition: background-color 0.3s ease, transform 0.3s ease;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                            }
+                            .page-button button:hover {
+                                background-color: red;
+                                color: white;
+                                transform: translateY(-2px);
+                            }
+                            .page-button button:disabled {
+                                background-color: #ccc;
+                                cursor: not-allowed;
+                            }
+                            .page-button button svg {
+                                vertical-align: middle;
+                                width: 10px;
+                                fill: currentColor;
+                            }`
+                        }
+                    </style>
+                    <div className="page-button">
+                        <button className="left" onClick={handlePrevious} disabled={start === 0}>
+                        <svg enable-background="new 0 0 13 20" viewBox="0 0 13 20" x="0" y="0" class="shopee-svg-icon icon-arrow-left-bold"><polygon points="4.2 10 12.1 2.1 10 -.1 1 8.9 -.1 10 1 11 10 20 12.1 17.9"></polygon></svg>
+                        </button>
+                        <button className="right" onClick={handleNext} disabled={end === prod.length}>
+                        <svg enable-background="new 0 0 13 21" viewBox="0 0 13 21" x="0" y="0" class="shopee-svg-icon icon-arrow-right-bold"
+                        fill="color"><polygon points="11.1 9.9 2.1 .9 -.1 3.1 7.9 11 -.1 18.9 2.1 21 11.1 12 12.1 11"></polygon></svg>
+                        </button>
                     </div>
             </div>
         </>

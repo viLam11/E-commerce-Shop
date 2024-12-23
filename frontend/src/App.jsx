@@ -9,7 +9,7 @@ import TransactionHist from "./pages/TransactionHist";
 import Test from "./pages/Test";
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
-import AllPromotion from "./pages/AllPromotion";
+import AllPromotion from "./components/customerGUI/AllPromotion";
 import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./components/customerGUI/HomePage";
@@ -18,8 +18,8 @@ import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
-import { History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone, Ranking } from "./components/customerGUI/UserAccountManagement";
-
+import { Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone, Ranking } from "./components/customerGUI/UserAccountManagement";
+//import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
 
 function App() {
@@ -43,6 +43,7 @@ function App() {
             <Route path="password" element={<UpdatePassword />} />
             <Route path="history-log" element={<History />} />
             <Route path="rank" element={<Ranking />} />
+            <Route path="notification" element={<Notification />} />
           </Route>
           <Route path="/user/cart" element={<Cart />} />
           <Route path="/user/shopping" element={<ShoppingPage />} />
@@ -50,13 +51,13 @@ function App() {
           <Route path="/user/category/:id" element={<CategoryProduct />} />
           <Route path="/product-detail/:id" element={<ViewDetail />} />
           <Route path="/customer/pay" element={<Checkout />} />
-
+          <Route path="/user/promotion" element={<AllPromotion />} />
 
 
           <Route path="/admin/history/:id" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
-          <Route path="/admin//product-update" element={<ProductUpdate />} />
+          <Route path="/admin/product-update" element={<ProductUpdate />} />
           <Route path="/admin/edit-product/:id" element={<ProductUpdate />} />
           <Route path="/admin/new-promotion" element={<NewPromotion />} />
           <Route path="/admin/user-management" element={<UsersManagement />} />

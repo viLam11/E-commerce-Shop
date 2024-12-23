@@ -3,10 +3,11 @@ import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../design/Home/header.css'
 export default function Header() {
-    const [searchQuery, setSearchQuery] = useState(localStorage.getItem('Squery'||""));
+    const [searchQuery, setSearchQuery] = useState("");
     const handleSearch = () =>{
         console.log("Searching: "+searchQuery)
         localStorage.setItem('Squery', searchQuery)
+        setSearchQuery("")
         window.location.reload();
     }
     const navigate = useNavigate()
@@ -22,7 +23,7 @@ export default function Header() {
                 <a href="/user/homepage" >Trang chủ</a>
                 <a href="/user/shopping">Mua sắm</a>
                 <a href="/user/promotion">Khuyến mãi</a>
-                <a href="/user/history-log">Đơn hàng</a>
+                <a href="/user/info/history-log">Đơn hàng</a>
             </div>
             <div className="search-bar" >
                 <input type="text" placeholder="Bạn đang tìm kiếm..." value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)}/>

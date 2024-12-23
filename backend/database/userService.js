@@ -344,8 +344,8 @@ class UserService {
                 else {
                     client.query(`
                         SELECT * FROM users
-                        WHERE email = $1 OR username = $2 
-                    `, [data.email, data.username], async (err, res) => {
+                        WHERE email = $1
+                    `, [data.email], async (err, res) => {
                         if (err) {
                             reject({
                                 status: 400,
