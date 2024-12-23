@@ -1,7 +1,7 @@
 create type user_type as enum('admin', 'customer');
 create type u_gender as enum('male', 'female');
 create type status	as enum('active', 'inactive');
-create type ranks as enum('silver', 'gold', 'diamond');
+--create type ranks as enum('silver', 'gold', 'diamond');
 create type bool as enum ('Yes', 'No');
 
 
@@ -14,7 +14,7 @@ create table users(
 	email		varchar(50) 	NOT NULL unique,
 	gender		u_gender 		not null,
 	userType	user_type 		NOT NULL,
-	ranking		ranks,
+	--ranking		ranks 		default silver,
 	birthday	DATE,
 	total_payment integer		default 0,
 	id_no		varchar(20)
@@ -67,16 +67,18 @@ CREATE TABLE product(
 	description			TEXT,
 	price				INTEGER			NOT NULL check(price > 0),
 	quantity			INTEGER			not null Check(quantity >= 0),
-	create_time	timestamp 		default now(),
+	last_updated_time	timestamp 		default now(),-- vì product bây giờ đã là lastupdate nên cần cập nhật khi ở các updateProduct,...
 	cate_id				varchar(100)	not null,
 	sold 				integer			default 0,
 	rating				smallint			default 0,
 	constraint fk_category	foreign key (cate_id) references category(cate_id)
 );
 
+
+
 create table image(
 	product_id 	varchar(255) ,
-	image_id	varchar(255) ,
+	--image_id	varchar(255) ,
 	image_url	text	not null,
 	ismain		bool	default 'No',
 	primary key(product_id, image_id),
@@ -85,17 +87,18 @@ create table image(
 				on delete cascade
 );
 
-create type discount as enum('fix price', 'percent');
+create type discount as enum('fix_price', 'percent');
 create type apply_type as enum ('product', 'category', 'all');
 create table promotion(
 	promotion_id	varchar(100)	PRIMARY KEY,
-	name		varchar(100)	NOT NULL,
+	name			varchar(100)	NOT NULL,
 	quantity		INTEGER			check(quantity >= 0),
 	description		text	,
 	starttime		date		default now(),
 	endtime			date		default now(),
 	minspent		INTEGER			not null,
-	value		integer			check (value < minSpent),
+	discount_type	discount	not null,
+	value			integer			check (value < minSpent),
 	percentage		integer			,
 	max_amount		integer			check (max_amount < minSpent),		
 	apply_id		varchar(50)		,
@@ -105,7 +108,7 @@ create table promotion(
 CREATE OR REPLACE FUNCTION check_promo_constraint()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (NEW.discount_type = 'fix_price' and NEW.fix_value is null) 
+    IF (NEW.discount_type = 'fix_price' and NEW.value is null) 
 		or (NEW.discount_type = 'percent'  and (new.percentage is null or new.max_amount is null)) 
 	THEN
         RAISE EXCEPTION 'Error';
@@ -135,28 +138,92 @@ create table orders(
 	receive_time			date	 		default now(),
 	shipping_co				varchar(50) 	not null,
 	quantity				integer			not null,
-	total_price					integer			not null,
-	final_price				integer			not null,
+	total_price				integer			not null,
+	final_price				integer			not null,-- không có trong erd
+	promotion_id	varchar(255),
+	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
 	constraint fk_order_prod foreign key(uid)
 				references users(uid)
 );
 
-CREATE OR REPLACE FUNCTION calculate_final_price()
+-- Trigger Function to update total_payment
+CREATE OR REPLACE FUNCTION update_total_payment()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
-        NEW.final_price := NEW.total_price - NEW.shipping_fee;
+    -- Handle INSERT operation
+    IF TG_OP = 'INSERT' THEN
+        IF NEW.status = 'Completed' THEN
+            UPDATE users
+            SET total_payment = total_payment + NEW.final_price
+            WHERE uid = NEW.uid;
+        END IF;
     END IF;
-    RETURN NEW;
+
+    -- Handle DELETE operation
+    IF TG_OP = 'DELETE' THEN
+        IF OLD.status = 'Completed' THEN
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price
+            WHERE uid = OLD.uid;
+        END IF;
+    END IF;
+
+    -- Handle UPDATE operation
+    IF TG_OP = 'UPDATE' THEN
+        IF OLD.status = 'Completed' AND NEW.status <> 'Completed' THEN
+            -- Order was completed but no longer completed
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price
+            WHERE uid = OLD.uid;
+        ELSIF OLD.status <> 'Completed' AND NEW.status = 'Completed' THEN
+            -- Order was not completed but now is completed
+            UPDATE users
+            SET total_payment = total_payment + NEW.final_price
+            WHERE uid = NEW.uid;
+        ELSIF OLD.status = 'Completed' AND NEW.status = 'Completed' THEN
+            -- Order remains completed, adjust for price changes
+            UPDATE users
+            SET total_payment = total_payment - OLD.final_price + NEW.final_price
+            WHERE uid = NEW.uid;
+        END IF;
+    END IF;
+
+    RETURN NULL; -- Triggers for AFTER events return NULL
 END;
 $$ LANGUAGE plpgsql;
 
-
-CREATE TRIGGER	final_price
-BEFORE INSERT OR UPDATE ON orders
+--DROP FUNCTION update_total_payment()
+-- Create the Trigger
+CREATE TRIGGER trigger_update_total_payment
+AFTER INSERT OR DELETE OR UPDATE ON orders
 FOR EACH ROW
-EXECUTE FUNCTION calculate_final_price();
+EXECUTE FUNCTION update_total_payment();
 
+--DROP TRIGGER trigger_update_total_payment ON orders
+
+-- CREATE OR REPLACE FUNCTION calculate_final_price()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
+--         NEW.final_price := NEW.total_price - NEW.shipping_fee;
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- CREATE TRIGGER	final_price
+-- BEFORE INSERT OR UPDATE ON orders
+-- FOR EACH ROW
+-- EXECUTE FUNCTION calculate_final_price();
+
+select* from users;
+
+COPY orders (oid, status, create_time, done_time,shipping_address,quantity, price, shipping_fee,estimated_delivery_time,receive_time,shipping_co,user_id)
+FROM 'C:\Program Files\PostgreSQL\17\order3.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+drop table orders
 
 create table reviews(
 	product_id	varchar(255)	not null,
@@ -171,17 +238,15 @@ create table reviews(
 
 
 create table order_include(
-	iid	smallint	not null,
 	oid	varchar(255)	not null,
-	product_id 	varchar(255),
-	promotion_id	varchar(255),
-	cate_id		varchar(255)	not null,
+	product_id 	varchar(255)	not null,
+	--cate_id		varchar(255)	not null,-- đâu ra cái cate_id này???
 	quantity	integer			not null,
 	paid_price	integer			not null,
-	discount	integer,
+	primary key (oid, product_id)
 	constraint fk_order_prod foreign key(oid) references orders(oid),
 	constraint fk_prod_of_order	foreign key(product_id) references product(product_id),
-	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
+	--constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
 );
 
 select * from promotion;
@@ -240,27 +305,27 @@ SELECT * FROM orders
 WHERE orders.user_id = 'user000010';
 
 -- 3.2 Tính số tiền userID đã chi
-CREATE OR REPLACE FUNCTION check_expense(
-    userID varchar(255)
-)
-RETURNS INTEGER AS $$
-DECLARE
-    totalAmount INTEGER := 0;
-    coursePrice INTEGER;
-BEGIN
-    FOR coursePrice IN 
-        SELECT price
-        FROM orders o
-        WHERE o.user_id = userID
-    LOOP
-        totalAmount := totalAmount + coursePrice;
-    END LOOP;
+-- CREATE OR REPLACE FUNCTION check_expense(
+--     userID varchar(255)
+-- )
+-- RETURNS INTEGER AS $$
+-- DECLARE
+--     totalAmount INTEGER := 0;
+--     coursePrice INTEGER;
+-- BEGIN
+--     FOR coursePrice IN 
+--         SELECT price
+--         FROM orders o
+--         WHERE o.user_id = userID
+--     LOOP
+--         totalAmount := totalAmount + coursePrice;
+--     END LOOP;
 
-    RETURN totalAmount;
-END;
-$$ LANGUAGE plpgsql;
+--     RETURN totalAmount;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-SELECT check_expense('user000001');
+-- SELECT check_expense('user000001');
 
 -- create table carts(
 -- 	uid			varchar(255)	not null,
@@ -276,11 +341,12 @@ CREATE TABLE cart (
     uid          VARCHAR(255) NOT NULL,
     product_id   VARCHAR(255) NOT NULL,
     quantity     INTEGER      NOT NULL DEFAULT 1 CHECK(quantity > 0),
-
     PRIMARY KEY (uid,product_id),
     CONSTRAINT fk_addtocart_productid FOREIGN KEY (product_id) REFERENCES product(product_id),
     CONSTRAINT fk_addtocart_uid FOREIGN KEY (uid) REFERENCES users(uid)
 );
+
+
 INSERT INTO cart(uid, product_id, quantity) 
 VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
 -- INSERT INTO cart(uid, product_id, quantity) 
@@ -294,6 +360,8 @@ CREATE TABLE notification (
     PRIMARY KEY (uid,content),
     CONSTRAINT fk_uid_notify FOREIGN KEY (uid) REFERENCES users(uid)
 );
+
+
 INSERT INTO users(uid, username, upassword, fname, lname, email, gender, usertype, birthday, id_no) 
 VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'admin', DATE('03-07-2004') ,'ALL');
 INSERT INTO notification(uid, content) 

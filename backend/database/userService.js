@@ -566,50 +566,50 @@ class UserService {
     //     })
     // }
 
-    async createAddress(uid, body){
-        try{
+    async createAddress(uid, body) {
+        try {
             await client.query('BEGIN')
-            if (body.isdefault){
+            if (body.isdefault) {
                 await client.query(`
                     UPDATE user_address
                     SET isdefault = $1
                     WHERE uid = $2
-                `,[false, uid])
+                `, [false, uid])
                 await client.query(`
                     INSERT INTO user_address (uid, address, isdefault)
                     VALUES ($1, $2, $3)
-                `,[uid, body.address, body.isdefault])
+                `, [uid, body.address, body.isdefault])
             }
-            else{
+            else {
                 const cad = await client.query(`
                     SELECT * FROM user_address
                     WHERE uid = $1
-                `,[uid])
-                if (cad.rows.length <= 0){
+                `, [uid])
+                if (cad.rows.length <= 0) {
                     await client.query(`
                         INSERT INTO user_address (uid, address, isdefault)
                         VALUES ($1, $2, $3)
-                    `,[uid, body.address, true])
+                    `, [uid, body.address, true])
                 }
-                else{
+                else {
                     await client.query(`
                         INSERT INTO user_address (uid, address, isdefault)
                         VALUES ($1, $2, $3)
-                    `,[uid, body.address, body.isdefault])
+                    `, [uid, body.address, body.isdefault])
                 }
-                
+
             }
             await client.query('COMMIT')
-                return {
-                    status: 200,
-                    msg: "Add successfully",
-                    data: body
-                }
+            return {
+                status: 200,
+                msg: "Add successfully",
+                data: body
+            }
         }
-        catch (err){
+        catch (err) {
             await client.query('ROLLBACK')
             return {
-                status:400,
+                status: 400,
                 msg: err.message,
                 data: null
             }
@@ -666,27 +666,27 @@ class UserService {
     //     })
     // }
 
-    async updateAddress(uid, body){
-        try{
+    async updateAddress(uid, body) {
+        try {
             await client.query('BEGIN')
-            if (body.isdefault){
+            if (body.isdefault) {
                 await client.query(`
                     UPDATE user_address
                     SET isdefault = $1
                     WHERE uid = $2
-                `,[false, uid])
+                `, [false, uid])
                 await client.query(`
                     UPDATE user_address
                     SET isdefault = $1, address = $2
                     WHERE uid = $3 and address = $4
-                `,[true, body.new_address, uid,body.old_address])
+                `, [true, body.new_address, uid, body.old_address])
             }
-            else{
+            else {
                 await client.query(`
                     UPDATE user_address
                     SET isdefault = $1, address = $2
                     WHERE uid = $3 and address = $4
-                `,[body.isdefault, body.new_address, uid,body.old_address])
+                `, [body.isdefault, body.new_address, uid, body.old_address])
             }
             await client.query('COMMIT')
             return {
@@ -695,10 +695,10 @@ class UserService {
                 data: body
             }
         }
-        catch (err){
+        catch (err) {
             await client.query('ROLLBACK')
             return {
-                status:400,
+                status: 400,
                 msg: err.message,
                 data: null
             }

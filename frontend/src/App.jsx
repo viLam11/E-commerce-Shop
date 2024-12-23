@@ -32,7 +32,7 @@ function App() {
     >
       <AuthProvider >
         <Routes>
-        <Route path="/" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route path="/test" element={<Test />} />
           <Route path="/user/homepage" element={<HomePage />} />
           <Route path="/user/info" element={<UserAccountManagement />}>
@@ -68,7 +68,7 @@ function App() {
           <Route path="/admin/user-management" element={<UsersManagement />} />
           <Route path="/admin/all-promo" element={<AllPromotion />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
-          
+
         </Routes>
       </AuthProvider>
     </Router>
