@@ -45,7 +45,7 @@ export default function Header() {
             </div>
         </div>:
         <div style={{display: "inline-flex"}}>
-            <div style={{cursor: "pointer", marginRight: ""}} onClick={() => navigate('/')}>Đăng ký</div>
+            {/* <div style={{cursor: "pointer", marginRight: ""}} onClick={() => navigate('/')}>Đăng ký</div> */}
             <div style={{cursor: "pointer"}} onClick={() => navigate('/')}>Đăng nhập</div>    
         </div>}
                 

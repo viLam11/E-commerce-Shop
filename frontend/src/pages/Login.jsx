@@ -63,21 +63,6 @@ export default function Login() {
   }
 
   async function handleSignUp(e) {
-    // const result = await axios.post("http://localhost:8000/api/user/signUp", {
-    //   email: email,
-    //   password: pass,
-    //   confirmPassword: pass,
-    //   fname: fname,
-    //   lname: lname,
-    //   gender: gender,
-    //   userType: role,
-    //   birthday: `${day}-${month}-${year}`
-    // })
-
-
-    // if (result.status == 200) {
-    //   alert("Sigup success!");
-    // } 
     axios.post("http://localhost:8000/api/user/signUp", {
       email: email,
         password: pass,
@@ -265,14 +250,12 @@ export default function Login() {
                     />
                   </div>
 
-                  <div className="mb-4 flex space-x-2">
+                  <div className="mb-4 flex space-x-2 items-center">
                     <div className="pr-4">Giới tính</div>
                     <input type="radio" id="male" value="male" name="gender" onClick={() => {setGender("male")}} />
-                    <label htmlFor="male">Nam</label>
+                    <label htmlFor="male"  className="items-center pt-2">Nam</label>
                     <input type="radio" id="female" value="female" name="gender" onClick={() => {setGender("female")}} />
-                    <label htmlFor="female">Nữ</label>
-                    <input type="radio" id="null" value="null" name="gender" onClick={() => {setGender(null)}} />
-                    <label htmlFor="null">Khác</label>
+                    <label htmlFor="female"  className="items-center pt-2">Nữ</label>
                   </div>
 
                   <div className="dob-container">
@@ -312,16 +295,15 @@ export default function Login() {
                         />
                       </span>
                       </div>
-
                     </div>
                   </div>
 
-                  <div className="role flex space-x-2">
+                  <div className="flex space-x-2 items-center">
                       <div>Bạn là nhân viên ? </div>
                       <input type="radio" value="admin" name="role" onClick={() => {setRole("admin")}} />
-                      <label htmlFor="role">Đúng</label>
+                      <label htmlFor="role" className="items-center pt-2">Đúng</label>
                       <input type="radio" value="customer" name="role" onClick={() => {setRole("customer")}} />
-                      <label htmlFor="role">Không</label>
+                      <label htmlFor="role" className="items-center pt-2">Không</label>
                   </div>
                 </div>
 

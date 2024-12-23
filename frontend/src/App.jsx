@@ -1,4 +1,6 @@
 import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
+
+/** NGOC */
 import AuthProvider from "./AuthProvider";
 import Login from "./pages/Login";
 import ProductsManagement from "./pages/ProductsManagement";
@@ -6,20 +8,26 @@ import NewProduct from "./pages/NewProduct";
 import ProductUpdate from "./pages/ProductUpdate";
 import Homepage from "./pages/Homepage";
 import TransactionHist from "./pages/TransactionHist";
+import ProductDetail from "./pages/ProductDetail";
+import ProductByCat from "./pages/ProductByCat";
 import Test from "./pages/Test";
+import Shopping from './pages/Shopping'
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
 import AllPromotion from "./components/customerGUI/AllPromotion";
 import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
+
+/** DUONG */
 import HomePage from "./components/customerGUI/HomePage";
 import ViewDetail from './components/customerGUI/ViewProductDetail'
 import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
+
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
 import {Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
-//import AllPromotion from "./pages/AllPromotion";
+// import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
 
 function App() {
@@ -33,7 +41,7 @@ function App() {
       <AuthProvider >
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/test" element={<Test />} />
+         <Route path="/test" element={<Test />} />
           <Route path="/user/homepage" element={<HomePage />} />
           <Route path="/user/info" element={<UserAccountManagement />}>
                     {/* Các route con */}
@@ -45,13 +53,13 @@ function App() {
                     <Route path="rank" element={<Ranking />} />
                     <Route path="notification" element={<Notification/>} />
           </Route>
-           <Route path="/user/cart" element={<Cart/>} />
+          <Route path="/user/cart" element={<Cart/>} />
           <Route path="/user/shopping" element={<ShoppingPage/>}/>
           <Route path="/category/:id" element={<Categories />}/>
           <Route path="/user/category/:id" element={<CategoryProduct/>} />
           {/* <Route path="/product-detail/:prodID" element={<P />}/> */}
           <Route path="/customer/pay" element={<Checkout />}  />
-          <Route path="/customer/homepage" element={<Homepage />} />
+          <Route path="/customer/homepage" element={<UsersManagement />} />
           <Route path="/customer/shopping" element={<Shopping />} />
           <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
           <Route path="/customer/history/:userID" element={<TransactionHist />} />
