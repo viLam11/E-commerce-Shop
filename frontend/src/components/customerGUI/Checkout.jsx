@@ -927,6 +927,7 @@ export default function Checkout() {
                 };
                 // Gọi API mã QR momo
                 const response = await axios.post("http://localhost:8000/api/payment/config", data);
+                console.log("Payment config:", response.data);
                 if (response.status === 200) {
                     console.log("Payment config:", response.data);
 

@@ -1107,7 +1107,7 @@ function ViewDetail() {
     useEffect(()=>{
         const fetchProduct = async() =>{
             try{
-                const response = await axios.get(`http://localhost:8000/api/product/get-detail/${id}`)
+                const response = await axios.get(`http://localhost:8000/api/product/get-detail?${id}`)
                 console.log(response)
                 if (response.status !== 200) throw new Error("Bug data")
                 setProduct(response.data.data)
