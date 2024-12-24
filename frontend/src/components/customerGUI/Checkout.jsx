@@ -1169,7 +1169,7 @@ export default function Checkout() {
                                     <span className={`bg-blue-50 hover:bg-blue-100`} style={{ cursor: "pointer", padding: "9px" }} onClick={openPopupAd}>&#128221;</span>
                                 </div>
 
-                                <div className="mb-4">
+                                {/* <div className="mb-4">
                                     <div>Thêm ghi chú</div>
                                     <input
                                         type="note"
@@ -1179,7 +1179,7 @@ export default function Checkout() {
                                         value={"sdfasdfadsfa"}
                                     //   onChange={(e) => setPass(e.target.value)}
                                     />
-                                </div>
+                                </div> */}
 
 
                             </div>
