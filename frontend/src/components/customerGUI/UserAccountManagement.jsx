@@ -726,7 +726,7 @@ export function Notification(){
     const [oid, setOid] = useState("")
 
     const [content, setContent] = useState("")
-
+    const [notices, setNotices] = useState([])
     useEffect(()=>{
         try{
             const fetchOrder = async()=>{
@@ -782,6 +782,7 @@ export function Notification(){
                 console.log(temp.data.data)
                 setContent(temp.data.data.find(item => item.uid == currentUser.uid).content)   
                 setOid(temp.data.data.find(item => item.uid == currentUser.uid).content.split(" ")[2]) 
+                setNotices(temp.data.data.sort((a, b) => new Date(b.create_time) - new Date(a.create_time)))
             }
             catch(err){
                 console.error("Error: ", err.message)
@@ -799,16 +800,39 @@ export function Notification(){
     return(<>
     <div className="profile-form" style={{boxShadow:"none", marginTop: "-30px", height:"500px"}}>
             <h2>Thông báo</h2>
-            <div style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
-                <div>
-                <img src="../../../public/img/EX (2).png" alt="" style={{width: "50px"}}/>
-                </div>
-                <div style={{marginTop: "5px"}}>
-                <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Đơn hàng:</span> {oid}</div>
-                {hashOrderContent(content)}
-                </div>
-                
-            </div>
+            {notices.map((item, idx) =>{
+                if (item.content.split(" ")[0] == "Đơn" && item.content.split(" ")[1] == "hàng"){
+                    return (<>
+                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
+                            <div>
+                            <img src="../../../public/img/EX (2).png" alt="" style={{width: "50px"}}/>
+                            </div>
+                            <div style={{marginTop: "5px"}}>
+                            <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Đơn hàng:</span> {item.content.split(" ")[2]}</div>
+                            {hashOrderContent(item.content)}
+                            </div>
+                            
+                        </div>
+                        <br/>
+                        </>
+                    )
+                }
+                else{
+                    return (<>
+                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
+                            <div>
+                            <img src="../../../public/img/sys.png" alt="" style={{width: "50px"}}/>
+                            </div>
+                            <div style={{marginTop: "5px"}}>
+                            <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Thông báo:</span> {item.content}</div>
+                            </div>
+                            
+                        </div>
+                        <br/>
+                        </>
+                    )
+                }
+            })}
         </div>
     </>
         
@@ -2433,6 +2457,9 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
     const uid = localStorage.getItem('uid')
+    const location = useLocation();
+    const ractive = location.state?(location.state.active?location.state.active:1):1
+
     //console.log(uid)
     const [currentUser, setUser] = useState(null)
     const [totalPaid, setPaid] = useState(0)
@@ -2452,7 +2479,7 @@ function UserAccountManagement() {
         fetchUser()
     },[uid])
     const navigate = useNavigate()
-    const [active,setActive] = useState(1)
+    const [active,setActive] = useState(ractive)
     const curPage = (number, path) => {
         setActive(number);
         if (path == '/'){

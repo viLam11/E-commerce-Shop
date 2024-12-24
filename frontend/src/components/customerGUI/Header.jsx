@@ -31,15 +31,15 @@ export default function Header() {
             </div>
             {localStorage.getItem('uid')?
             <div className="icons">
-            <a href="#" ><span>&#128276;</span></a> 
+            <a href="#" onClick={(e) => {e.preventDefault(); navigate('/user/info/notification', {state:{active: 5}})}}><span>&#128276;</span></a> 
             <a href="#" onClick={(e)=>{e.preventDefault(); navigate('/user/cart')}}><span>&#128722;</span></a>
             <div className="dropdown-container">
                 <a href="#" className="dropdown" id="dropdownButton" onClick={(e) =>{e.preventDefault(); actionMenu()}}>
                     <span>&#128100;</span>
                 </a>
                 <div className="action-menu" id="actionMenu">
-                    <div onClick={(e) =>{e.preventDefault(); navigate(`/user/info`)}}><span>&#128100;</span> Manage My Account</div>
-                    <div onClick={(e) =>{e.preventDefault(); navigate(`/user/info/history-log`)}}><span>&#128230;</span> My Orders</div>
+                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info', {state:{active: 1}})}}><span>&#128100;</span> Manage My Account</div>
+                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info/history-log', {state:{active: 2}})}}><span>&#128230;</span> My Orders</div>
                     <div onClick={handleLogout}><span>&#x1F512;</span> Log out</div>
                 </div>
             </div>
