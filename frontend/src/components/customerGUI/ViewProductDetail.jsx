@@ -9,6 +9,7 @@ import '../../design/product/review.css'
 import '../../design/product/view.css'
 import { set } from "date-fns";
 import { se } from "date-fns/locale";
+import { use } from "react";
 
 function NewReview({product, closePopup}){
     const [rating, setRating] = useState(0);
@@ -908,7 +909,23 @@ function Review({ reviews, product }) {
         ...acc,
         [rating]: reviews.filter(review => review.rating === rating).length
     }), {});
-
+    const [allUser, setAllUser] = useState([])
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/user/users?limit=1000`);
+                if (!response.ok) throw new Error("Failed to fetch user");
+                const data = await response.json();
+                const newUser = data.data || [];
+                setAllUser(newUser.map(user => ({username: user.username, lname: user.lname, fname: user.fname, uid: user.uid})));
+            }
+            catch (error) {
+                console.error("Error fetching user:", error);
+            }
+        };
+        fetchUser();
+    }
+    , [reviews]);
     const myReview = reviews.find(review => review.uid === localStorage.getItem('uid')) || null;
     const otherReviews = reviews.filter(review => review.uid !== localStorage.getItem('uid'));
     const viewTime = (time) =>{
@@ -1077,7 +1094,7 @@ function Review({ reviews, product }) {
             <div className="review-of-customer" style={{maxHeight: "1000px", overflowY: "auto"}}>
                 {myReview?
                 <div className="a-review">
-                <div className="By">{myReview.uid}<span style={{marginLeft: '40px'}}> {viewTime(myReview.time)} </span><span className="edit-button" onClick={openPopup}> Chỉnh sửa &#128221;</span></div>
+                <div className="By">{allUser.find(i => i.uid == myReview.uid).username}<span style={{marginLeft: '40px'}}> {viewTime(myReview.time)} </span><span className="edit-button" onClick={openPopup}> Chỉnh sửa &#128221;</span></div>
                 <div><b>Rating:</b> <span style={{color: 'red'}}>{RateSwitch(myReview.rating)}</span></div>
                 <div><b>Comment:</b> {hashComment(myReview.comment) && hashComment(myReview.comment).length > 0?hashComment(myReview.comment).map((com, idx)=>{
                     return <p key={idx}>{com}</p>
@@ -1085,9 +1102,17 @@ function Review({ reviews, product }) {
             </div>:null }
                 {otherReviews.map((review, index) => (
                     <div key={index} className="a-review">
-                        <div className="By">{review.uid}<span style={{marginLeft: '40px'}}> {viewTime(review.time)}</span></div>
+                        <div style={{display: "flex", alignItems: "center", marginBottom: "10px"}}>
+                            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style={{width: "50px", height: "50px", borderRadius: "50%"}} />
+                            <div style={{marginLeft: "10px"}}>
+                            <div style={{fontWeight: "bold", color:"red"}}>{allUser.find(i => i.uid == review.uid).lname +' ' +allUser.find(i => i.uid == review.uid).fname}</div>
+                            <div className="By" style={{color:"gray", fontSize:"14px"}}>{allUser.find(i => i.uid == review.uid).username}</div>
+                            </div>
+                            <span style={{marginLeft: '40px'}}> {viewTime(review.time)}</span>
+                        </div>
                         <div><b>Rating:</b> <span style={{color: 'red'}}>{RateSwitch(review.rating)}</span></div>
                         <div><b>Comment:</b> {hashComment(review.comment) && hashComment(review.comment).length > 0?hashComment(review.comment).map((com, idx)=>{
+                            if (com.includes('Thời lượng pin') || com.includes('Tốc độ phản hồi') || com.includes('Tiện ích thông minh') || com.includes('Dịch vụ')) return <p key={idx} style={{color: "gray", display:"inline", marginLeft:"10px", fontSize: "12px", border: "1px solid gray", padding:"2px", borderRadius:"4px"}}>{com}</p>
                             return <p key={idx}>{com}</p>
                         }):null}</div>
                     </div>

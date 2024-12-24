@@ -22,8 +22,10 @@ export default function Header() {
             <div className="nav-links">
                 <a href="/user/homepage" >Trang chủ</a>
                 <a href="/user/shopping">Mua sắm</a>
-                <a href="/user/promotion">Khuyến mãi</a>
-                <a href="/user/info/history-log">Đơn hàng</a>
+                {localStorage.getItem('uid')?<>
+                    <a href="/user/promotion">Khuyến mãi</a>
+                    <a href="/user/info/history-log">Đơn hàng</a>
+                </>:null}
             </div>
             <div className="search-bar" >
                 <input type="text" placeholder="Bạn đang tìm kiếm..." value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)}/>
