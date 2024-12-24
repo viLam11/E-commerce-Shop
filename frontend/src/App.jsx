@@ -25,7 +25,7 @@ import ViewDetail from './components/customerGUI/ViewProductDetail'
 import ShoppingPage from './components/customerGUI/Shopping'
 import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
-
+import PostNotification from "./components/customerGUI/adminGUI/PostNotification";
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
 import { Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone, Ranking } from "./components/customerGUI/UserAccountManagement";
 //import AllPromotion from "./pages/AllPromotion";
@@ -62,7 +62,7 @@ function App() {
           <Route path="/customer/pay" element={<Checkout />} />
           <Route path="/user/promotion" element={<AllPromotion />} />
 
-
+          <Route path="/admin/post-notification" element={<PostNotification />} />
           <Route path="/admin/history/:userID" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
