@@ -1088,7 +1088,7 @@ export default function Checkout() {
                     <div className="popup" onClick={closePopup}>
                         <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "600px" }}>
                             <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "500px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Voucher</h2>
-                            <Voucher buyList={productList} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total || location.state.product.price * location.state.quantity} pquantity={location.state?(location.state.quantity?location.state.quantity:null):null} pprice ={location.state.product.price}/>
+                            <Voucher buyList={productList} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total || location.state.product.price * location.state.quantity} pquantity={location.state?(location.state.quantity?location.state.quantity:null):null} pprice ={location.state.product?location.state.product.price:null}/>
                             <button className="closePopup" onClick={closePopup} style={{ marginTop: "-30px" }}>
                                 Đóng
                             </button>
