@@ -46,11 +46,11 @@ export default function Promotion({id, name, description, startTime, endTime, mi
                     }
                 })
                 .catch((err) => {
-                    if (err.response) {
-                        alert(err.response.data.msg);
-                    } else {
-                        console.log(err.message);
-                    }
+                    // if (err.response) {
+                    //     alert(err.response.data.msg);
+                    // } else {
+                    //     console.log(err.message);
+                    // }
                 });
         }
     }, [cateNames, apply_range, apply_id, name]);
