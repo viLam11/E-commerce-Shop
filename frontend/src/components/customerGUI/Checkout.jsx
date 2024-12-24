@@ -634,7 +634,7 @@ function Voucher({ state, buyList, setVoucher, setIsPopupOpen, total,pquantity, 
             case 'product':
                 let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
                 let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
-                return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum2, voucher.max_amount))
                 break;
         }
     }
@@ -673,11 +673,11 @@ function Voucher({ state, buyList, setVoucher, setIsPopupOpen, total,pquantity, 
         }
 
         setFit([...vouchers].filter(item => item.quantity > 0
-            && (product_con(item) || category_con(item) || (item.apply_range == "all" && item.minspent <= buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            && (product_con(item) || category_con(item) || (item.apply_range == "all" && item.minspent <= buyList.reduce((sum, cur) => sum += (cur.pquantity?cur.pquantity:pquantity) * cur.price, 0))))
             .sort((a, b) => discountValue(b) - discountValue(a))
         )
         setReach([...vouchers].filter(item => item.quantity > 0
-            && (uproduct_con(item) || ucategory_con(item) || (item.apply_range == "all" && item.minspent > buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
+            && (uproduct_con(item) || ucategory_con(item) || (item.apply_range == "all" && item.minspent > buyList.reduce((sum, cur) => sum += (cur.pquantity?cur.pquantity:pquantity) * cur.price, 0))))
             .sort((a, b) => discountValue(b) - discountValue(a))
         )
         setApply([...vouchers].filter(item => !uproduct_con(item) && !ucategory_con(item) && item.apply_range != 'all')
