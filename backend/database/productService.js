@@ -258,9 +258,8 @@ class ProductService {
         return new Promise(async (resolve, reject) => {
             try {
                 client.query(`
-                 SELECT product.*
-                FROM product 
-                WHERE product.product_id = $1
+                SELECT * FROM product
+                WHERE product_id = $1
             `, [id], async (err, res) => {
                     if (err) {
                         reject({
@@ -278,8 +277,8 @@ class ProductService {
                     }
                     else {
                         const image = await this.getImageByProduct(id);
-                        console.log("CHECK IMG: ", image)
-                        if(image.data) res.rows[0].image = image.data.map(item => item.image_url);
+                        console.log(image)
+                        res.rows[0].image = image.data.map(item => item.image_url);
                         resolve({
                             status: 200,
                             msg: 'SUCCESS',
@@ -289,7 +288,7 @@ class ProductService {
                 })
             }
             catch (err) {
-                console.log(err)
+                reject(err)
             }
         })
     };
@@ -585,10 +584,9 @@ class ProductService {
     }
 
     async getImageByProduct(productId) {
-        console.log("CHECK PRODID 2: ", productId);
         return new Promise(async (resolve, reject) => {
             try {
-                client.query(`
+                await client.query(`
                 SELECT * FROM image WHERE product_id = $1`
                     , [productId], async (err, res) => {
                         if (err) {
@@ -598,13 +596,13 @@ class ProductService {
                                 data: null
                             });
                         }
-                        // else if (res.rows.length === 0) {
-                        //     resolve({
-                        //         status: 404,
-                        //         msg: 'The product is not exist',
-                        //         data: null
-                        //     });
-                        // }
+                        else if (res.rows.length === 0) {
+                            resolve({
+                                status: 404,
+                                msg: 'The product is not exist',
+                                data: null
+                            });
+                        }
                         else {
                             console.log(res.rows);
                             resolve({

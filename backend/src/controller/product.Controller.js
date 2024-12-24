@@ -97,8 +97,7 @@ class ProductController {
 
     async getDetailProduct(req, res) {
         try {
-            const productId = req.params.id;
-            console.log("CHECK PRODID: ", productId);
+            const productId = req.params.id
             if (!productId) {
                 return res.status(400).json({
                     status: 'ERR',

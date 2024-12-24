@@ -58,7 +58,7 @@ router.post('/config', async (req, res) => {
         storeId: "MomoTestStore",
         requestId: requestId,
         amount: amount,
-orderId: orderId,
+        orderId: orderId,
         orderInfo: orderInfo,
         redirectUrl: redirectUrl,
         ipnUrl: ipnUrl,
@@ -160,8 +160,6 @@ router.post('/check-status-transaction', async (req, res) => {
     return res.status(200).json(result.data);
 });
 
-<<<<<<< HEAD
-=======
 //const axios = require('axios').default; // npm install axios
 // const CryptoJS = require('crypto-js'); // npm install crypto-js
 // const moment = require('moment'); // npm install moment
@@ -238,5 +236,4 @@ router.post('/check-status-transaction', async (req, res) => {
 //     res.json(result);
 // });
 
->>>>>>> BE
 module.exports = router;
