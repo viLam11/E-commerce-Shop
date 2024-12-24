@@ -80,7 +80,8 @@ function NewReview({product, closePopup}){
 
             if(response.status === 200) {
                 alert("Đã thêm nhận xét");
-                setCount(count + 1);        
+                setCount(count + 1);   
+                window.location.reload();     
             }
         })
         .catch((error) => {
@@ -852,7 +853,9 @@ function Review({ reviews, product }) {
     const checkProductinOrder = async () => {
         try {
             const uid = localStorage.getItem('uid');
-            const response = await axios.get(`http://localhost:8000/api/order/getAllOrder/${uid}`);
+            const response = await axios.get(`http://localhost:8000/api/order/getAllOrder/${uid}?limit=1000`);
+            console.log("Check product in order");
+            console.log(response);
             if (response.status !== 200) {
                 throw new Error("Lỗi khi kiểm tra sản phẩm trong đơn hàng");
             }
@@ -1107,7 +1110,7 @@ function ViewDetail() {
     useEffect(()=>{
         const fetchProduct = async() =>{
             try{
-                const response = await axios.get(`http://localhost:8000/api/product/get-detail?${id}`)
+                const response = await axios.get(`http://localhost:8000/api/product/get-detail/${id}`)
                 console.log(response)
                 if (response.status !== 200) throw new Error("Bug data")
                 setProduct(response.data.data)

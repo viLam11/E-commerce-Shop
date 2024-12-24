@@ -119,7 +119,7 @@ function ShoppingPage(){
     useEffect(()=>{
         const fetchData = async() => {
             try{
-                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000`)
+                const rdata = await axios.get(`http://localhost:8000/api/product/getAll?limit=1000&filter=${localStorage.getItem('Squery')?localStorage.getItem('Squery'):""}`)
                 console.log(rdata)
                 if (rdata.status != 200) throw new Error("Feth data fail")
                 setData(rdata.data.data)

@@ -12,7 +12,8 @@ import { Outlet, useNavigate, useParams, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "../Footer";
 import '../../design/users/acc.css'
-import { use } from "react";
+//import { use } from "react";
+//import { set } from "react-datepicker/dist/date_utils";
 //import { set } from "react-datepicker/dist/date_utils";
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -183,6 +184,31 @@ function Review({currentUser, product, closePopup}){
           })
     
     }
+    const handleChangeReview = async() => {
+        console.log("Rating: ", rating),
+        console.log("Comment: ", (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment),
+        axios.put(`http://localhost:8000/api/product/UpdateReview/${product.product_id}`, {
+            "uid": currentUser.uid,
+            "rating": rating || 5,
+            "comment": (battery != ""?"Thời lượng pin: " + battery + '\n':"") + (speed != ""?"Tốc độ phản hồi: "+speed+'\n':"") + (tool != ""?"Tiện ích thông minh: "+tool+'\n':"") + (service != ""?"Dịch vụ đính kèm: "+service+'\n':"") + comment
+        })
+        .then((response) => {
+            console.log("CHECK RESPONSE: " , response);
+            alert("Đã cập nhật nhận xét");
+            //setIsPopupOpen(false);
+            setView(true);
+        })
+        .catch((error) => {
+            if (error.response.data) {
+                //alert(error.response.data.msg);
+                console.error(error.response.data)
+            } else {
+                console.error('Error:', error.message);
+            }
+
+        })
+    }
+
     const switchToModify = (str) =>{
         let scrumb = str.split('\n')
         console.log("Scrumble: " + scrumb)
@@ -707,7 +733,7 @@ function Review({currentUser, product, closePopup}){
                             
                         </textarea>
                     </div>
-                    <button style={{marginTop:"10px"}} className="closePopup" onClick={()=>switchToModify(myReview.comment)}>
+                    <button style={{marginTop:"10px"}} className="closePopup" onClick={handleChangeReview}>
                     Chỉnh sửa đánh giá
                     </button>
             </>
@@ -800,10 +826,11 @@ export function Notification(){
     return(<>
     <div className="profile-form" style={{boxShadow:"none", marginTop: "-30px", height:"500px"}}>
             <h2>Thông báo</h2>
+            <div style={{overflowY: "scroll", height: "400px", scrollbarWidth: "none", msOverflowStyle: "none"}}>
             {notices.map((item, idx) =>{
                 if (item.content.split(" ")[0] == "Đơn" && item.content.split(" ")[1] == "hàng"){
                     return (<>
-                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
+                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px", width:"600px"}}>
                             <div>
                             <img src="../../../public/img/EX (2).png" alt="" style={{width: "50px"}}/>
                             </div>
@@ -819,7 +846,7 @@ export function Notification(){
                 }
                 else{
                     return (<>
-                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
+                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px", width:"600px"}}>
                             <div>
                             <img src="../../../public/img/sys.png" alt="" style={{width: "50px"}}/>
                             </div>
@@ -833,6 +860,8 @@ export function Notification(){
                     )
                 }
             })}
+            </div>
+            
         </div>
     </>
         
@@ -850,6 +879,26 @@ export function History(){
     const [curOrder, setCurrent] = useState(null)
     const [isdetail, setIsDetail] = useState(false)
     const [productData, setDataSet] = useState([])
+    const [alertNote, setAlert] = useState("")
+    const [isErr, setIsErr] = useState(false)
+    const [isPopupAlert, setIsPopupAlert] = useState(false);
+    const [content, setContent] = useState("")
+        const openPopupAlert = () => {
+            setIsPopupAlert(true);
+        };
+    
+        const closePopupAlert = () => {
+            setIsPopupAlert(false);
+        };   
+        useEffect(() => {
+            let timer;
+            if (isPopupAlert) {
+              timer = setTimeout(() => {
+                setIsPopupAlert(false);
+              }, 3000); // Tự tắt sau 3 giây
+            }
+            return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+          }, [isPopupAlert]);
     useEffect(()=>{
         const fetchData = async() => {
             try{
@@ -875,7 +924,7 @@ export function History(){
             setList(temp.data.data?temp.data.data:[])
         }
         fetchOrder()
-    },[currentUser])
+    },[currentUser,content])
     useEffect(()=>{
         setPaid(orderList.reduce((sum, current) => sum + current.final_price, 0))
         setTotal(orderList.reduce((sum, current) => sum + current.quantity, 0))
@@ -977,7 +1026,7 @@ export function History(){
             }
         }
         fetchDetail()
-    },[curOrder,active]) 
+    },[curOrder,active, content]) 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
         const openPopup = () => {
             setIsPopupOpen(true);
@@ -1016,6 +1065,20 @@ export function History(){
         setSort(temp)
     }
 
+    useEffect(()=>{
+        const fetchData = async()=>{
+            if(!curOrder || !curOrder.oid) return;
+            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
+            console.log(temp)
+            if (temp.status != 200){
+                return;
+            }
+            //alert("Tạo thông báo thành công")
+            setToggle(!toggle)
+        }
+        fetchData()
+    },[content])
+
     const handleSort = (type, field) => {
         let temp = [...sortOrder]
         if (type == "asc"){
@@ -1028,7 +1091,46 @@ export function History(){
         }
         setSort(temp)
     }
+
+    const handleCancel = async() =>{
+        try{
+            console.warn("Delete order: " + curOrder.oid)
+            const onDelete = await axios.put(`http://localhost:8000/api/order/UpdateOrder/${curOrder.oid}`,{status: "Cancelled"})
+            if (onDelete.data.status === 200) {
+                setContent(`Đơn hàng ${curOrder.oid} đã hủy`)
+                setAlert("Đã hủy đơn hàng")
+                setIsErr(false)
+                setIsPopupAlert(true)
+            }
+            else throw new Error("Failure")
+        }
+        catch(e){
+            setAlert("Hủy đơn hàng thất bại")
+            setIsErr(true)
+            console.error(e.message)
+            setIsPopupAlert(true)
+        }
+    }
     
+    const handleComplete = async() =>{
+        try{
+            console.warn("Complete order: " + curOrder.oid)
+            const onComplete = await axios.put(`http://localhost:8000/api/order/UpdateOrder/${curOrder.oid}`,{status: "Completed", done_time: new Date().toISOString()})
+            if (onComplete.data.status === 200) {
+                setContent(`Đơn hàng ${curOrder.oid} đã hoàn tất`)
+                setAlert("Đã hoàn tất đơn hàng")
+                setIsErr(false)
+                setIsPopupAlert(true)
+            }
+            else throw new Error("Failure")
+        }
+        catch(e){
+            console.error(e.message)
+            setAlert("Hoàn tất đơn hàng thất bại")
+            setIsErr(true)
+            setIsPopupAlert(true)
+        }
+    }
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -1128,7 +1230,7 @@ export function History(){
                         ))
                     ) : (
                         <div style={{ textAlign: "center", marginTop: "20px" }}>
-                        Không có sản phẩm nào.
+                        Không có đơn hàng nào.
                         </div>
                     )}
                     <style>
@@ -1191,6 +1293,21 @@ export function History(){
     else{
         return (
             <div className="profile-form">
+                {isPopupAlert && (
+                        <div className="popup" onClick={closePopupAlert}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={isErr == false?{width: "200px", height:"80px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "200px", height:"80px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {isErr == false?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>{alertNote}</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{alertNote}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}
                 <h2><span style={{color: "gray",fontWeight: "bold", cursor: "pointer"}} onClick={()=>setIsDetail(!isdetail)}>&#8592;</span>Chi tiết đơn hàng</h2>
                 <div style={{marginLeft: "30px"}}>
                     <div style={{display: "inline-flex", marginBottom:"10px"}}>
@@ -1278,6 +1395,24 @@ export function History(){
                         .closePopup:hover {
                             background-color: #cc0000;
                         }
+                        .cancel-order{
+                            background-color: white;
+                            color: red;
+                            border: 1px solid red;
+                            border-radius: 8px;
+                            width: 160px;
+                            text-align: center;
+                            padding: 6px;
+                            margin-left: 750px;
+                            margin-top: 40px;
+                            cursor: pointer
+                        }
+                         .cancel-order:hover{
+                            background-color: red;
+                            color: white;
+                            border: 1px solid red;
+                            border-radius: 8px
+                        }   
                     `}
                     </style>
                     {isPopupOpen && (
@@ -1296,8 +1431,12 @@ export function History(){
                         <div style={{marginBottom: "10px"}}>Phí vận chuyển: <span style={{textAlign: "right", marginLeft: "440px", width: "200px"}}>{curOrder.shipping_fee != 0? fixPrice(curOrder.shipping_fee):"Free"}</span></div>
                         <div style={{height: "1px", backgroundColor:"gray", border: "1px solid gray", marginBottom: "10px", width: "640px"}}></div>
                         <div style={{marginBottom: "10px"}}>Phải thanh toán: <span style={{textAlign: "right", marginLeft: "429px", width: "200px", fontWeight:"bold"}}>{fixPrice(curOrder.total_price)}</span></div>
-                        <div style={{marginBottom: "10px"}}>Đã thanh toán: <span style={{ color: "yellowgreen", textAlign: "right", marginLeft: "440px", width: "200px", fontWeight: "bold"}}>{fixPrice(curOrder.total_price)}</span></div>
+                        <div style={{marginBottom: "10px"}}>Đã thanh toán: <span style={{ color: "yellowgreen", textAlign: "right", marginLeft: "440px", width: "200px", fontWeight: "bold"}}>{curOrder.done_time || curOrder.status =='Completed'?fixPrice(curOrder.total_price): '0 VND'}</span></div>
                     </div>
+                </div>
+                <div style={{display: "inline-flex"}}>
+                <div className="cancel-order" onClick={handleCancel}>Hủy đơn hàng</div>
+                <div className="cancel-order" onClick={handleComplete} style={{marginLeft:"-850px"}}>Xác nhận nhận hàng</div>
                 </div>
             </div>
         )
