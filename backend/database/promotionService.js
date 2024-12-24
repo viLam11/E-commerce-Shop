@@ -4,60 +4,26 @@ const CreateID = require('../createID')
 class PromotionService {
     constructor() { };
 
-    async createPromotion(newPromotion) {
-        return new Promise(async (resolve, reject) => {
-            const { name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id } = newPromotion;
-            try {
-                // Kiểm tra nếu chương trình khuyến mãi đã tồn tại
-                client.query(`SELECT * FROM promotion WHERE name = $1`, [name], async (err, res) => {
-                    if (err) {
-                        reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
-                    } else if (res.rows.length !== 0) {
-                        resolve({
-                            status: 404,
-                            msg: 'The promotion is already exist',
-                            data: null
-                        });
-                    } else {
-                        // Đợi getCount hoàn thành trước khi tiếp tục
-                        //const promotionId = "PID" + await getCount(); // Đảm bảo getCount trả về một Promise hoặc là một hàm async
-                        const promotionId = CreateID.generateID("promotion");
-                        // Sau khi getCount hoàn tất, tiếp tục thực hiện chèn dữ liệu
-                        client.query(
-                            `INSERT INTO promotion(promotion_id, name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id) 
-                             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-                            [promotionId, name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id],
-                            (err, res) => {
-                                if (err) {
-                                    console.log(err);
-                                    reject({
-                                        status: 400,
-                                        msg: err.message,
-                                        data: null
-                                    });
-                                } else {
-                                    resolve({
-                                        status: 200,
-                                        msg: "Create successfully!",
-                                        data: newPromotion
-                                    });
-                                }
-                            }
-                        );
-                    }
-                });
-            } catch (err) {
-                reject({
-                    status: 404,
-                    msg: err.message,
-                    data: null
-                });
+    async createPromotion(req, res, next) {
+        try {
+            const { name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id } = req.body
+            if (!(name && quantity && description && starttime && endtime && minspent && max_amount && discount_type && apply_range )) {
+                return res.status(200).json({
+                    status: 'ERR',
+                    msg: 'The input is required',
+                    data: req.body
+                })
             }
-        });
+            const response = await PromotionService.createPromotion(req.body)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                status: 'ERR',
+                msg: err,
+                data: null
+            })
+        }
     }
 
     async updatePromotion(id, data) {
@@ -94,7 +60,7 @@ class PromotionService {
                             console.log(res.rows)
                             resolve({
                                 status: 404,
-                                msg: 'The promotion name is already exist',
+                                msg: 'Tên promotion đã tồn tại',
                                 data: null
                             });
                         }
