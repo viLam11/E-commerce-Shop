@@ -7,6 +7,8 @@ import Footer from "../Footer";
 import '../../design/product/ratebar.css'
 import '../../design/product/review.css'
 import '../../design/product/view.css'
+import { set } from "date-fns";
+import { se } from "date-fns/locale";
 
 function NewReview({product, closePopup}){
     const [rating, setRating] = useState(0);
@@ -634,6 +636,25 @@ function Detail({reviews, product }) {
     const [images, setImages] = useState([]);
     const [mainImage, setMainImage] = useState(null);
     const [otherImages, setOtherImages] = useState([]);
+    const [alertNote, setAlert] = useState("")
+    const [isPopupAlert, setIsPopupAlert] = useState(false);
+    const [isErr, setIsErr] = useState(false)
+    const openPopupAlert = () => {
+                setIsPopupAlert(true);
+            };
+        
+            const closePopupAlert = () => {
+                setIsPopupAlert(false);
+            };   
+            useEffect(() => {
+                let timer;
+                if (isPopupAlert) {
+                  timer = setTimeout(() => {
+                    setIsPopupAlert(false);
+                  }, 3000); // Tự tắt sau 3 giây
+                }
+                return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+              }, [isPopupAlert]);
     const averageRate = reviews.length > 0 
         ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
         : "0.0";
@@ -687,6 +708,12 @@ function Detail({reviews, product }) {
     };
 
     const handleAddCart = async () => {
+        if (!localStorage.getItem('uid')) {
+            setAlert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+            setIsErr(true)
+            setIsPopupAlert(true)
+            return;
+        }
         try {
             const uid = localStorage.getItem('uid')
             const response = await axios.post(
@@ -704,16 +731,84 @@ function Detail({reviews, product }) {
             alert('Đã thêm sản phẩm vào giỏ hàng');
         } catch (e) {
             console.error("Error:", e.message || "Thêm vào giỏ hàng thất bại");
-            alert("Thêm vào giỏ hàng thất bại: " + (e.message || "Lỗi không xác định"));
+            setAlert("Thêm vào giỏ hàng thất bại");
+            setIsErr(true)
+            setIsPopupAlert(true)
         }
     };
     
     const handleBuyProduct = () => {
+        if (!localStorage.getItem('uid')) {
+            setAlert("Vui lòng đăng nhập để mua sản phẩm");
+            setIsErr(true)
+            setIsPopupAlert(true)
+            return;
+        }
         navigate(`/customer/pay`,{state: {product: product, quantity: buyQuantity}});
     };
 
     return (
         <>
+                            <style>
+                        {
+                            `.page-button {
+                                display: flex;
+                                justify-content: center;
+                                margin-bottom: 40px;
+                                margin-top: -20px;
+                                align-items: center;
+                            }
+                            .page-button button {
+                                width: 50px;
+                                height: 50px;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                                background-color: white;
+                                border: 1px solid gray;   
+                                color: black;   
+                                padding: 10px 20px;
+                                text-align: center;
+                                text-decoration: none;
+                                display: inline-block;
+                                font-size: 16px;
+                                margin: 4px 2px;
+                                cursor: pointer;
+                                border-radius: 16px;
+                                transition: background-color 0.3s ease, transform 0.3s ease;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                            }
+                            .page-button button:hover {
+                                background-color: red;
+                                color: white;
+                                transform: translateY(-2px);
+                            }
+                            .page-button button:disabled {
+                                background-color: #ccc;
+                                cursor: not-allowed;
+                            }
+                            .page-button button svg {
+                                vertical-align: middle;
+                                width: 10px;
+                                fill: currentColor;
+                            }`
+                        }
+                    </style>
+                {isPopupAlert && (
+                        <div className="popup" onClick={closePopupAlert}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={isErr == false?{width: "300px", height:"150px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "300px", height:"100px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {isErr == false?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>{alertNote}</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{alertNote}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}        
             <div className="breadcrumbs">
                 <div>
                     <a href='/user/shopping' className="off">Mua sắm</a> /
@@ -779,13 +874,26 @@ function Detail({reviews, product }) {
 
 function Description({ product }) {
     if (!product) return null;
-    const hashDescription = product.description?product.description.split("\n"):[]
-
+    //const hashDescription = product.description?product.description.split("\n"):[]
+    const formatDescription = () => {
+        const hashDescription = product.description?product.description.split("\n"):[]
+        return hashDescription.map((des, idx)=>{
+            if (des.includes("Đặc điểm nổi bật")) return <h3 key={idx}>🌟 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Đặc điểm nổi bật</span></h3>
+            else if (des.includes("Thông số kỹ thuật")) return <h3 key={idx}>📋 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Thông số kỹ thuật</span></h3>
+            else if (des.includes("Hướng dẫn sử dụng")) return <h3 key={idx}>📖 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Hướng dẫn sử dụng</span></h3>
+            else if (des.includes("Bảo hành")) return <h3 key={idx}>🔧 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Bảo hành</span></h3>
+            else if (des == "") return <br key={idx}/>
+            else if (des.includes(':')) return <p key={idx}>⚡ <strong>{des.slice(des.indexOf('-') + 1 || 0, des.indexOf(':')+1)}</strong> {des.slice(des.indexOf(':')+1)}</p>
+            else if (des.includes('-')) return <p key={idx}>✔ {des.slice(des.indexOf('-')+1)}</p>
+            else
+            return <p key={idx}>💡 {des}</p>
+        })
+    }
     return (
         <div className="prod-description">
             <h3>Thông tin chi tiết sản phẩm</h3>
-            <div className="description">{hashDescription && hashDescription.length > 0?hashDescription.map((des, idx)=>{
-                return <p key={idx}>{des}</p>
+            <div className="description">{formatDescription() && formatDescription().length > 0?formatDescription().map((des, idx)=>{
+                return des
             }):null}</div>
         </div>
     );
