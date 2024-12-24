@@ -1346,8 +1346,8 @@ export function History(){
                                     <img src={product_.image[0]} style={{height: "100px"}}/>
                                     <div style={{marginLeft: "120px"}}>
                                         <div style={{marginBottom:"30px", color:"#448AFF"}}>{product_.pname}</div>
-                                        <div style={{marginLeft: "360px", marginBottom: "10px", color: "#FF005A"}}>Số lượng: {item.quantity}</div>
-                                        <div style={{marginLeft: "360px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer"}} onClick={()=>{setCur(product_); openPopup()}}>Đánh giá</div>
+                                        {/* <div style={{marginLeft: "360px", marginBottom: "10px", color: "#FF005A"}}>Số lượng: {item.quantity}</div> */}
+                                        {curOrder.status == "Completed"?<div style={{marginLeft: "460px",border: "1px solid red", textAlign: "center", padding: "4px 4px 4px 4px", borderRadius: "6px",color: "#FF005A", cursor:"pointer", marginTop:"60px"}} onClick={()=>{setCur(product_); openPopup()}}>Đánh giá</div>:null}
                                     </div>
                                 </div>
                             )
@@ -1455,8 +1455,10 @@ export function History(){
                     </div>
                 </div>
                 <div style={{display: "inline-flex"}}>
-                <div className="cancel-order" onClick={handleCancel}>Hủy đơn hàng</div>
-                <div className="cancel-order" onClick={handleComplete} style={{marginLeft:"-850px"}}>Xác nhận nhận hàng</div>
+                    {curOrder.status == "Completed"?null:<>
+                        <div className="cancel-order" onClick={handleCancel}>Hủy đơn hàng</div>
+                        <div className="cancel-order" onClick={handleComplete} style={{marginLeft:"-850px"}}>Xác nhận nhận hàng</div>
+                    </>}
                 </div>
             </div>
         )

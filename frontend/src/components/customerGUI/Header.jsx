@@ -2,8 +2,28 @@ import actionMenu from "../format/actionMenu";
 import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../../design/Home/header.css'
+import { center } from "@cloudinary/url-gen/qualifiers/textAlignment";
 export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [notices, setNotices] = useState([])
+    const [isList, setIsList] = useState(false)
+    useEffect(()=>{
+        const fetchNoti = async()=>{
+            try{
+                const temp = await axios.get(`http://localhost:8000/api/notification/get?id=${currentUser.uid}`)
+                if (temp.status != 200){
+                    throw new Error("Lỗi khi lấy dữ liệu")
+                }
+                console.log(temp.data.data)
+                setNotices(temp.data.data.reverse()
+                    .sort((a, b) => new Date(b.create_time) - new Date(a.create_time)))
+            }
+            catch(err){
+                console.error("Error: ", err.message)
+            }
+        }
+        fetchNoti()
+    },[])
     const handleSearch = () =>{
         console.log("Searching: "+searchQuery)
         localStorage.setItem('Squery', searchQuery)
@@ -33,7 +53,10 @@ export default function Header() {
             </div>
             {localStorage.getItem('uid')?
             <div className="icons">
-            <a href="#" onClick={(e) => {e.preventDefault(); navigate('/user/info/notification', {state:{active: 5}})}}><span>&#128276;</span></a> 
+                <div>
+                <a href="#" onClick={(e) => {e.preventDefault(); navigate('/user/info/notification', {state:{active: 5}})}}><span>&#128276;</span></a>
+                {/* <div style={{fontSize: "6px", marginTop:"-12px", marginLeft:"18px", border: "1px solid red", borderRadius:"50px", backgroundColor:"red", textAlign:"center"}}>{notices.length}</div>  */}
+                </div>
             <a href="#" onClick={(e)=>{e.preventDefault(); navigate('/user/cart')}}><span>&#128722;</span></a>
             <div className="dropdown-container">
                 <a href="#" className="dropdown" id="dropdownButton" onClick={(e) =>{e.preventDefault(); actionMenu()}}>
