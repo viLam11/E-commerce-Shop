@@ -38,9 +38,9 @@ export default function Header() {
                     <span>&#128100;</span>
                 </a>
                 <div className="action-menu" id="actionMenu">
-                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info', {state:{active: 1}})}}><span>&#128100;</span> Manage My Account</div>
-                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info/history-log', {state:{active: 2}})}}><span>&#128230;</span> My Orders</div>
-                    <div onClick={handleLogout}><span>&#x1F512;</span> Log out</div>
+                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info', {state:{active: 1}})}}><span>&#128100;</span> Quản lý tài khoản</div>
+                    <div onClick={(e) =>{e.preventDefault(); navigate('/user/info/history-log', {state:{active: 2}})}}><span>&#128230;</span> Đơn hàng</div>
+                    <div onClick={handleLogout}><span>&#x1F512;</span> Đăng xuất</div>
                 </div>
             </div>
         </div>:

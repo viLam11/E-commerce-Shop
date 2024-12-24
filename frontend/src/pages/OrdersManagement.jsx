@@ -200,7 +200,7 @@ export default function OrdersManagement() {
                 <Header page="product-manage" role="admin" />
 
                 <div className="m-4 mb-10">
-                    <span className=" font-medium">All Products</span>
+                    <span className=" font-medium">Tất cả đơn hàng</span>
                 </div>
                 <main>
 

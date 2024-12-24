@@ -1,10 +1,9 @@
-
-import Promotion from "../components/Promotion";
+import Voucher from "../components/Voucher"
 
 export default function Test() {
     return(
         <>
-
+            <Voucher />
         </>
     )
 
