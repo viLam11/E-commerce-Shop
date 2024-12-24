@@ -14,7 +14,7 @@ export default function NewProduct() {
     // IMAGE
     const [fileImg, setFileImg] = useState([
         null, null, null, null, null, null
-    ]) 
+    ])
     const [file1, setFile1] = useState(null);
     const [file2, setFile2] = useState(null);
     const [file3, setFile3] = useState(null);
@@ -30,14 +30,14 @@ export default function NewProduct() {
     const [selectCat, setSelectCat] = useState("");
     const [brand, setBrand] = useState("");
     const [description, setDiscription] = useState(null);
-    const [price, setPrice] = useState(null);
+    const [price, setPrice] = useState(0);
     const [quantity, setQuantity] = useState(null);
     const [status, setStatus] = useState("Available");
 
     // FUNCTION
     async function onChangeImg(e, index) {
         const file = e.target.files[0];
-        
+
         let base64String;
         if (file) {
             const reader = new FileReader();
@@ -53,20 +53,20 @@ export default function NewProduct() {
                 });
                 if (index == 1) {
                     setImg1(base64String);
-                    setFile1(file) ;
+                    setFile1(file);
                     await uploadFile(file, 0);
                 }
                 else if (index == 2) {
                     setImg2(base64String);
-                    setFile2(file) ;
-                    await   uploadFile(file, 1);
+                    setFile2(file);
+                    await uploadFile(file, 1);
                 }
                 else if (index == 3) {
                     setImg3(base64String);
-                    setFile3(file) ;
+                    setFile3(file);
                     await uploadFile(file, 2);
 
-                } 
+                }
                 localStorage.setItem(`img${index}`, base64String);
             };
             setFileImg((prevFile) => ({ ...prevFile, i1: file }));
@@ -81,7 +81,7 @@ export default function NewProduct() {
             setImg2(null);
         } else if (index == 3) {
             setImg3(null);
-        } 
+        }
     }
 
     function handleSelectCat(e) {
@@ -93,17 +93,20 @@ export default function NewProduct() {
         else setDiscription(false);
     }
 
+    function handlePriceChange(e) {
+        const value = e.target.value.replace(/\./g, ''); // Remove existing dots
+        const numberValue = parseInt(value, 10);
+        if (!isNaN(numberValue)) {
+            setPrice(numberValue);
+        } else {
+            setPrice(0);
+        }
+    };
+
     const formatNumber = (number) => {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
 
-
-    // "pname": "cuong",
-    // "price": 10790000,
-    // "cate_id": "c04",
-    // "brand": "Apple",
-    // quantity:
-    //  img: []
     function handleCreateProduct() {
         const newProduct = {
             "pname": productName,
@@ -115,23 +118,23 @@ export default function NewProduct() {
             "img": urls,
             "ismain": 0
         }
-        
+
         console.log("Check: ", newProduct);
-      
+
         axios.post(`http://localhost:8000/api/product/CreateProduct`, newProduct)
             .then((response) => {
-               if(response.status === 200) {
-                 alert("Tạo sản phẩm thành công");
-                 navigate("/admin/product-manage");
-               }
+                if (response.status === 200) {
+                    alert("Tạo sản phẩm thành công");
+                    navigate("/admin/product-manage");
+                }
             })
             .catch((error) => {
                 if (error.response.data) {
-                  alert(error.response.data.msg);
+                    alert(error.response.data.msg);
                 } else {
-                  console.error('Error:', error.message);
+                    console.error('Error:', error.message);
                 }
-              })
+            })
     }
 
     async function uploadFile(file, index) {
@@ -148,76 +151,17 @@ export default function NewProduct() {
             const data = await response.json();
             // setUrls((prev) => [...prev, data.secure_url]);
             setUrls((prev) => {
-                if(Array.isArray(prev)) {
+                if (Array.isArray(prev)) {
                     let updatedImgs = [...prev];
                     updatedImgs[index] = data.secure_url;
                     return updatedImgs;
                 }
-                return  [data.secure_url];
+                return [data.secure_url];
             })
-
-            // if (Array.isArray(prev)) {
-            //     const updatedFileImg = [...prev];
-            //     updatedFileImg[index - 1] = file;
-            //     return updatedFileImg;
-            // }
-            // return [file];
             console.log(data);
         } catch (error) {
             console.error('Error uploading image:', error);
         }
-
-
-        // if(file1) {
-        //     formData.append('file', file);
-        //     formData.append('upload_preset', 'LTWPrismora');
-        //     try {
-        //         const response = await fetch(url, {
-        //             method: 'POST',
-        //             body: formData,
-        //         });
-        //         const data = await response.json();
-        //         setUrls((prev) => [...prev, data.secure_url]);
-        //         console.log(data);
-        //     } catch (error) {
-        //         console.error('Error uploading image:', error);
-        //     }
-        // } 
-
-        // if(file2) {
-        //     formData.append('file', file);
-        //     formData.append('upload_preset', 'LTWPrismora');
-        //     try {
-        //         const response = await fetch(url, {
-        //             method: 'POST',
-        //             body: formData,
-        //         });
-        //         const data = await response.json();
-        //         setUrls((prev) => [...prev, data.secure_url]);
-        //         console.log(data);
-        //     } catch (error) {
-        //         console.error('Error uploading image:', error);
-        //     }
-        // } 
-
-        // if(file3) {
-        //     formData.append('file', file);
-        //     formData.append('upload_preset', 'LTWPrismora');
-        //     try {
-        //         const response = await fetch(url, {
-        //             method: 'POST',
-        //             body: formData,
-        //         });
-        //         const data = await response.json();
-        //         setUrls((prev) => [...prev, data.secure_url]);
-        //         console.log(data);
-        //     } catch (error) {
-        //         console.error('Error uploading image:', error);
-        //     }
-        // } 
-
-
-        
     }
 
 
@@ -242,7 +186,7 @@ export default function NewProduct() {
 
                         <div className="my-6">
                             <label>Phân loại<span className="text-red-600">*</span></label>
-                            <select name="category" className={`block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100 ${selectCat ? 'bg-blue-100' : 'bg-gray-100'} `} 
+                            <select name="category" className={`block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100 ${selectCat ? 'bg-blue-100' : 'bg-gray-100'} `}
                                 onChange={(e) => setSelectCat(e.target.value)}
                                 value={selectCat}
                             >
@@ -257,18 +201,19 @@ export default function NewProduct() {
 
                         <div className="my-6">
                             <label>Hãng sản xuất<span className="text-red-600">*</span></label>
-                            <input type="text" name="brand" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100" 
-                                onChange={(e) => setBrand(e.target.value) }
+                            <input type="text" name="brand" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md hover:bg-blue-100"
+                                onChange={(e) => setBrand(e.target.value)}
                             />
                         </div>
 
-                        
-
                         <div className="my-6">
                             <label>Giá thành<span className="text-red-600">*</span></label>
-                            <input type="number" name="price" className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md"
-                                onChange={(e) => setPrice(e.target.value)}
-                                value={((price))}
+                            <input
+                                type="text"
+                                name="price"
+                                className="pl-4 bg-gray-100 block w-4/5 h-8 my-2 rounded-md"
+                                onChange={handlePriceChange}
+                                value={formatNumber(price)}
                             />
                         </div>
 

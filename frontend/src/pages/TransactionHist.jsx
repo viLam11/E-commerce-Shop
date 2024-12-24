@@ -12,11 +12,12 @@ import axios from "axios";
 
 export default function TransactionHist() {
     const [currentPage, setCurrentPage] = useState(0);
-    const [page, setPage] = useState(null);
+    const [page, setPage] = useState(0);
     const { userID } = useParams();
     const [userDetail, setUserDetail] = useState({});
+    const [address, setAddress] = useState([]); 
     const [orderList, setOrderList] = useState([]);
-    const [detailMode, setDetailMode] = useState(true);
+    const [detailMode, setDetailMode] = useState(false);
     const [orderID, setOrderID] = useState(null);
     const [shippingFee, setShippingFee] = useState(0);  
     const [finalPrice, setFinalPrice] = useState(0);    
@@ -52,7 +53,7 @@ export default function TransactionHist() {
 
                 if (addressDataResponse.status == 200) {
                     console.log("Check address data: ", addressDataResponse.data.data);
-
+                    setAddress(addressDataResponse.data.data);  
                 }   
 
                 if (historyDataResponse.status == 200) {
@@ -136,7 +137,7 @@ export default function TransactionHist() {
                                 <div className="space-y-1">
                                     <label htmlFor="name">Địa chỉ</label>
                                     <div className="pl-2 bg-gray-100 rounded-ms p-1 text-gray-600">
-                                        Quận 9, TP.HCM
+                                        {Array.isArray(address) && address.length > 0 ? address[0].address : "Không"}  
                                     </div>
                                 </div>
 
@@ -203,7 +204,7 @@ export default function TransactionHist() {
 
                     <div className="flex justify-end mr-20 mt-10">
                         {/* <Pagination /> */}
-                        {Array.from({ length: 4 }, (_, i) => (
+                        {Array.from({ length: page }, (_, i) => (
                             <button
                                 key={i}
                                 onClick={() => handlePageClick(i)} // Pass the page number to the handler

@@ -14,7 +14,8 @@ import Test from "./pages/Test";
 import Shopping from './pages/Shopping'
 import NewPromotion from "./pages/NewPromotion";
 import UsersManagement from "./pages/UsersManagement";
-import AllPromotion from "./components/customerGUI/AllPromotion";
+// import AllPromotion from "./components/customerGUI/AllPromotion";
+import AllPromotion from "./pages/AllPromotion";
 import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
 

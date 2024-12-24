@@ -5,6 +5,8 @@ import Footer from "../components/Footer";
 import Pagination from "../components/Pagination";
 import ProductUpdate from "./ProductUpdate";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProductsManagement() {
     const navigate = useNavigate();
@@ -18,21 +20,29 @@ export default function ProductsManagement() {
     const [token, setToken] = useState(null);
     const [count, setCount] = useState(0);
     const [keyword, setKeyword] = useState("");
-
+    const [cateName, setCateName] = useState([]);
+    const [sorted, setSorted] = useState(false);
+    const [order, setOrder] = useState("asc");
+    const [field, setField] = useState(null);
     const [prodDetail, setProDetail] = useState(null);
 
-
+    useEffect(() => {
+        axios.get(`http://localhost:8000/api/category/getAll`)
+            .then((response) => {
+                console.log(response.data);
+                setCateName(response.data.data);
+            })
+    }, [])
 
     useEffect(() => {
         const loadToken = localStorage.getItem("token");
         if (loadToken) setToken(loadToken);
-        axios.get("http://localhost:8000/api/product/getAll?page=0&limit=5",)
+        axios.get("http://localhost:8000/api/product/getAll?page=0&limit=10",)
             .then((response) => {
                 console.log(response);
                 const products = response.data.data;
                 const pageNum = response.data.totalPage;
                 setPage(pageNum);
-                // console.log(JSON.stringify(products));
                 setProductList(products);
             })
             .catch((error) => {
@@ -42,6 +52,7 @@ export default function ProductsManagement() {
                     console.error('Error:', error.message);
                 }
             })
+
     }, [count])
 
 
@@ -55,7 +66,8 @@ export default function ProductsManagement() {
 
     function handlePageClick(pageNum) {
         const index = Number(pageNum);
-        axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=5`,)
+        if (sorted) {
+            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10&sort=${order}&sort=${field}`,)
             .then((response) => {
                 console.log(response);
                 setCurrentPage(pageNum)
@@ -70,10 +82,45 @@ export default function ProductsManagement() {
                     console.error('Error:', error.message);
                 }
             })
+
+        } else if (keyword != "") { 
+            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10&filter=${keyword}`,)
+                .then((response) => {
+                    console.log(response);
+                    setCurrentPage(pageNum)
+                    const products = response.data.data;
+                    // console.log(JSON.stringify(products));
+                    setProductList(products);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        alert(error.response.data.msg);
+                    } else {
+                        console.error('Error:', error.message);
+                    }
+                })
+        }
+        else {
+            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10`,)
+                .then((response) => {
+                    console.log(response);
+                    setCurrentPage(pageNum)
+                    const products = response.data.data;
+                    // console.log(JSON.stringify(products));
+                    setProductList(products);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        alert(error.response.data.msg);
+                    } else {
+                        console.error('Error:', error.message);
+                    }
+                })
+        }
+
     }
 
     function handleSearch() {
-        alert("Search");
         if (keyword == null) {
             alert("Hãy điền từ khóa để tìm kiếm")
         }
@@ -94,6 +141,36 @@ export default function ProductsManagement() {
                 }
             })
     }
+
+
+    const handleSortChange = (e) => {
+        const value = e.target.value;
+        if (value != "-") {
+            const [newField, newOrder] = value.split('-');
+            setField(newField);
+            setOrder(newOrder);
+
+            axios.get(`http://localhost:8000/api/product/getAll?page=0&limit=10&sort=${newOrder}&sort=${newField}`)
+                .then((response) => {
+                    const prodData = response.data.data;
+                    console.log(prodData);
+                    setCurrentPage(0);
+                    setPage(response.data.totalPage);
+                    setSorted(true);
+                    setProductList(prodData);
+                })
+                .then((error) => {
+                    if (error.response) {
+                        alert(error.response.data.msg);
+                    } else {
+                        console.error('Error:', error.message);
+                    }
+                })
+        } else {
+            setField('');
+            setOrder('');
+        }
+    };
 
     function handleDeleteProduct(prodID) {
         // alert(prodID + token);
@@ -119,7 +196,7 @@ export default function ProductsManagement() {
     if (productList.length > 0) {
 
         return (
-            <>
+            <div className="">
                 <Header page="product-manage" role="admin" />
 
                 <div className="m-4 mb-10">
@@ -156,7 +233,7 @@ export default function ProductsManagement() {
                             </div>
 
                         </div>
-                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => {navigate("/admin/product-new")}}>
+                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => { navigate("/admin/product-new") }}>
                             <div className="font-bold ">Thêm sản phẩm</div>
                         </div>
 
@@ -168,45 +245,94 @@ export default function ProductsManagement() {
                             <div className="fixed inset-0 bg-black bg-opacity-30 z-10"></div>
                         </>
                     )}
-                    <table className="w-11/12 min-h-80 text-center text-bold text-xl m-auto">
+                    <table className="w-11/12 min-h-80 text-center text-bold  m-auto">
                         <thead>
-                            <tr className="h-14 bg-purple-1 border rounded-e-sm">
-                                <td className="w-2/12">Mã sản phẩm</td>
-                                <td className="w-4/12">Tên sản phẩm</td>
-                                <td className="w-2/12">Giá</td>
-                                <td className="w-2/12">Số lượng</td>
+                            <tr className="h-14 bg-purple-1 text-flborder rounded-e-sm">
+                                <td className="w-1/12">STT</td>
+                                <td className="w-4/12 text-left pr-4">
+                                    Tên sản phẩm
+                                    <span>
+                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-4"
+                                            value={field === "pname" ? `${field}-${order}` : ""}
+                                            onChange={handleSortChange}
+                                        >
+                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="pname-asc">A-Z</option>
+                                            <option value="pname-desc">Z-A</option>
+                                        </select>
+                                    </span>
+                                </td>
+                                <td className="w-2/12 text-left pl-6">Phân loại</td>
+                                <td className="w-2/12">
+                                    Giá
+                                    <span>
+                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-4"
+                                            value={field === "price" ? `${field}-${order}` : ""}
+                                            onChange={handleSortChange}
+                                        >
+                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="price-asc">Tăng</option>
+                                            <option value="price-desc">Giảm</option>
+                                        </select>
+                                    </span>
+                                </td>
+                                <td className="w-2/12">
+                                    Số lượng
+                                    <span>
+                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-1"
+                                            value={field === "quantity" ? `${field}-${order}` : ""}
+                                            onChange={handleSortChange}
+                                        >
+                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="quantity-asc">
+                                                <FontAwesomeIcon icon={faArrowUp} />
+
+                                            </option>
+                                            <option value="quantity-desc">G</option>
+                                        </select>
+                                    </span>
+                                </td>
+                                <td className="w-2/12">Đã bán
+                                    <span>
+                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-1"
+                                            value={field === "quantity" ? `${field}-${order}` : ""}
+                                            onChange={handleSortChange}
+                                        >
+                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="quantity-asc">T</option>
+                                            <option value="quantity-desc">G</option>
+                                        </select>
+                                    </span>
+
+                                </td>
                                 <td className="w-2/12"> Tùy chỉnh</td>
                             </tr>
                         </thead>
                         <tbody>
 
-                            {productList.map((prod) => {
+                            {productList.map((prod, index) => {
+                                const foundedCat = cateName.find((cate) => cate.cate_id === prod.cate_id);
+
                                 return (
                                     <>
-                                        <tr className="h-10 bg-white" ></tr>
-                                        <tr className="h-14 bg-purple-2" key={prod.product_id}>
-                                            <td>{prod.product_id}</td>
+                                        <tr className="h-1 bg-white" ></tr>
+                                        <tr className="h-14 bg-purple-2" key={index + 1}>
+                                            <td>{index + 1}</td>
                                             <td className="text-left">{prod.pname}</td>
+                                            <td className="text-left pl-6"> {foundedCat.cate_name}</td>
                                             <td className="text-left">
                                                 <span className="inline-block w-2/3 text-right p-4">{prod.price.toLocaleString()}</span>
-                                                 VND
+                                                VND
                                             </td>
                                             <td>
                                                 <div className="bg-white flex border w-20 border-black border-solid rounded-sm text-center m-auto">
-                                                    <input type="number" className="text-center w-full" value={prod.quantity} onChange={() => { }} />
-                                                    <div className="flex flex-col ml-1">
-                                                        <button className="text-gray-600 hover:text-gray-900 focus:outline-none">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 10l5-5 5 5H5z" /></svg>
-                                                        </button>
-                                                        <button className="text-gray-600 hover:text-gray-900 focus:outline-none">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M15 10l-5 5-5-5h10z" /></svg>
-                                                        </button>
-                                                    </div>
+                                                    <input readOnly type="number" className="text-center w-full" value={prod.quantity} onChange={() => { }} />
                                                 </div>
                                             </td>
+                                            <td>{prod.sold}</td>
                                             <td>
                                                 <div className="flex justify-center items-center">
-                                                    <button onClick={() => handleUpdateProduct(prod.product_id)} className="bg-green-600 px-4 rounded-md font-bold text-white uppercase">
+                                                    <button onClick={() => handleUpdateProduct(prod.product_id)} className="bg-green-600 px-4 rounded-md font-semibold text-md text-white uppercase">
                                                         Sửa
                                                     </button>
                                                     <div className="w-2"></div>
@@ -253,7 +379,7 @@ export default function ProductsManagement() {
                 </main>
 
 
-            </>
+            </div>
         )
     }
 
