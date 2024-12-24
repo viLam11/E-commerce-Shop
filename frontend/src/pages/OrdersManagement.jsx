@@ -7,6 +7,7 @@ import ProductUpdate from "./ProductUpdate";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { format } from 'date-fns';
 
 export default function OrdersManagement() {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function OrdersManagement() {
     const [productList, setProductList] = useState([]);
 
     const [orderList, setOrderList ] = useState([]);
+    const [users, setUsers] = useState([]); 
 
     const [priceToggle, setPriceToggle] = useState(false);
     const [nameToggle, setNameToggle] = useState(false);
@@ -38,13 +40,13 @@ export default function OrdersManagement() {
     }, [])
 
     useEffect(() => {
-        axios.get("http://localhost:8000/api/product/getAll?page=0&limit=10",)
+        axios.get("http://localhost:8000/api/order/getAllOrder?page=0&limit=10",)
             .then((response) => {
                 console.log(response);
-                const products = response.data.data;
+                const orders = response.data.data;
                 const pageNum = response.data.totalPage;
                 setPage(pageNum);
-                setProductList(products);
+                setOrderList(orders);
             })
             .catch((error) => {
                 if (error.response) {
@@ -57,24 +59,16 @@ export default function OrdersManagement() {
     }, [count])
 
 
-    function disableEditMode() {
-        setEditMode(false);
-    }
-
-    function handleUpdateProduct(prodID) {
-        navigate(`/admin/edit-product/${prodID}`);
-    }
-
     function handlePageClick(pageNum) {
         const index = Number(pageNum);
         if (sorted) {
-            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10&sort=${order}&sort=${field}`,)
+            axios.get(`http://localhost:8000/api/order/getAllOrder?page=${index}&limit=10&sort=${order}&sort=${field}`,)
             .then((response) => {
                 console.log(response);
                 setCurrentPage(pageNum)
-                const products = response.data.data;
-                // console.log(JSON.stringify(products));
-                setProductList(products);
+                const orders = response.data.data;
+                // console.log(JSON.stringify(orders));
+                setOrderList(orders)
             })
             .catch((error) => {
                 if (error.response) {
@@ -84,31 +78,15 @@ export default function OrdersManagement() {
                 }
             })
 
-        } else if (keyword != "") { 
-            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10&filter=${keyword}`,)
-                .then((response) => {
-                    console.log(response);
-                    setCurrentPage(pageNum)
-                    const products = response.data.data;
-                    // console.log(JSON.stringify(products));
-                    setProductList(products);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        alert(error.response.data.msg);
-                    } else {
-                        console.error('Error:', error.message);
-                    }
-                })
-        }
+        } 
         else {
-            axios.get(`http://localhost:8000/api/product/getAll?page=${index}&limit=10`,)
+            axios.get(`http://localhost:8000/api/order/getAllOrder?page=${index}&limit=10`,)
                 .then((response) => {
                     console.log(response);
                     setCurrentPage(pageNum)
                     const products = response.data.data;
                     // console.log(JSON.stringify(products));
-                    setProductList(products);
+                    setOrderList(products);
                 })
                 .catch((error) => {
                     if (error.response) {
@@ -119,28 +97,6 @@ export default function OrdersManagement() {
                 })
         }
 
-    }
-
-    function handleSearch() {
-        if (keyword == null) {
-            alert("Hãy điền từ khóa để tìm kiếm")
-        }
-        axios.get(`http://localhost:8000/api/product/getAll?page=0&limit=5&filter=${keyword}`,)
-            .then((response) => {
-                console.log(response);
-                const products = response.data.data;
-                const pageNum = response.data.totalPage;
-                setPage(pageNum);
-                // console.log(JSON.stringify(products));
-                setProductList(products);
-            })
-            .catch((error) => {
-                if (error.response) {
-                    alert(error.response.data.msg);
-                } else {
-                    console.error('Error:', error.message);
-                }
-            })
     }
 
 
@@ -151,196 +107,126 @@ export default function OrdersManagement() {
             setField(newField);
             setOrder(newOrder);
 
-            axios.get(`http://localhost:8000/api/product/getAll?page=0&limit=10&sort=${newOrder}&sort=${newField}`)
+            axios.get(`http://localhost:8000/api/order/getAllOrder?page=0&limit=10&sort=${newOrder}&sort=${newField}`)
                 .then((response) => {
-                    const prodData = response.data.data;
-                    console.log(prodData);
+                    const orderData = response.data.data;
+                    console.log(orderData);
                     setCurrentPage(0);
                     setPage(response.data.totalPage);
                     setSorted(true);
-                    setProductList(prodData);
+                    setOrderList(orderData);
                 })
                 .then((error) => {
-                    if (error.response) {
-                        alert(error.response.data.msg);
-                    } else {
-                        console.error('Error:', error.message);
+                    {
+                        console.error('Error:', error);
                     }
                 })
         } else {
             setField('');
             setOrder('');
+            setSorted(false);   
         }
     };
 
-    function handleDeleteProduct(prodID) {
-        // alert(prodID + token);
-        axios.delete(`http://localhost:8000/api/product/DeleteProduct/${prodID}`, null, {
-            headers: {
-                Authorization: `Bearer ${token}`, // Replace <your-auth-token> with the actual token
-            },
+    function hanldeAcceptOrder(orderID) {
+        axios.put(`http://localhost:8000/api/order/UpdateOrder/${orderID}`, {
+            "status": "Shipped"    
         })
             .then((response) => {
-                alert(response.data.msg);
-                setCount((pre) => pre + 1);
+                console.log(response);
+                setCount((prev) => prev++);
             })
-            .catch((error) => {
-                if (error.response) {
-                    alert(error.response.data.msg);
-                } else {
-                    console.error('Error:', error.message);
-                }
-            })
-
     }
 
-    if (productList.length > 0) {
+    if (orderList.length > 0) {
 
         return (
             <div className="">
-                <Header page="product-manage" role="admin" />
+                <Header page="order-manage" role="admin" />
 
                 <div className="m-4 mb-10">
                     <span className=" font-medium">Tất cả đơn hàng</span>
                 </div>
                 <main>
 
-                    <div className="flex">
-                        <div className="flex items-center w-1/4 mb-10 m-auto border border-black rounded-md p-1">
-                            <input
-                                type="text"
-                                className="flex-grow p-2 rounded-md outline-none"
-                                placeholder="Find product ?"
-                                onChange={(e) => {
-                                    setKeyword(e.target.value)
-                                }}
-                            />
-                            <div className="p-2 bg-gray-300" onClick={handleSearch} >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 h-6 text-gray-500 font-bold hover:text-black "
-
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                                    />
-                                </svg>
-                            </div>
-
-                        </div>
-                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => { navigate("/admin/product-new") }}>
-                            <div className="font-bold ">Thêm sản phẩm</div>
-                        </div>
-
-                    </div>
-
-                    {editMode && (
-                        <>
-                            <ProductUpdate disableEditMode={disableEditMode} />
-                            <div className="fixed inset-0 bg-black bg-opacity-30 z-10"></div>
-                        </>
-                    )}
                     <table className="w-11/12 min-h-80 text-center text-bold  m-auto">
                         <thead>
                             <tr className="h-14 bg-purple-1 text-flborder rounded-e-sm">
-                                <td className="w-1/12">STT</td>
-                                <td className="w-4/12 text-left pr-4">
-                                    Tên sản phẩm
+                                <td className="w-1/12">Mã đơn</td>
+                                <td className="w-2/12 text-left pr-4">
+                                    Người đặt
+                                    
+                                </td>   
+                                <td className="w-2/12">
+                                    Tổng tiền
                                     <span>
                                         <select name="sortByName" id="sortName" className="bg-white border outline-none ml-4"
-                                            value={field === "pname" ? `${field}-${order}` : ""}
+                                            value={field === "final_price" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
                                             <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
-                                            <option value="pname-asc">A-Z</option>
-                                            <option value="pname-desc">Z-A</option>
+                                            <option value="final_price-asc">Tăng</option>
+                                            <option value="final_price-desc">Giảm</option>
                                         </select>
                                     </span>
                                 </td>
-                                <td className="w-2/12 text-left pl-6">Phân loại</td>
-                                <td className="w-2/12">
-                                    Giá
-                                    <span>
+                                <td className="w-2/12 text-left pl-6">Ngày tạo đơn
+                                <span>
                                         <select name="sortByName" id="sortName" className="bg-white border outline-none ml-4"
-                                            value={field === "price" ? `${field}-${order}` : ""}
+                                            value={field === "create_time" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
                                             <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
-                                            <option value="price-asc">Tăng</option>
-                                            <option value="price-desc">Giảm</option>
+                                            <option value="create_time-asc">Tăng</option>
+                                            <option value="create_time-desc">Giảm</option>
+                                        </select>
+                                    </span>
+                                </td>
+
+                                <td className="w-2/12 text-left pl-6">Ngày giao dự kiến
+                                <span>
+                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-4"
+                                            value={field === "estimated_delivery_time" ? `${field}-${order}` : ""}
+                                            onChange={handleSortChange}
+                                        >
+                                            <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
+                                            <option value="estimated_delivery_time-asc">T</option>
+                                            <option value="estimated_delivery_time-desc">G</option>
                                         </select>
                                     </span>
                                 </td>
                                 <td className="w-2/12">
-                                    Số lượng
-                                    <span>
-                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-1"
-                                            value={field === "quantity" ? `${field}-${order}` : ""}
-                                            onChange={handleSortChange}
-                                        >
-                                            <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
-                                            <option value="quantity-asc">
-                                                <FontAwesomeIcon icon={faArrowUp} />
-
-                                            </option>
-                                            <option value="quantity-desc">G</option>
-                                        </select>
-                                    </span>
+                                    Đã xác nhận
                                 </td>
-                                <td className="w-2/12">Đã bán
-                                    <span>
-                                        <select name="sortByName" id="sortName" className="bg-white border outline-none ml-1"
-                                            value={field === "quantity" ? `${field}-${order}` : ""}
-                                            onChange={handleSortChange}
-                                        >
-                                            <option value="" readOnly onClick={() => setCount((prve) => prev ++)}></option>
-                                            <option value="quantity-asc">T</option>
-                                            <option value="quantity-desc">G</option>
-                                        </select>
-                                    </span>
-
-                                </td>
-                                <td className="w-2/12"> Tùy chỉnh</td>
+                                <td className="w-2/12">Trạng thái</td>
                             </tr>
                         </thead>
                         <tbody>
-
-                            {productList.map((prod, index) => {
-                                const foundedCat = cateName.find((cate) => cate.cate_id === prod.cate_id);
-
+                            {orderList.map((order, index) => {
+           
                                 return (
                                     <>
                                         <tr className="h-1 bg-white" ></tr>
                                         <tr className="h-14 bg-purple-2" key={index + 1}>
-                                            <td>{index + 1}</td>
-                                            <td className="text-left">{prod.pname}</td>
-                                            <td className="text-left pl-6"> {foundedCat.cate_name}</td>
+                                            <td>{order.oid}</td>
+                                            <td className="text-left">{order.lname + " " + order.fname}</td>
                                             <td className="text-left">
-                                                <span className="inline-block w-2/3 text-right p-4">{prod.price.toLocaleString()}</span>
+                                                <span className="inline-block w-2/3 text-right p-4">{order.final_price.toLocaleString()}</span>
                                                 VND
                                             </td>
                                             <td>
-                                                <div className="bg-white flex border w-20 border-black border-solid rounded-sm text-center m-auto">
-                                                    <input readOnly type="number" className="text-center w-full" value={prod.quantity} onChange={() => { }} />
-                                                </div>
+                                                 {format(new Date(order.create_time), 'dd/MM/yyyy')}
                                             </td>
-                                            <td>{prod.sold}</td>
                                             <td>
-                                                <div className="flex justify-center items-center">
-                                                    <button onClick={() => handleUpdateProduct(prod.product_id)} className="bg-green-600 px-4 rounded-md font-semibold text-md text-white uppercase">
-                                                        Sửa
-                                                    </button>
-                                                    <div className="w-2"></div>
-                                                    <div className="bg-red-600 px-4 rounded-md font-bold text-white uppercase " onClick={() => handleDeleteProduct(prod.product_id)} >
-                                                        Xóa
-                                                    </div>
-                                                </div>
+                                                 {format(new Date(order.estimated_delivery_time), 'dd/MM/yyyy')}
+                                            </td>
+                                            <td>
+                                                {order.status !== "Shipped" ? <button className="border border-green-600 p-2 text-green-600 bg-green-50"
+                                                    onClick={() => hanldeAcceptOrder(order.oid)} 
+                                                >Accept</button> : "Yes" }
+                                            </td>
+                                            <td>
+                                              {order.status}
                                             </td>
                                         </tr>
                                     </>

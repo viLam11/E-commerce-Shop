@@ -4,147 +4,75 @@ const CreateID = require('../createID')
 class OrderService {
     constructor() { };
 
-/** OLD */
-    // async updateProductStock(productId, amount) {
-    //     return new Promise((resolve, reject) => {
-    //         // Kiểm tra xem số lượng tồn kho có đủ không
-    //         try {
-    //             client.query(
-    //                 `SELECT quantity FROM product WHERE product_id = $1`,
-    //                 [productId],
-    //                 (err, res) => {
-    //                     if (err) {
-    //                         return reject({
-    //                             status: 400,
-    //                             msg: err.message,
-    //                             data: null
-    //                         });
-    //                     }
-
-    //                     console.log("prodID: ", productId);
-    //                     console.log("Check response: ", res.rows[0].quantity);
-    //                     console.log("amount: ", amount);
-
-    //                     const currentQuantity = res.rows[0].quantity;
-    //                     // const currentQuantity = 10;
-    //                     // Nếu số lượng tồn kho không đủ
-    //                     if (currentQuantity < amount) {
-
-    //                         console.log('Not enough stock');
-    //                         return reject({
-    //                             status: 400,
-    //                             msg: 'Not enough stock',
-    //                             data: null
-    //                         });
-    //                     }
-
-    //                     // Nếu đủ số lượng, tiến hành cập nhật (thiếu
-    //                     //         , selled = selled + $1)
-    //                     client.query(
-    //                         `UPDATE product 
-    //                         SET quantity = quantity - $1,
-    //                             sold = sold + $1
-    //                         WHERE product_id = $2
-    //                         RETURNING *`,
-    //                         [amount, productId],
-    //                         (err, res) => {
-    //                             if (err) {
-    //                                 reject({
-    //                                     status: 400,
-    //                                     msg: err.message,
-    //                                     data: null
-    //                                 });
-    //                             } else {
-    //                                 resolve({
-    //                                     status: 200,
-    //                                     msg: 'Update successful',
-    //                                     data: res.rows[0]
-    //                                 });
-    //                             }
-    //                         }
-    //                     );
-    //                 }
-    //             );
-    //         }
-    //         catch (err) {
-    //             reject({
-    //                 status: 400,
-    //                 msg: err.message
-    //             })
-    //         }
-    //     });
-    // }
-/**NEW */
-
-async updateProductStock(productId, amount) {
-    return new Promise((resolve, reject) => {
-        // Kiểm tra xem số lượng tồn kho có đủ không
-        try {
-            client.query(
-                `SELECT quantity FROM product WHERE product_id = $1`,
-                [productId],
-                (err, res) => {
-                    if (err) {
-                        return reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
-                    }
-
-                    console.log("prodID: ", productId);
-                    console.log("Check response: ", res.rows[0].quantity);
-                    console.log("amount: ", amount);
-
-                    const currentQuantity = res.rows[0].quantity;
-                    // const currentQuantity = 10;
-                    // Nếu số lượng tồn kho không đủ
-                    if (currentQuantity < amount) {
-
-                        console.log('Not enough stock');
-                        return reject({
-                            status: 400,
-                            msg: 'Not enough stock',
-                            data: null
-                        });
-                    }
-
-                    // Nếu đủ số lượng, tiến hành cập nhật (thiếu
-                    //         , selled = selled + $1)
-                    client.query(
-                        `UPDATE product 
-                        SET quantity = quantity - $1,
-                            sold = sold + $1
-                        WHERE product_id = $2
-                        RETURNING *`,
-                        [amount, productId],
-                        (err, res) => {
-                            if (err) {
-                                reject({
-                                    status: 400,
-                                    msg: err.message,
-                                    data: null
-                                });
-                            } else {
-                                resolve({
-                                    status: 200,
-                                    msg: 'Update successful',
-                                    data: res.rows[0]
-                                });
-                            }
+    async updateProductStock(productId, amount) {
+        return new Promise((resolve, reject) => {
+            // Kiểm tra xem số lượng tồn kho có đủ không
+            try {
+                client.query(
+                    `SELECT quantity FROM product WHERE product_id = $1`,
+                    [productId],
+                    (err, res) => {
+                        if (err) {
+                            return reject({
+                                status: 400,
+                                msg: err.message,
+                                data: null
+                            });
                         }
-                    );
-                }
-            );
-        }
-        catch (err) {
-            reject({
-                status: 400,
-                msg: err.message
-            })
-        }
-    });
-}
+
+                        console.log("prodID: ", productId);
+                        console.log("Check response: ", res.rows[0].quantity);
+                        console.log("amount: ", amount);
+
+                        const currentQuantity = res.rows[0].quantity;
+                        // const currentQuantity = 10;
+                        // Nếu số lượng tồn kho không đủ
+                        if (currentQuantity < amount) {
+
+                            console.log('Not enough stock');
+                            return reject({
+                                status: 400,
+                                msg: 'Not enough stock',
+                                data: null
+                            });
+                        }
+
+                        // Nếu đủ số lượng, tiến hành cập nhật (thiếu
+                        //         , selled = selled + $1)
+                        client.query(
+                            `UPDATE product 
+                            SET quantity = quantity - $1,
+                                sold = sold + $1
+                            WHERE product_id = $2
+                            RETURNING *`,
+                            [amount, productId],
+                            (err, res) => {
+                                if (err) {
+                                    reject({
+                                        status: 400,
+                                        msg: err.message,
+                                        data: null
+                                    });
+                                } else {
+                                    resolve({
+                                        status: 200,
+                                        msg: 'Update successful',
+                                        data: res.rows[0]
+                                    });
+                                }
+                            }
+                        );
+                    }
+                );
+            }
+            catch (err) {
+                reject({
+                    status: 400,
+                    msg: err.message
+                })
+            }
+        });
+    }
 
 
     // async createOrder(newOrder, uid) {
@@ -589,7 +517,7 @@ async updateProductStock(productId, amount) {
     // );
 
     async sortOrders(sort, limit, offset, uid) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const allowedColumns = ['oid', 'create_time', 'status', 'done_time', 'shipping_address', 'shipping_fee', 'shipping_co', 'quantity', 'total_price', 'final_price', 'estimated_delivery_time', 'receive_time']
             let order = 'DESC';
             let column = 'create_time';
@@ -617,10 +545,9 @@ async updateProductStock(productId, amount) {
                     order = sort.toUpperCase()
                 }
             }
-            client.query(
-                `SELECT * FROM orders  WHERE uid = $3 ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`,
-                [limit, offset, uid],
-                async (err, res) => {
+            let query
+            if (uid) {
+                client.query(`SELECT * FROM orders WHERE uid = $3 ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`, [limit, offset, uid], async (err, res) => {
                     if (err) {
                         reject({
                             status: 400,
@@ -634,12 +561,31 @@ async updateProductStock(productId, amount) {
                             data: res.rows
                         });
                     }
-                }
-            );
+                });
+
+            }
+            else {
+                client.query(`SELECT * FROM orders JOIN users ON orders.uid = users.uid ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`, [limit, offset], async (err, res) => {
+                    if (err) {
+                        reject({
+                            status: 400,
+                            msg: err.message,
+                            data: null
+                        });
+                    } else {
+                        resolve({
+                            status: 200,
+                            msg: 'SORT SUCCESS',
+                            data: res.rows
+                        });
+                    }
+                });
+
+            }
         });
     }
 
-    async getAllOrder(limit, page, filter, sort, uid) {
+    async getAllOrderbyUser(limit, page, sort, uid) {
         return new Promise(async (resolve, reject) => {
             try {
                 let countPro = await this.countOrders(uid)
@@ -669,7 +615,7 @@ async updateProductStock(productId, amount) {
                                 status: 200,
                                 msg: 'SUCCESS',
                                 data: res.rows,
-                                totalOrder: countPro,
+                                totalOrder: countPro.data,
                                 currentPage: page + 1,
                                 totalPage: Math.ceil(countPro.data / limit)
                             });
@@ -679,6 +625,53 @@ async updateProductStock(productId, amount) {
             }
 
             catch (err) {
+                reject(err)
+            }
+        })
+    }
+
+    async getAllOrder(limit, page, sort) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let countPro = await client.query(`SELECT COUNT(*) AS total FROM orders`)
+                countPro = Number(countPro.rows[0].total)
+                if (sort) {
+                    const orders = await this.sortOrders(sort, limit, limit * page)
+                    resolve({
+                        status: 200,
+                        msg: 'SUCCESS',
+                        data: orders.data,
+                        totalOrder: countPro,
+                        currentPage: page + 1,
+                        totalPage: Math.ceil(countPro / limit)
+                    });
+                }
+                client.query(
+                    `SELECT * FROM orders JOIN users ON orders.uid = users.uid LIMIT $1 OFFSET $2`,
+                    [limit, limit * page],
+                    (err, res) => {
+                        if (err) {
+                            reject({
+                                status: 400,
+                                msg: err.message,
+                                data: null
+                            });
+                        } else {
+                            resolve({
+                                status: 200,
+                                msg: 'SUCCESS',
+                                data: res.rows,
+                                totalOrder: countPro,
+                                currentPage: page + 1,
+                                totalPage: Math.ceil(countPro / limit)
+                            });
+                        }
+                    }
+                );
+            }
+
+            catch (err) {
+                //console.log("check")
                 reject(err)
             }
         })

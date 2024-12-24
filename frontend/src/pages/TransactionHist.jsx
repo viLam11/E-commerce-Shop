@@ -42,7 +42,7 @@ export default function TransactionHist() {
         const fetchData = async () => {
             try {
                 const fetchUserData = axios.get(`http://localhost:8000/api/user/get-detail/${userID}`);
-                const fetchHistoryData = axios.get(`http://localhost:8000/api/order/getAllOrder/${userID}?limit=10&page=0&sort=desc&sort=estimated_delivery_time`);
+                const fetchHistoryData = axios.get(`http://localhost:8000/api/order/getAllOrderbyUser/${userID}?limit=10&page=0&sort=desc&sort=estimated_delivery_time`);
                 const fetchAddressData = axios.get(`http://localhost:8000/api/user/GetAll/${userID}`); 
                 const [userDataResponse, historyDataResponse, addressDataResponse] = await Promise.all([fetchUserData, fetchHistoryData, fetchAddressData]);
 

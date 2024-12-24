@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import PromotionInput from "../components/PromotionInput";
@@ -9,7 +9,9 @@ import { format } from 'date-fns';
 import axios from "axios";
 
 
+
 export default function UpdatePromo() {
+    const navigate = useNavigate(); 
     const {id} = useParams();
     const [originalName, setOrginalName] = useState("");    
     const [category, setCategory] = useState([]);
@@ -190,6 +192,7 @@ export default function UpdatePromo() {
                     console.log("Check response: ", response.data);
                     if(response.data.status === 200) {
                         alert("Cập nhật mã khuyến mãi thành công"); 
+                        navigate("/admin/all-promo");
                     } else {
                         alert(response.data.message);   
                     }

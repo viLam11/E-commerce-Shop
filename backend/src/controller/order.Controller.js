@@ -22,8 +22,10 @@ class OrderController {
 
     async createOrder(req, res) {
         try {
+            console.log(req.params.id)
             const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price } = req.body
-            if (!orderItems || !status || !shipping_address || !shipping_fee || !shipping_co || !quantity || !total_price) {
+            //console.log(orderItems + status + shipping_address + shipping_fee + shipping_co + quantity + total_price)
+            if (!orderItems || !status || !shipping_address || !shipping_co || !quantity || !total_price) {
                 return res.status(200).json({
                     status: 'ERR',
                     message: 'The input is required'
@@ -35,8 +37,8 @@ class OrderController {
             return res.status(200).json(response)
         }
         catch (err) {
-            return res.status(404).json({
-                message: err
+            return res.status(400).json({
+                message: err.message
             })
         }
     }
@@ -130,7 +132,7 @@ class OrderController {
     }
 
 
-    async getAllOrder(req, res) {
+    async getAllOrderbyUser(req, res) {
         try {
             const { limit, page, filter, sort } = req.query
             if (!req.params.id) {
@@ -139,7 +141,20 @@ class OrderController {
                     message: 'The uid is required'
                 })
             }
-            const response = await OrderService.getAllOrder(Number(limit) || 5, Number(page) || 0, filter, sort, req.params.id)
+            const response = await OrderService.getAllOrderbyUser(Number(limit) || 5, Number(page) || 0, sort, req.params.id)
+            return res.status(200).json(response)
+        }
+        catch (err) {
+            return res.status(404).json({
+                msg: err
+            })
+        }
+    }
+
+    async getAllOrder(req, res) {
+        try {
+            const { limit, page, sort } = req.query
+            const response = await OrderService.getAllOrder(Number(limit) || 5, Number(page) || 0, sort)
             return res.status(200).json(response)
         }
         catch (err) {
