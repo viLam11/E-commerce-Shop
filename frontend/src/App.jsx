@@ -18,7 +18,7 @@ import UsersManagement from "./pages/UsersManagement";
 import AllPromotion from "./pages/AllPromotion";
 import Checkout from "./components/customerGUI/Checkout";
 import Dashboard from "./pages/Dashboard";
-
+import OrdersManagement from "./pages/OrdersManagement";  
 /** DUONG */
 import HomePage from "./components/customerGUI/HomePage";
 import ViewDetail from './components/customerGUI/ViewProductDetail'
@@ -78,7 +78,8 @@ function App() {
           <Route path="/admin/user-management" element={<UsersManagement />} />
           <Route path="/admin/history/:userID" element={<TransactionHist />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
-
+          {/* Order Manage */}
+          <Route path="/admin/order-management" element={<OrdersManagement/>} />
         </Routes>
       </AuthProvider>
     </Router>
