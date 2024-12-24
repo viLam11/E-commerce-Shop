@@ -1,6 +1,10 @@
 {
     "uid": 4,
     "product": 4,
+<<<<<<< HEAD
     "order": 502,
     "promotion": 3
+=======
+    "order": 70
+>>>>>>> BE
 }
