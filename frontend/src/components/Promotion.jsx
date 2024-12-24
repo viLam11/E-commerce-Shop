@@ -2,11 +2,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCopy } from "@fortawesome/free-solid-svg-icons"
 import { useEffect, useState } from "react"
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Promotion({id, name, description, startTime, endTime, minSpent, discount_type, value, percentage, max_amount, apply_range, apply_id}) {
     const [finalVal, setFinalVale] = useState(null);
     const [finalType, setFinalType] = useState(null);   
     const [cateNames, setCatNames] =  useState([]);
+    
+    const navigate = useNavigate();
     
     const formatNumber = (number) => {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -136,7 +139,9 @@ export default function Promotion({id, name, description, startTime, endTime, mi
                 </ul>
             </div>
             <div className="flex justify-center space-x-4">
-                    <button className="border-2 border-green-600 font-semibold text-green-600  py-1 w-20 hover:bg-green-100 ">Chỉnh sửa</button>
+                    <button className="border-2 border-green-600 font-semibold text-green-600  py-1 w-20 hover:bg-green-100 "
+                        onClick={() => navigate(`/admin/edit-promotion/${id}`)} 
+                    >Chỉnh sửa</button>
                     <button className="border-2 border-red-500 font-semibold text-red-500 py-1 w-20 block hover:bg-red-50 "
                         onClick={() => hanldeDelete(id)}  
                     >Xóa</button>

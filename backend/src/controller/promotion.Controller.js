@@ -8,7 +8,7 @@ class PromotionController {
                 return res.status(200).json({
                     status: 'ERR',
                     msg: 'The input is required',
-                    data: null
+                    data: req.body
                 })
             }
             const response = await PromotionService.createPromotion(req.body)

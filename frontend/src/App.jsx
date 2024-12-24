@@ -30,6 +30,7 @@ import UserAccountManagement from "./components/customerGUI/UserAccountManagemen
 import { Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone, Ranking } from "./components/customerGUI/UserAccountManagement";
 //import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
+import UpdatePromo from "./pages/UpdatePromo";
 //import ViewDetail from "./components/customerGUI/ViewProductDetail";
 function App() {
   return (
@@ -63,14 +64,19 @@ function App() {
           <Route path="/user/promotion" element={<AllPromotion />} />
 
           <Route path="/admin/post-notification" element={<PostNotification />} />
-          <Route path="/admin/history/:userID" element={<TransactionHist />} />
+          
+        {/* Product Manage */}
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
-          <Route path="/admin/product-update" element={<ProductUpdate />} />
+          {/* <Route path="/admin/product-update" element={<ProductUpdate />} /> */}
           <Route path="/admin/edit-product/:id" element={<ProductUpdate />} />
-          <Route path="/admin/new-promotion" element={<NewPromotion />} />
-          <Route path="/admin/user-management" element={<UsersManagement />} />
+        {/* Promo Manage */}
           <Route path="/admin/all-promo" element={<AllPromotion />} />
+          <Route path="/admin/new-promotion" element={<NewPromotion />} />
+          <Route path="/admin/edit-promotion/:id" element={<UpdatePromo />} /> 
+        {/* User Manage */}
+          <Route path="/admin/user-management" element={<UsersManagement />} />
+          <Route path="/admin/history/:userID" element={<TransactionHist />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
 
         </Routes>
