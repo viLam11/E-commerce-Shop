@@ -808,7 +808,8 @@ export function Notification(){
                 console.log(temp.data.data)
                 setContent(temp.data.data.find(item => item.uid == currentUser.uid).content)   
                 setOid(temp.data.data.find(item => item.uid == currentUser.uid).content.split(" ")[2]) 
-                setNotices(temp.data.data.sort((a, b) => new Date(b.create_time) - new Date(a.create_time)))
+                setNotices(temp.data.data.reverse()
+                    .sort((a, b) => new Date(b.create_time) - new Date(a.create_time)))
             }
             catch(err){
                 console.error("Error: ", err.message)
@@ -839,6 +840,23 @@ export function Notification(){
                             {hashOrderContent(item.content)}
                             </div>
                             
+                        </div>
+                        <br/>
+                        </>
+                    )
+                }
+                else if(item.content.split(" ")[0] == "Mã"){
+                    return (<>
+                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px", width:"600px"}}>
+                            <div>
+                            <img src="../../../public/img/vouchersx.png" alt="" style={{width: "60px", marginTop:"10px"}}/>
+                            </div>
+                            <div style={{marginTop: "5px"}}>
+                            <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Mã giảm giá:</span> {item.content.split(" ")[0] + ' ' + item.content.split(" ")[1] +' ' +item.content.split(" ")[2]}</div>
+                            {hashOrderContent(item.content)}
+                            </div>
+                        <div>
+                        </div>
                         </div>
                         <br/>
                         </>
@@ -2640,19 +2658,19 @@ function UserAccountManagement() {
                     </div>
                     <div className="update">
                         <div className="side-bar" style={{ color: "black" }}>
-                            <div className={`item ${active === 1 ? "active" : ""}`} onClick={() => curPage(1, "/user/info")}>
+                            <div className='item' onClick={() => curPage(1, "/user/info")}>
                                 Tài khoản của bạn
                             </div>
-                            <div className={`item ${active === 2 ? "active" : ""}`} onClick={() => curPage(2, "/user/info/history-log")}>
+                            <div className='item' onClick={() => curPage(2, "/user/info/history-log")}>
                                 Lịch sử mua hàng
                             </div>
-                            <div className={`item ${active === 3 ? "active" : ""}`} onClick={() => curPage(3, "/user/info/rank")}>
+                            <div className='item' onClick={() => curPage(3, "/user/info/rank")}>
                                 Hạng thành viên
                             </div>
-                            <div className={`item ${active === 5 ? "active" : ""}`} onClick={() => curPage(5, "/user/info/notification")}>
+                            <div className='item' onClick={() => curPage(5, "/user/info/notification")}>
                                 Thông báo
                             </div>
-                            <div className={`item ${active === 4 ? "active" : ""}`} onClick={() => curPage(4, "/")}>
+                            <div className='item' onClick={() => curPage(4, "/")}>
                                 Đăng xuất
                             </div>
                         </div>

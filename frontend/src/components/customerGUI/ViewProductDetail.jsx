@@ -959,8 +959,14 @@ function Review({ reviews, product }) {
                     </div>
                 </div>
                 </div>
+            <style>{`
+            .review-of-customer::-webkit-scrollbar {
+            display: none;
+            }
 
-            <div className="review-of-customer">
+            `}
+            </style>
+            <div className="review-of-customer" style={{maxHeight: "1000px", overflowY: "auto"}}>
                 {myReview?
                 <div className="a-review">
                 <div className="By">{myReview.uid}<span style={{marginLeft: '40px'}}> {viewTime(myReview.time)} </span><span className="edit-button" onClick={openPopup}> Chỉnh sửa &#128221;</span></div>

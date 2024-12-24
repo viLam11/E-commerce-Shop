@@ -23,7 +23,20 @@ export default function NewPromotion() {
     const [apply_id, setApply_id] = useState("");
     const [discount_type, setDiscount_type] = useState("");  //percent, fixed
     const [id, setID] = useState("")
-
+    // Auto create notification
+    const [content, setContent] = useState("")
+    useEffect(()=>{
+        const fetchData = async()=>{
+            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${localStorage.getItem('uid')}`, {content: content, uid: localStorage.getItem('uid')})
+            console.log(temp)
+            if (temp.status != 200){
+                return;
+            }
+            //alert("Tạo thông báo thành công")
+        }
+        fetchData()
+    },[content])
+    //----------------------
     function handleChangePromoType(type) {
         setPromoType(value);
     }
@@ -113,7 +126,7 @@ export default function NewPromotion() {
                 if(response.data.status === 200) {
                     alert("Thêm mã khuyến mãi thành công"); 
                     // Auto create notification
-                    setContent(`Mã khuyến mãi ${name} đã được tạo`)
+                    setContent(`Mã khuyến mãi ${name} hiện đã có trên sàn, hãy nhanh tay sử dụng để nhận ưu đãi hấp dẫn từ chúng tôi!`)
                 } 
                
             })
@@ -127,22 +140,7 @@ export default function NewPromotion() {
             })
     }
 
-    // Auto create notification
-    const [content, setContent] = useState("")
-    useEffect(()=>{
-        const fetchData = async()=>{
-            if(!orderId) return;
-            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
-            console.log(temp)
-            if (temp.status != 200){
-                return;
-            }
-            //alert("Tạo thông báo thành công")
-            setToggle(!toggle)
-        }
-        fetchData()
-    },[content])
-    //----------------------
+    
     return (
         <div className="flex flex-col min-h-screen">
             <Header role="admin" />
