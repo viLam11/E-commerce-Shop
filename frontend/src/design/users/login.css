@@ -1,0 +1,121 @@
+/* body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+  }
+   */
+  .container {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .left-panel {
+    flex: 2;
+    background-color: #eaf4fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .image {
+    width: 80%;
+    height: auto;
+  }
+  
+  .right-panel {
+    flex: 3;
+    padding: 40px 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .right-panel .form-container {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .right-panel .form-container .form-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .right-panel .form-container .form-title  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .right-panel .form-container .form-title  .form-group  .input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .right-panel .form-container .form-title  .form-group .input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+  
+  .form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #c82333;
+  }
+  
+  .forgot-password {
+    margin-left: 20px;
+  }
+  
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0;
+  }
+  
+  .line {
+    flex: 1;
+    height: 1px;
+    background-color: #ced4da;
+  }
+  
+  .divider span {
+    margin: 0 10px;
+    color: #6c757d;
+  }
+  
+  .link {
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .link:hover {
+    color: #0056b3;
+  }
+  
+  .form-footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
