@@ -27,10 +27,10 @@ import Cart from './components/customerGUI/Cart'
 import Categories from './components/customerGUI/Category'
 
 import UserAccountManagement from "./components/customerGUI/UserAccountManagement";
-import {Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone,Ranking } from "./components/customerGUI/UserAccountManagement";
-// import AllPromotion from "./pages/AllPromotion";
+import { Notification, History, UpdateAdress, UpdateData, UpdatePassword, UpdatePhone, Ranking } from "./components/customerGUI/UserAccountManagement";
+//import AllPromotion from "./pages/AllPromotion";
 import CategoryProduct from './components/customerGUI/CategoryCard'
-
+//import ViewDetail from "./components/customerGUI/ViewProductDetail";
 function App() {
   return (
     <Router
@@ -45,33 +45,28 @@ function App() {
          <Route path="/test" element={<Test />} />
           <Route path="/user/homepage" element={<HomePage />} />
           <Route path="/user/info" element={<UserAccountManagement />}>
-                    {/* Các route con */}
-                    <Route index element={<UpdateData />} />
-                    <Route path="address" element={<UpdateAdress />} />
-                    <Route path="phone" element={<UpdatePhone />} />
-                    <Route path="password" element={<UpdatePassword />} />
-                    <Route path="history-log" element={<History />} />
-                    <Route path="rank" element={<Ranking />} />
-                    <Route path="notification" element={<Notification/>} />
+            {/* Các route con */}
+            <Route index element={<UpdateData />} />
+            <Route path="address" element={<UpdateAdress />} />
+            <Route path="phone" element={<UpdatePhone />} />
+            <Route path="password" element={<UpdatePassword />} />
+            <Route path="history-log" element={<History />} />
+            <Route path="rank" element={<Ranking />} />
+            <Route path="notification" element={<Notification />} />
           </Route>
-          <Route path="/user/cart" element={<Cart/>} />
-          <Route path="/user/shopping" element={<ShoppingPage/>}/>
-          <Route path="/category/:id" element={<Categories />}/>
-          <Route path="/user/category/:id" element={<CategoryProduct/>} />
-          {/* <Route path="/product-detail/:prodID" element={<P />}/> */}
-          <Route path="/customer/pay" element={<Checkout />}  />
-          <Route path="/customer/homepage" element={<UsersManagement />} />
-          <Route path="/customer/shopping" element={<Shopping />} />
-          <Route path="/customer/product-detail/:prodID" element={<ProductDetail />} />
-          <Route path="/customer/history/:userID" element={<TransactionHist />} />
-          <Route path="/customer/category/:catSlug" element={<ProductByCat />} /> 
-
+          <Route path="/user/cart" element={<Cart />} />
+          <Route path="/user/shopping" element={<ShoppingPage />} />
+          <Route path="/category/:id" element={<Categories />} />
+          <Route path="/user/category/:id" element={<CategoryProduct />} />
+          <Route path="/product-detail/:id" element={<ViewDetail />} />
+          <Route path="/customer/pay" element={<Checkout />} />
+          <Route path="/user/promotion" element={<AllPromotion />} />
 
 
           <Route path="/admin/history/:userID" element={<TransactionHist />} />
           <Route path="/admin/product-manage" element={<ProductsManagement />} />
           <Route path="/admin/product-new" element={<NewProduct />} />
-          <Route path="/admin//product-update" element={<ProductUpdate />} />
+          <Route path="/admin/product-update" element={<ProductUpdate />} />
           <Route path="/admin/edit-product/:id" element={<ProductUpdate />} />
           <Route path="/admin/new-promotion" element={<NewPromotion />} />
           <Route path="/admin/user-management" element={<UsersManagement />} />
