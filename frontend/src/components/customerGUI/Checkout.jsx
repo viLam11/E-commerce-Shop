@@ -903,81 +903,72 @@ export default function Checkout() {
             const Torder = [...productList].map((item) => ({
                 product_id: item.product_id,
                 quantity: location.state.voucher?item.pquantity: location.state.quantity,
-                subtotal: item.pquantity ? item.pquantity * item.price : location.state.product.price * location.state.quantity,
+                subtotal: item.pquantity?item.pquantity * item.price:location.state.product.price * location.state.quantity,
             }));
 
             console.log("Make order: ", Torder  )
             
             console.log("Make order: ", {
-                "orderItems": [{
-                  "product_id":"product6",
-                  "quantity": 10,
-                  "subtotal": "10000"
-                }], 
-                "status": "Pending", 
-                "shipping_address": "3/2 Huỳnh Tấn Phát", 
-                "shipping_fee": 10000, 
-                "shipping_co": "f",
-                "quantity": "50",
-                "total_price": 100000,
-                "promotion_id": "promotion1"
-              });
+                orderItems: Torder,
+                status: "Pending",
+                shipping_address: holdAddress,
+                shipping_fee: 0,
+                shipping_co: "Grab",
+                quantity: productList.reduce((sum, i) => sum + i.pquantity, 0),
+                total_price: location.state.total,
+            });
 
             const addOrder = await axios.post(`http://localhost:8000/api/order/CreateOrder/${localStorage.getItem("uid")}`, {
-                "orderItems": [{
-                  "product_id":"product6",
-                  "quantity": 10,
-                  "subtotal": "10000"
-                }], 
-                "status": "Pending", 
-                "shipping_address": "3/2 Huỳnh Tấn Phát", 
-                "shipping_fee": 10000, 
-                "shipping_co": "f",
-                "quantity": "50",
-                "total_price": 100000,
-                "promotion_id": "promotion1"
-              });
+                orderItems: Torder,
+                status: "Pending",
+                shipping_address: holdAddress,
+                shipping_fee: 0,
+                shipping_co: "Grab",
+                quantity: location.state.voucher?productList.reduce((sum, i) => sum + i.pquantity, 0):location.state.quantity,
+                total_price: location.state.total?location.state.total:location.state.product.price * location.state.quantity,
+                promotion_id: voucher && voucher.promotion_id ? voucher.promotion_id : null,
+            });
 
             console.log(addOrder.data, addOrder.data)
-            // if (paymentMethod === "qr") {
-            //     const data = {
-            //         oid: addOrder.data.data.oid,
-            //         final_price: addOrder.data.data.final_price,
-            //         description: "Thanh toán đơn hàng",
-            //     };
-            //     // Gọi API mã QR momo
-            //     const response = await axios.post("http://localhost:8000/api/payment/config", data);
-            //     console.log("Payment config:", response.data);
-            //     if (response.status === 200) {
-            //         console.log("Payment config:", response.data);
+            if (paymentMethod === "qr") {
+                const data = {
+                    oid: addOrder.data.data.oid,
+                    final_price: addOrder.data.data.final_price,
+                    description: "Thanh toán đơn hàng",
+                };
+                // Gọi API mã QR momo
+                const response = await axios.post("http://localhost:8000/api/payment/config", data);
+                console.log("Payment config:", response.data);
+                if (response.status === 200) {
+                    console.log("Payment config:", response.data);
 
-            //         // Lưu shortLink từ phản hồi
-            //         shortLink = response.data.shortLink;
-            //         if (!shortLink) {
-            //             alert("Không tìm thấy shortLink trong phản hồi từ API!");
-            //             return; // Dừng lại nếu không có shortLink
-            //         }
+                    // Lưu shortLink từ phản hồi
+                    shortLink = response.data.shortLink;
+                    if (!shortLink) {
+                        alert("Không tìm thấy shortLink trong phản hồi từ API!");
+                        return; // Dừng lại nếu không có shortLink
+                    }
 
-            //         alert("Thông tin thanh toán được lấy thành công!");
-            //     } else {
-            //         console.error("Error fetching payment config: ", response.statusText);
-            //         alert("Không thể lấy thông tin thanh toán");
-            //         return; // Dừng lại nếu gọi API thất bại
-            //     }
-            // }
-            // if (addOrder.data.status !== 200) {
-            //     alert("Đặt hàng thất bại");
-            //     throw new Error("Failure");
-            // } else {
-            //     alert("Đặt hàng thành công");
-            //     if (shortLink) {
-            //         // Chuyển hướng đến shortLink sau khi tạo đơn hàng
-            //         window.location.href = shortLink;
-            //     } else {
-            //         // Chuyển đến lịch sử nếu không dùng mã QR
-            //         navigate("/user/info/history-log");
-            //     }
-            // }
+                    alert("Thông tin thanh toán được lấy thành công!");
+                } else {
+                    console.error("Error fetching payment config: ", response.statusText);
+                    alert("Không thể lấy thông tin thanh toán");
+                    return; // Dừng lại nếu gọi API thất bại
+                }
+            }
+            if (addOrder.data.status !== 200) {
+                alert("Đặt hàng thất bại");
+                throw new Error("Failure");
+            } else {
+                alert("Đặt hàng thành công");
+                if (shortLink) {
+                    // Chuyển hướng đến shortLink sau khi tạo đơn hàng
+                    window.location.href = shortLink;
+                } else {
+                    // Chuyển đến lịch sử nếu không dùng mã QR
+                    navigate("/user/info/history-log");
+                }
+            }
         }
 
         catch (err) {
