@@ -750,9 +750,11 @@ export function Notification(){
     const [currentOrder, setCurrent] = useState(null)
     const [toggle, setToggle] = useState(0)
     const [oid, setOid] = useState("")
-
+    const [totalQuantity, setTotal] = useState(0)
+    const [orderList, setList] = useState([])
     const [content, setContent] = useState("")
     const [notices, setNotices] = useState([])
+    
     useEffect(()=>{
         try{
             const fetchOrder = async()=>{
@@ -1462,9 +1464,38 @@ export function History(){
 }
 
 export function Ranking(){
-    const { active, setActive, currentUser, totalPaid, phone1 } = useContext(UserContext);
+    const { active, setActive, currentUser, totalPaid, phone1, setPaid } = useContext(UserContext);
     const [isEncode, setEncode] = useState(false)
     const [progress, setProgress] = useState(totalPaid < 5000000?(totalPaid)/50000:(totalPaid < 20000000?(totalPaid)/200000:100));
+    const [Pnumber, setPhone] = useState([])
+    const [orderList, setList] = useState([])
+    useEffect(()=>{
+        const fetchOrder = async()=>{
+            const temp = await axios.get(`http://localhost:8000/api/order/getAllOrder/${currentUser.uid}?limit=1000`)
+            console.warn("Order: " + temp.data.data)
+            if (temp.status != 200){
+                throw new Error("Lỗi khi lấy dữ liệu")
+            }
+            setList(temp.data.data?temp.data.data.filter(i => i.status == 'Completed'):[])
+        }
+        fetchOrder()
+    },[currentUser])
+    useEffect(()=>{
+        setPaid(orderList.reduce((sum, current) => sum + current.final_price, 0))
+    },[orderList])
+    useEffect(() => {
+        const fetchPhone = async () => {
+            console.log(currentUser.uid)
+            let rphone = [];
+            const res = await axios.get(`http://localhost:8000/api/user/GetPhone/${currentUser.uid}`)
+            //console.log(res)
+            if (res.status != 200) throw new Error("Error while fetching phone number")
+            rphone = res.data.data?res.data.data: []
+            setPhone(rphone&& rphone.length>0?rphone.map(item => item.phone):[]); // Update images state once all images are fetched
+        };
+
+        fetchPhone();
+    }, [currentUser]);
     const Encode = (item) =>{
         if(isEncode){
             let encode = item.slice(0,2)
@@ -1535,7 +1566,7 @@ export function Ranking(){
                 <div style={{marginRight: "20px"}}><img style={{width: "100px", borderRadius:"50px"}} src="../../../public/img/EX.png" alt="" /></div>
                 <div>
                     <div style={{fontSize: "18px", fontWeight:"bold",marginBottom:"5px"}}>{currentUser.username.toUpperCase()}</div>
-                    <div style={{fontSize: "14px",marginBottom:"10px"}}>{Encode(phone1)} {!isEncode?<span onClick={()=>setEncode(!isEncode)}>&#128065;</span>:<span onClick={()=>setEncode(!isEncode)}>&#128065;&#65039;&#8205;&#128488;</span>}</div>
+                    <div style={{fontSize: "14px",marginBottom:"10px"}}>{Encode(Pnumber[0])} {!isEncode?<span onClick={()=>setEncode(!isEncode)}>&#128065;</span>:<span onClick={()=>setEncode(!isEncode)}>&#128065;&#65039;&#8205;&#128488;</span>}</div>
                     <div style={{
                     fontSize: "14px",
                     marginBottom: "5px",
@@ -1571,7 +1602,7 @@ export function Ranking(){
                 ></div>
                 <div
                     className="progress-circle"
-                    style={{ left: `calc(${progress}% - 10px)` , marginTop:"5px"}} // Điều chỉnh hình tròn theo tiến trình
+                    style={{ left: `calc(${totalPaid < 5000000?totalPaid/50000:(totalPaid < 20000000?totalPaid/200000:100)}% - 10px)` , marginTop:"5px"}} // Điều chỉnh hình tròn theo tiến trình
                 >
                     <img src="../../../public/img/chibi.png" alt="" style={{ left: `calc(${progress}% - 10px)` , marginTop:"-25px", width:"50px"}}/>
                 </div>
