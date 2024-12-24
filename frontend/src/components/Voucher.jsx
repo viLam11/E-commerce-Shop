@@ -482,6 +482,13 @@ export default function Voucher({ setVoucher, setIsPopupOpen, buyList }) {
     };
 
     useEffect(() => {
+        axios.get(`http://localhost:8000/api/promotion/GetAll`)
+            .then((response) => {
+                console.log("Check all promo: ", response.data.data);
+            })
+    }, []);
+
+    useEffect(() => {
         const isProductApplicable = (voucher) => {
             const product = buyList.find(item => item.product_id === voucher.apply_id);
             return product && voucher.apply_range === "product" && voucher.minspent <= product.pquantity * product.price;

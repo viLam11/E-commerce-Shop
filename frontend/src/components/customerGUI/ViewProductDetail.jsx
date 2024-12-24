@@ -26,7 +26,7 @@ function NewReview({product, closePopup}){
                 const rreview = await axios.get(`http://localhost:8000/api/product/GetReview/${product.product_id}`)
                 console.log(rreview)
                 if (rreview.data.status != 200){
-                    return 
+                    return
                 }
                 else {
                     setMine(rreview.data.data.find(i => i.uid == localStorage.getItem('uid')))
@@ -742,14 +742,14 @@ function Detail({reviews, product }) {
                         <p className="price">{formatPrice(product.price)}</p>
                         <div className="purchase-options">
                             <div className="quantity">
-                                <button className="btn decrement" onClick={(e) => {e.preventDefault(); changeQuantity(0)}}>-</button>
+                                <button class="btn decrement" onClick={(e) => {e.preventDefault(); changeQuantity(0)}}>-</button>
                                 <input
                                     type="text"
                                     value={buyQuantity}
                                     onChange={(e)=>handleInputChange(e)}
                                     style={{ width: "40px", textAlign: "center" }}
                                 />
-                                <button className="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
+                                <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
                             </div>
                             <button className="buy-now" onClick={handleBuyProduct}>Mua ngay</button>
                             <button className="add-to-cart" onClick={handleAddCart}>Thêm vào giỏ hàng</button>
@@ -779,7 +779,7 @@ function Detail({reviews, product }) {
 
 function Description({ product }) {
     if (!product) return null;
-    const hashDescription = product.description ? product.description.split("\n"):[]
+    const hashDescription = product.description?product.description.split("\n"):[]
 
     return (
         <div className="prod-description">

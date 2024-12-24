@@ -42,7 +42,7 @@ export default function Login() {
         if (response.status == 200) {
           const token = response.data.data.token;
           const userType = response.data.data.userType;
-          alert("Login by: " + userType + " - " + response.data.data.userID)
+          // alert("Login by: " + userType + " - " + response.data.data.userID)
           const user_id = response.data.data.userID;
           console.log(response, "token: ", token);
           localStorage.setItem("token", token);

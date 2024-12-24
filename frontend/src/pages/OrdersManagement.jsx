@@ -12,6 +12,9 @@ export default function OrdersManagement() {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState(false);
     const [productList, setProductList] = useState([]);
+
+    const [orderList, setOrderList ] = useState([]);
+
     const [priceToggle, setPriceToggle] = useState(false);
     const [nameToggle, setNameToggle] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
@@ -35,8 +38,6 @@ export default function OrdersManagement() {
     }, [])
 
     useEffect(() => {
-        const loadToken = localStorage.getItem("token");
-        if (loadToken) setToken(loadToken);
         axios.get("http://localhost:8000/api/product/getAll?page=0&limit=10",)
             .then((response) => {
                 console.log(response);
