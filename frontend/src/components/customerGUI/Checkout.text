@@ -605,7 +605,7 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress }) {
     )
 }
 
-// function Voucher({ state, buyList, setVoucher, setIsPopupOpen, total }) {
+// function Voucher({ state, buyList, setVoucher, setIsPopupOpen, total,pquantity, pprice }) {
 //     const [vouchers, setList] = useState([])
 //     const [fitVoucher, setFit] = useState([])
 //     const [unReach, setReach] = useState([])
@@ -619,52 +619,58 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress }) {
 //             setList(data.data)
 //         }
 
-//         fetchVoucher()
-//     }, [])
-//     const discountValue = (voucher) => {
-//         switch (voucher.apply_range) {
-//             case 'all':
-//                 return (voucher.value ? voucher.value : Math.min(voucher.percentage * total, voucher.max_amount))
-//                 break;
-//             case 'category':
-//                 let tempArr = [...buyList].filter(item => item.cate_id == voucher.apply_id)
-//                 let tempSum = tempArr.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
-//                 return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum, voucher.max_amount))
-//                 break;
-//             case 'product':
-//                 let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
-//                 let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
-//                 return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum, voucher.max_amount))
-//                 break;
-//         }
-//     }
+        fetchVoucher()
+    }, [])
+    const discountValue = (voucher) => {
+        switch (voucher.apply_range) {
+            case 'all':
+                return (voucher.value ? voucher.value : Math.min(voucher.percentage * total, voucher.max_amount))
+                break;
+            case 'category':
+                let tempArr = [...buyList].filter(item => item.cate_id == voucher.apply_id)
+                let tempSum = tempArr.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+            case 'product':
+                let tempArr2 = [...buyList].filter(item => item.product_id == voucher.apply_id)
+                let tempSum2 = tempArr2.reduce((acc, item) => acc + (item.price * item.pquantity), 0);
+                return (voucher.value ? voucher.value : Math.min(voucher.percentage * tempSum, voucher.max_amount))
+                break;
+        }
+    }
+    //buyList.map(i => i.product_id).includes(item.apply_id) || buyList.map(i => i.cate_id).includes(item.apply_id) ||
+    useEffect(() => {
+        const product_con = (item) => {
+            if (item.apply_range != "product") return false // Check if the voucher is applied to product
+            let checkList = buyList.find(i => i.product_id == item.apply_id)
+            if (!checkList ) return false
+            let checkListPrice = checkList.price * (!checkList.pquantity?pquantity:checkList.pquantity)
+            return (item.minspent <= checkListPrice)
+        }
 
-//     useEffect(() => {
-//         const product_con = (item) => {
-//             return (item.apply_range == "product"
-//                 && buyList.map(i => i.product_id).includes(item.apply_id)
-//                 && item.minspent <= buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
-//         }
+        const category_con = (item) => {
+            if (item.apply_range != "category_id") return false // Check if the voucher is applied to category
+            let checkList = buyList.filter(i => i.cate_id == item.apply_id)
+            if (checkList.length == 0) return false
+            let checkListPrice = checkList.reduce((sum, current) => sum + current.price * (current.pquantity?current.pquantity:pquantity), 0)
+            return (item.minspent <= checkListPrice)
+        }
 
-//         const category_con = (item) => {
-//             return (item.apply_range == "category_id"
-//                 && buyList.map(i => i.cate_id).includes(item.apply_id)
-//                 && minspent <= buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
-//             )
-//         }
+        const uproduct_con = (item) => {
+            if (item.apply_range != "product") return false // Check if the voucher is applied to product
+            let checkList = buyList.find(i => i.product_id == item.apply_id)
+            if (!checkList ) return false
+            let checkListPrice = checkList.price * (!checkList.pquantity?pquantity:checkList.pquantity)
+            return (item.minspent > checkListPrice) 
+        }
 
-//         const uproduct_con = (item) => {
-//             return (item.apply_range == "product"
-//                 && buyList.map(i => i.product_id).includes(item.apply_id)
-//                 && item.minspent > buyList.find(i => item.product_id == item.apply_id).pquantity * buyList.find(i => item.product_id == item.apply_id).price)
-//         }
-
-//         const ucategory_con = (item) => {
-//             return (item.apply_range == "category_id"
-//                 && buyList.map(i => i.cate_id).includes(item.apply_id)
-//                 && minspent > buyList.filter(i => i.cate_id == item.apply_id).reduce((sum, current) => sum + current.price * current.pquantity, 0)
-//             )
-//         }
+        const ucategory_con = (item) => {
+            if (item.apply_range != "category_id") return false // Check if the voucher is applied to category
+            let checkList = buyList.filter(i => i.cate_id == item.apply_id)
+            if (checkList.length == 0) return false
+            let checkListPrice = checkList.reduce((sum, current) => sum + current.price * (current.pquantity?current.pquantity:pquantity), 0)
+            return (item.minspent > checkListPrice)
+        }
 
 //         setFit([...vouchers].filter(item => item.quantity > 0
 //             && (product_con(item) || category_con(item) || (item.apply_range == "all" && item.minspent <= buyList.reduce((sum, cur) => sum += cur.pquantity * cur.price, 0))))
@@ -971,6 +977,7 @@ export default function Checkout() {
     const [isPopupOpen, setIsPopup] = useState(false);
     const openPopup = () => {
         setIsPopup(true);
+        console.log(productList)
     };
 
     const closePopup = () => {
@@ -1072,34 +1079,11 @@ export default function Checkout() {
                 `}
                 </style>
                 {isPopupOpen && (
-                    <div className="popup w-[500px] mx-auto bg-gray-500" onClick={closePopup}>
-                        <div
-                            className=" flex flex-col mx-auto h-[600px]"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <h2
-                                className="font-bold text-red-600 text-lg text-center bg-[#F3F6F8] w-[500px]  h-[50px] pt-2 rounded-t-lg shadow-lg pb-10"
-                            >
-                                Chọn Voucher
-                            </h2>
-                            {/* Container cuộn */}
-                            <div
-                                className="flex-1 overflow-y-auto bg-gray-200 mx-auto w-full pl-10 "
-                            >
-                                <Voucher
-                                    buyList={productList}
-                                    setVoucher={setVoucher}
-                                    setIsPopupOpen={setIsPopup}
-                                    total={
-                                        location.state.total ||
-                                        location.state.product.price * location.state.quantity
-                                    }
-                                />
-                            </div>
-                            <button
-                                className="closePopup w-[500px] mt-10"
-                                onClick={closePopup}
-                            >
+                    <div className="popup" onClick={closePopup}>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "600px" }}>
+                            <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "500px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Voucher</h2>
+                            <Voucher buyList={productList} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total || location.state.product.price * location.state.quantity} pquantity={location.state?(location.state.quantity?location.state.quantity:null):null} pprice ={location.state.product.price}/>
+                            <button className="closePopup" onClick={closePopup} style={{ marginTop: "-30px" }}>
                                 Đóng
                             </button>
                         </div>

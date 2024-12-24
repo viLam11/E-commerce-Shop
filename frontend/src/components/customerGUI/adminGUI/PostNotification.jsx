@@ -125,7 +125,7 @@ const PostNotification = () => {
                         onChange={(e) => setUid(e.target.value)}
                     />
                 </div>
-                <button type="submit">Gửi thông báo</button>
+                <button type="submit">Post Notification</button>
             </form>
         </div>
         <Footer />

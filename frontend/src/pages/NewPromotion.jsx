@@ -105,13 +105,15 @@ export default function NewPromotion() {
                 "apply_id": apply_id
             }
         }
-
+        
         console.log("Check promotion: ", newPromo);
         axios.post(`http://localhost:8000/api/promotion/CreatePromotion`, newPromo)
             .then((response) => {
                 console.log("Check response: ", response.data);
                 if(response.data.status === 200) {
                     alert("Thêm mã khuyến mãi thành công"); 
+                    // Auto create notification
+                    setContent(`Mã khuyến mãi ${name} đã được tạo`)
                 } 
                
             })
@@ -125,6 +127,22 @@ export default function NewPromotion() {
             })
     }
 
+    // Auto create notification
+    const [content, setContent] = useState("")
+    useEffect(()=>{
+        const fetchData = async()=>{
+            if(!orderId) return;
+            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
+            console.log(temp)
+            if (temp.status != 200){
+                return;
+            }
+            //alert("Tạo thông báo thành công")
+            setToggle(!toggle)
+        }
+        fetchData()
+    },[content])
+    //----------------------
     return (
         <div className="flex flex-col min-h-screen">
             <Header role="admin" />
