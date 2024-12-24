@@ -8,11 +8,10 @@ import { TextField, FormControl} from '@mui/material';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Outlet, useNavigate, useParams, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "../Footer";
 import '../../design/users/acc.css'
-import { use } from "react";
 //import { set } from "react-datepicker/dist/date_utils";
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -112,7 +111,7 @@ function Review({currentUser, product, closePopup}){
         const fetchMyReview = async()=>{
             console.log(product.product_id + " " + currentUser.uid)
             try{
-                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview?product_id=${product.product_id}&limit=1000&page=0`)
+                const rreview = await axios.get(`http://localhost:8000/api/product/GetReview/${product.product_id}`)
                 console.log(rreview)
                 if (rreview.data.status != 200){
                     alert('Error')
@@ -716,126 +715,8 @@ function Review({currentUser, product, closePopup}){
 }
 
 export function Notification(){
-    const { active, setActive, currentUser, totalPaid, setPaid } = useContext(UserContext);
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    // http://localhost:5173/user/info/notification?partnerCode=MOMO&orderId=order501&requestId=order501&amount=18560000&orderInfo=pay+with+MoMo&orderType=momo_wallet&transId=4276129825&resultCode=0&message=Th%C3%A0nh+c%C3%B4ng.&payType=credit&responseTime=1735010036989&extraData=&signature=3c83d0893f373caeaff7cf1a396a4b02abab589e57aa227a2de6a8bcf00cec5a
-    const orderId = queryParams.get("orderId")
-    const [currentOrder, setCurrent] = useState(null)
-    const [toggle, setToggle] = useState(0)
-    const [oid, setOid] = useState("")
-
-    const [content, setContent] = useState("")
-    const [notices, setNotices] = useState([])
-    useEffect(()=>{
-        try{
-            const fetchOrder = async()=>{
-                if (!orderId) return;
-                try{
-                    // const temp = await axios.get(`http://localhost:8000/api/order/getDetailOrder/${orderId}`)
-                    // if (temp.status != 200){
-                    //     return;
-                    // }
-                    // setCurrent(temp.data.data)
-                    const doneTime = new Date().toISOString()
-                    const updateState = await axios.put(`http://localhost:8000/api/order/UpdateOrder/${orderId}`, {done_time: doneTime})
-                    console.log(orderId)
-                    if (updateState.status != 200){
-                        return;
-                    }
-                    //alert("Cập nhật trạng thái đơn hàng thành công")
-                    setContent(`Đơn hàng ${orderId} đã được thanh toán thành công vào lúc ${formatToDDMMYYYY(doneTime)}`)
-                }
-                catch(err){
-                    console.error("Error: ", err.message)
-                }
-            }
-            
-            fetchOrder()
-            
-        }
-        catch(err){
-            console.error("Error: ", err.message)
-        }
-    },[orderId])
-    useEffect(()=>{
-        const fetchData = async()=>{
-            if(!orderId) return;
-            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
-            console.log(temp)
-            if (temp.status != 200){
-                return;
-            }
-            //alert("Tạo thông báo thành công")
-            setToggle(!toggle)
-        }
-        fetchData()
-    },[content])
-    
-    useEffect(()=>{
-        const fetchNoti = async()=>{
-            try{
-                const temp = await axios.get(`http://localhost:8000/api/notification/get?id=${currentUser.uid}`)
-                if (temp.status != 200){
-                    throw new Error("Lỗi khi lấy dữ liệu")
-                }
-                console.log(temp.data.data)
-                setContent(temp.data.data.find(item => item.uid == currentUser.uid).content)   
-                setOid(temp.data.data.find(item => item.uid == currentUser.uid).content.split(" ")[2]) 
-                setNotices(temp.data.data.sort((a, b) => new Date(b.create_time) - new Date(a.create_time)))
-            }
-            catch(err){
-                console.error("Error: ", err.message)
-            }
-        }
-        fetchNoti()
-    },[toggle])
-
-    const hashOrderContent = (content) => {
-        if (!content) return;
-        return content.split("\n").map((item, idx) => <div key={idx} style={{color:"gray", fontSize:"14px"}}>{item}</div>)
-    }
-
-
-    return(<>
-    <div className="profile-form" style={{boxShadow:"none", marginTop: "-30px", height:"500px"}}>
-            <h2>Thông báo</h2>
-            {notices.map((item, idx) =>{
-                if (item.content.split(" ")[0] == "Đơn" && item.content.split(" ")[1] == "hàng"){
-                    return (<>
-                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
-                            <div>
-                            <img src="../../../public/img/EX (2).png" alt="" style={{width: "50px"}}/>
-                            </div>
-                            <div style={{marginTop: "5px"}}>
-                            <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Đơn hàng:</span> {item.content.split(" ")[2]}</div>
-                            {hashOrderContent(item.content)}
-                            </div>
-                            
-                        </div>
-                        <br/>
-                        </>
-                    )
-                }
-                else{
-                    return (<>
-                        <div key={idx} style={{display: "inline-flex", gap: "20px", marginTop: "20px", backgroundColor: "#F4F6E0", padding: "10px 20px 10px 10px", borderRadius: "10px"}}>
-                            <div>
-                            <img src="../../../public/img/sys.png" alt="" style={{width: "50px"}}/>
-                            </div>
-                            <div style={{marginTop: "5px"}}>
-                            <div><span style={{fontSize: "16px", fontWeight:"bold", color: "red"}}>Thông báo:</span> {item.content}</div>
-                            </div>
-                            
-                        </div>
-                        <br/>
-                        </>
-                    )
-                }
-            })}
-        </div>
-    </>
-        
+    return(
+        <div>Notification</div>
     )
 }
 
@@ -887,8 +768,8 @@ export function History(){
     const [end, setEnd] = useState(5); // Quản lý điểm kết thúc
     const handleNext = () => {
         //console.log("Next")
-        setStart((prev) => Math.min(prev + 5, orderList.length - 1));
-        setEnd((prev) => Math.min(prev + 5, orderList.length));
+        setStart((prev) => Math.min(prev + 5, prodList.length - 1));
+        setEnd((prev) => Math.min(prev + 5, prodList.length));
     };
     
     const handlePrevious = () => {
@@ -987,48 +868,6 @@ export function History(){
             setIsPopupOpen(false);
         };   
     const [curProduct, setCur] = useState({})
-    const [sortType, setSortType] = useState("none")
-    const [sortDate, setSortDate] = useState("none")
-    const [sortOrderz, setSortOrder] = useState("none")
-    const handleSortDate = (type) => {
-        let temp = [...sortOrder]
-        if (type == "asc"){
-            setSortDate("asc")
-            temp.sort((a, b) => new Date(a.create_time) - new Date(b.create_time))
-        }
-        else{
-            setSortDate("desc")
-            temp.sort((a, b) => new Date(b.create_time) - new Date(a.create_time))
-        }
-        setSort(temp)
-    }
-    const handleSortOrder = (type) => {
-        let temp = [...sortOrder]
-        if (type == "asc"){
-            setSortOrder("asc")
-            temp.sort((a, b) => parseInt(a.oid.match(/\d+/)[0], 10) - parseInt(b.oid.match(/\d+/)[0], 10))
-        }
-        else{
-            setSortOrder("desc")
-            temp.sort((a, b) => parseInt(b.oid.match(/\d+/)[0], 10) - parseInt(a.oid.match(/\d+/)[0], 10))
-        }
-
-        setSort(temp)
-    }
-
-    const handleSort = (type, field) => {
-        let temp = [...sortOrder]
-        if (type == "asc"){
-            setSortType("asc")
-            temp.sort((a, b) => a[field] - b[field])
-        }
-        else{
-            setSortType("desc")
-            temp.sort((a, b) => b[field] - a[field])
-        }
-        setSort(temp)
-    }
-    
     if (!isdetail){
         return(
             <div className="profile-form">
@@ -1042,7 +881,14 @@ export function History(){
                     </div>
                     <PieChart chartData={chartData} total={totalQuantity}/>
                 </div>
-                <br />
+                <div className="statistics" style={{backgroundColor: "#A0C4FF", display:"inline-flex", width:"450px",height:"180px", borderRadius:"8px", marginLeft:"40px"}}>
+                    <div style={{marginRight:"-20px", width:"250px", paddingLeft: "30px", paddingTop: "30px"}}>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "16px", fontWeight: "bold", marginBottom:"20px", color: "#F9F5F1", marginTop: "-10px"}}>Tổng tiền được giảm</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "24px", fontWeight: "bold"}}>{fixPrice(totalPaid)}</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1", marginBottom:"20px"}}>{totalQuantity} vouchers</div>
+                        <div style={{fontFamily: "Roboto, san-serif", fontSize: "14px", color: "#F9F5F1"}}>Thẻ thành viên: {currentUser.ranking}</div>
+                    </div>
+                </div>
                 <div style={{display: "inline-flex", gap: "40px", marginTop: "20px", height: "60px"}}>
                 <FormControl fullWidth sx={{ marginBottom: 2 , height: "40px"}}>
                     <TextField
@@ -1093,9 +939,9 @@ export function History(){
                         marginTop: "20px"
                         }}
                     >
-                        <div onClick={() => handleSortOrder(sortOrderz == 'none'?'asc':(sortOrderz == 'asc'?'desc':'asc'))}>Mã đơn hàng <span>{sortOrderz == 'none'?' ═':(sortOrderz == 'asc'?' 🔼':' 🔽')}</span></div>
-                        <div onClick={() => handleSortDate(sortDate == 'none'?'asc':(sortDate == 'asc'?'desc':'asc'))}>Thời gian đặt <span>{sortDate == 'none'?' ═':(sortDate == 'asc'?' 🔼':' 🔽')}</span></div>
-                        <div onClick={() => handleSort(sortType == 'none'?'asc':(sortType == 'asc'?'desc':'asc'),'final_price')}>Tổng tiền <span>{sortType == 'none'?' ═':(sortType == 'asc'?' 🔼':' 🔽')}</span></div>
+                        <div>Mã đơn hàng</div>
+                        <div>Ngày mua</div>
+                        <div>Tổng tiền</div>
                         <div>Tình trạng</div>
                         <div></div>
                     </div>
@@ -1131,59 +977,10 @@ export function History(){
                         Không có sản phẩm nào.
                         </div>
                     )}
-                    <style>
-                        {
-                            `.page-button {
-                                display: flex;
-                                justify-content: center;
-                                margin-bottom: 40px;
-                                margin-top: -20px;
-                                align-items: center;
-                            }
-                            .page-button button {
-                                width: 50px;
-                                height: 50px;
-                                align-items: center;
-                                justify-content: center;
-                                text-align: center;
-                                background-color: white;
-                                border: 1px solid gray;   
-                                color: black;   
-                                padding: 10px 20px;
-                                text-align: center;
-                                text-decoration: none;
-                                display: inline-block;
-                                font-size: 16px;
-                                margin: 4px 2px;
-                                cursor: pointer;
-                                border-radius: 16px;
-                                transition: background-color 0.3s ease, transform 0.3s ease;
-                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                            }
-                            .page-button button:hover {
-                                background-color: red;
-                                color: white;
-                                transform: translateY(-2px);
-                            }
-                            .page-button button:disabled {
-                                background-color: #ccc;
-                                cursor: not-allowed;
-                            }
-                            .page-button button svg {
-                                vertical-align: middle;
-                                width: 10px;
-                                fill: currentColor;
-                            }`
-                        }
-                    </style>
-                    <div className="page-button" style={{marginTop: "20px", marginLeft: "820px"}}>
-                        <button className="left" onClick={handlePrevious} disabled={start === 0}>
-                        <svg enable-background="new 0 0 13 20" viewBox="0 0 13 20" x="0" y="0" class="shopee-svg-icon icon-arrow-left-bold"><polygon points="4.2 10 12.1 2.1 10 -.1 1 8.9 -.1 10 1 11 10 20 12.1 17.9"></polygon></svg>
-                        </button>
-                        <button className="right" onClick={handleNext} disabled={end === orderList.length}>
-                        <svg enable-background="new 0 0 13 21" viewBox="0 0 13 21" x="0" y="0" class="shopee-svg-icon icon-arrow-right-bold"
-                        fill="color"><polygon points="11.1 9.9 2.1 .9 -.1 3.1 7.9 11 -.1 18.9 2.1 21 11.1 12 12.1 11"></polygon></svg>
-                        </button>
+                    <div style={{display: "inline-flex"}}>
+                    <div className='btn-css' style={{padding: "10px 15px 10px 15px", border: "1px solid #696D5D", borderRadius: "6px", cursor: "pointer", marginTop: "20px", width: "80px", height: "40px" }}>Trở về</div>
+                    <span className='click left' onClick = {handlePrevious}></span>
+                    <span className='click right' onClick={handleNext}></span>
                     </div>
             </div>
         )
@@ -2457,9 +2254,6 @@ const ControlRender = ({active,currentUser, setActive}) =>{
 function UserAccountManagement() {
     //console.log("users: " + currentUser)
     const uid = localStorage.getItem('uid')
-    const location = useLocation();
-    const ractive = location.state?(location.state.active?location.state.active:1):1
-
     //console.log(uid)
     const [currentUser, setUser] = useState(null)
     const [totalPaid, setPaid] = useState(0)
@@ -2479,7 +2273,7 @@ function UserAccountManagement() {
         fetchUser()
     },[uid])
     const navigate = useNavigate()
-    const [active,setActive] = useState(ractive)
+    const [active,setActive] = useState(1)
     const curPage = (number, path) => {
         setActive(number);
         if (path == '/'){
@@ -2490,7 +2284,7 @@ function UserAccountManagement() {
     };
     return ( currentUser &&
         <>
-         <UserContext.Provider value={{ active, setActive, currentUser, totalPaid, setPaid, phone1, setPhone1}}>
+         <UserContext.Provider value={{ active, setActive, currentUser, totalPaid, setPaid, phone1, setPhone1 }}>
                 <Header />
                 <div className="acc-container">
                     <div className="acc-breadcrumb">

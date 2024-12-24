@@ -43,7 +43,8 @@ const fixPrice = (price) => {
     return token;
 }
 
-export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
+export function UpdatePhone() {
+    const { active, setActive, currentUser, setPhone1 } = useContext(UserContext);
     const [phone, setVal] = useState("")
     const navigate = useNavigate()
     const [Pnumber, setPhone] = useState([])
@@ -79,6 +80,10 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
 
         fetchPhone();
     }, [currentUser, toggle]);
+
+    useEffect(() => {
+        setPhone1(Pnumber[0] || "")
+    }, [Pnumber])
 
     const handleSubmit = async () => {
         //alert(phone)
@@ -118,7 +123,7 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
         setIsPopupOpen(true)
     }
     return (
-        <div className="profile-form" style={{width:"500px", marginLeft: "-20px", borderRadius: "0px 0px 8px 8px" }}>
+        <div className="profile-form">
             <style>{`
                         .btn-css{
                             padding: 5px;
@@ -180,9 +185,6 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
                         .closePopup:hover {
                             background-color: #cc0000;
                         }
-                        .address-table tr:hover{
-                            background-color: #F4F6E0;
-                        }
                     `}
             </style>
             {isPopupOpen && (
@@ -200,7 +202,7 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
                     </div>
                 </div>
             )}
-            <h2>Thông tin địa chỉ</h2>
+            <h2><span style={{ color: "gray", fontWeight: "bold", cursor: "pointer" }} onClick={() => { setActive(1); navigate('/user/info') }}>&#8592;</span> Thông tin địa chỉ</h2>
             <table className="address-table">
                 <thead>
                     <th>STT</th>
@@ -212,9 +214,9 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
                         Pnumber.map((p, index) => {
                             //console.log(Pnumber)
                             return (
-                                <tr key={index} style={{cursor: "pointer"}}>
-                                    <td onClick={()=>{setCurPhone(p); closePopupPhone()}}>{index + 1}</td>
-                                    <td onClick={()=>{setCurPhone(p); closePopupPhone()}}>{p}</td>
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{p}</td>
                                     <td style={{ display: "inline-flex", width: "60px" }}><button onClick={() => handleRemove(index)} style={{ color: "white", backgroundColor: "red" }}>Xóa</button></td> {/* Close button */}
                                 </tr>
                             )
@@ -238,7 +240,8 @@ export function UpdatePhone({ currentUser, setCurPhone, closePopupPhone }) {
     )
 }
 
-export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
+export function UpdateAdress() {
+    const { active, setActive, currentUser } = useContext(UserContext);
     const [address, setVal] = useState({
         province: "",
         city: "",
@@ -484,9 +487,6 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                         .closePopup:hover {
                             background-color: #cc0000;
                         }
-                        .address-table tr:hover{
-                            background-color: #F4F6E0;
-                        }
                     `}
             </style>
             {isPopupOpen && (
@@ -504,8 +504,8 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                     </div>
                 </div>
             )}
-            <div className="profile-form" style={{ backgroundColor: "white", width:"1100px", marginLeft: "-20px", borderRadius: "0px 0px 8px 8px" }}>
-                <h2>Thông tin địa chỉ</h2>
+            <div className="profile-form" style={{ backgroundColor: "white" }}>
+                <h2><span style={{ color: "gray", fontWeight: "bold", cursor: "pointer" }} onClick={() => { setActive(1); navigate('/user/info') }}>&#8592;</span> Thông tin địa chỉ</h2>
                 <table className="address-table">
                     <thead>
                         <tr>
@@ -522,9 +522,9 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                         {
                             partitionedAddresses && partitionedAddresses.length > 0 ? partitionedAddresses.map((item, index) => {
                                 return (
-                                    <tr key={index} style={{cursor: "pointer"}}>
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}>{index + 1}</td> {/* Display the index + 1 for STT */}
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}><input type="text" id={`province${index}`} value={item.street} onChange={(e) => {
+                                    <tr key={index}>
+                                        <td>{index + 1}</td> {/* Display the index + 1 for STT */}
+                                        <td><input type="text" id={`province${index}`} value={item.street} onChange={(e) => {
                                             const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
                                             tempArr[index] = {
                                                 ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
@@ -532,7 +532,7 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                                             };
                                             setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                         }} /></td>
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}><input type="text" id={`province${index}`} value={item.district} onChange={(e) => {
+                                        <td><input type="text" id={`province${index}`} value={item.district} onChange={(e) => {
                                             const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
                                             tempArr[index] = {
                                                 ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
@@ -540,7 +540,7 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                                             };
                                             setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                         }} /></td>
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}><input type="text" id={`province${index}`} value={item.city} onChange={(e) => {
+                                        <td><input type="text" id={`province${index}`} value={item.city} onChange={(e) => {
                                             const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
                                             tempArr[index] = {
                                                 ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
@@ -548,7 +548,7 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                                             };
                                             setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                         }} /></td>
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}><input type="text" id={`province${index}`} value={item.province} onChange={(e) => {
+                                        <td><input type="text" id={`province${index}`} value={item.province} onChange={(e) => {
                                             const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
                                             tempArr[index] = {
                                                 ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
@@ -556,7 +556,7 @@ export function UpdateAdress({ currentUser, closePopupAd, setCurAddress}) {
                                             };
                                             setPar(tempArr); // Cập nhật trạng thái với bản sao mới
                                         }} /></td>
-                                        <td onClick={()=>{setCurAddress(item.street + ', ' + item.district + ', ' + item.city + ', ' + item.province); closePopupAd()}}><input type="checkbox" name="subscribe" checked={item.isdefault} onChange={(e) => {
+                                        <td><input type="checkbox" name="subscribe" checked={item.isdefault} onChange={(e) => {
                                             const tempArr = [...partitionedAddresses]; // Tạo bản sao mới của mảng
                                             tempArr[index] = {
                                                 ...tempArr[index], // Sao chép đối tượng hiện tại để giữ các trường khác
@@ -822,10 +822,15 @@ function Voucher({ state, buyList, setVoucher, setIsPopupOpen, total }) {
 export default function Checkout() {
     const navigate = useNavigate();
     const location = useLocation();
-
-    const productList = location.state.list || [location.state.product];
+    //console.log(location)
+    const [errors, setErrors] = useState([]);
+    // const [productList, setProductList] = useState(null);
+    const productList = location.state.list || [];
+    // const [userID, setUserID] = useState(localStorage.getItem('uid'));
+    // console.log(userID)
+    const [orderItems, setOrderItems] = useState([]);
     const [userData, setUserData] = useState(null);
-    const [discount, setDiscount] = useState(location.state.discount || 0)
+    const [discount, setDiscount] = useState(location.state.discount)
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -893,8 +898,8 @@ export default function Checkout() {
             // Tiếp tục xử lý tạo đơn hàng
             const Torder = [...productList].map((item) => ({
                 product_id: item.product_id,
-                quantity: location.state.voucher?item.pquantity: location.state.quantity,
-                subtotal: item.pquantity?item.pquantity * item.price:location.state.product.price * location.state.quantity,
+                quantity: item.pquantity,
+                subtotal: item.pquantity * item.price,
             }));
 
             console.log("Make order: ", {
@@ -913,8 +918,8 @@ export default function Checkout() {
                 shipping_address: holdAddress,
                 shipping_fee: 0,
                 shipping_co: "Grab",
-                quantity: location.state.voucher?productList.reduce((sum, i) => sum + i.pquantity, 0):location.state.quantity,
-                total_price: location.state.total?location.state.total:location.state.product.price * location.state.quantity,
+                quantity: productList.reduce((sum, i) => sum + i.pquantity, 0),
+                total_price: location.state.total,
                 promotion_id: voucher && voucher.promotion_id ? voucher.promotion_id : null,
             });
 
@@ -927,7 +932,6 @@ export default function Checkout() {
                 };
                 // Gọi API mã QR momo
                 const response = await axios.post("http://localhost:8000/api/payment/config", data);
-                console.log("Payment config:", response.data);
                 if (response.status === 200) {
                     console.log("Payment config:", response.data);
 
@@ -990,9 +994,8 @@ export default function Checkout() {
     const closePopupAd = () => {
         setIsPopupAd(false);
     };
-    const [voucher, setVoucher] = useState(location.state.voucher || {promotion_id: null});
+    const [voucher, setVoucher] = useState(location.state.voucher)
     useEffect(() => {
-        if (!location.state.voucher) return;
         switch (voucher.apply_range) {
             case 'all':
                 setDiscount(voucher.value ? voucher.value : Math.min(voucher.percentage * location.state.total, voucher.max_amount))
@@ -1081,7 +1084,7 @@ export default function Checkout() {
                     <div className="popup" onClick={closePopup}>
                         <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "600px" }}>
                             <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "500px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Voucher</h2>
-                            <Voucher buyList={productList} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total || location.state.product.price * location.state.quantity} />
+                            <Voucher buyList={location.state.list} setVoucher={setVoucher} setIsPopupOpen={setIsPopup} total={location.state.total} />
                             <button className="closePopup" onClick={closePopup} style={{ marginTop: "-30px" }}>
                                 Đóng
                             </button>
@@ -1090,17 +1093,21 @@ export default function Checkout() {
                 )}
                 {isPopupPhone && (
                     <div className="popup" onClick={closePopupPhone}>
-                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "400px" }}>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "600px" }}>
                             <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "500px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Số điện thoại</h2>
-                            <UpdatePhone currentUser={userData} closePopupPhone={closePopupPhone} setCurPhone={setP} />
+                            <button className="closePopup" onClick={closePopupPhone} style={{ marginTop: "-30px" }}>
+                                Đóng
+                            </button>
                         </div>
                     </div>
                 )}
                 {isPopupAd && (
                     <div className="popup" onClick={closePopupAd}>
-                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "1100px", height: "600px" }}>
-                            <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "1100px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Voucher</h2>
-                            <UpdateAdress currentUser = {userData} closePopupAd={closePopupAd} setCurAddress={setA}/>
+                        <div className="popupContent" onClick={(e) => e.stopPropagation()} style={{ width: "500px", height: "600px" }}>
+                            <h2 style={{ fontWeight: "bold", color: "red", fontSize: "20px", backgroundColor: "#F3F6F8", width: "500px", marginLeft: "-20px", height: "50px", marginTop: "-20px", paddingTop: "10px", borderRadius: "8px 8px 0px 0px", boxShadow: "0 5px 10px 0 rgba(0, 0, 0, 0.3)" }}>Chọn Voucher</h2>
+                            <button className="closePopup" onClick={closePopupAd} style={{ marginTop: "-30px" }}>
+                                Đóng
+                            </button>
                         </div>
                     </div>
                 )}
@@ -1170,7 +1177,7 @@ export default function Checkout() {
                                     <span className={`bg-blue-50 hover:bg-blue-100`} style={{ cursor: "pointer", padding: "9px" }} onClick={openPopupAd}>&#128221;</span>
                                 </div>
 
-                                {/* <div className="mb-4">
+                                <div className="mb-4">
                                     <div>Thêm ghi chú</div>
                                     <input
                                         type="note"
@@ -1180,7 +1187,7 @@ export default function Checkout() {
                                         value={"sdfasdfadsfa"}
                                     //   onChange={(e) => setPass(e.target.value)}
                                     />
-                                </div> */}
+                                </div>
 
 
                             </div>
@@ -1197,13 +1204,13 @@ export default function Checkout() {
                                         <span>{product.pname}</span>
                                     </div>
                                     {/* <div className=" w-2/5 text-right ">{prodPrice}</div> */}
-                                    <div className=" w-1/5 text-right mr-20">x {product.pquantity || location.state.quantity}</div>
-                                    <div className=" w-2/5 text-right ">{fixPrice(product.pquantity?(product.pquantity * product.price):(location.state.product.price * location.state.quantity))}</div>
+                                    <div className=" w-1/5 text-right mr-20">x {product.pquantity}</div>
+                                    <div className=" w-2/5 text-right ">{fixPrice(product.pquantity * product.price)}</div>
                                 </div>)
                                 )}
                                 <div className="flex justify-between mr-20">
                                     <div>Thành tiền</div>
-                                    <div>{fixPrice(location.state.total || location.state.product.price * location.state.quantity)}</div>
+                                    <div>{fixPrice(location.state.total)}</div>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
@@ -1213,17 +1220,17 @@ export default function Checkout() {
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
                                     <div>Giảm giá</div>
-                                    <div>{fixPrice(discount || 0)}</div>
+                                    <div>{fixPrice(discount)}</div>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="promotion flex justify-between mr-20">
-                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5" value={voucher.promotion_id || ""} onChange={(e) => setVoucher({ ...voucher, promotion_id: e.target.value })} />
+                                    <input type="text" placeholder="Nhập mã giảm giá" className="border border-black rounded-md p-2 w-3/5" value={voucher.promotion_id} onChange={(e) => setVoucher({ ...voucher, promotion_id: e.target.value })} />
                                     <button className="bg-red-600 text-white p-2 rounded-md" onClick={openPopup}>Áp dụng</button>
                                 </div>
                                 <div className="border-b border-gray-600 mr-20"></div>
                                 <div className="flex justify-between mr-20">
                                     <div className="font-semibold">Tổng tiền</div>
-                                    <div>{fixPrice(location.state.total?(location.state.total - discount):(location.state.product.price * location.state.quantity))}</div>
+                                    <div>{fixPrice(location.state.total - discount)}</div>
                                 </div>
 
                                 <div className="payment-method">

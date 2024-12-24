@@ -28,10 +28,13 @@ router.post('/login', [
 
 router.post('/logout', authController.logout);
 router.get('/users', authController.fetchAllUsers);
+router.get('/users', authController.fetchAllUsers);
 
 
 router.put('/update-user/:id', authController.updateUser);
+router.put('/update-user/:id', authController.updateUser);
 
+router.delete('/delete-user/:id', authController.deleteUser);
 router.delete('/delete-user/:id', authController.deleteUser);
 
 router.get('/get-detail/:id', authController.getDetailUser);

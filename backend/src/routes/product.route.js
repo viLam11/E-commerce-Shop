@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 //const { body, param } = require('express-validator');
 const productController = require('../controller/product.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
 
 const multer = require('multer');
 const path = require('path');
@@ -15,8 +16,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// router.post('/CreateProduct', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.createProduct);
-router.post('/CreateProduct', productController.createProduct);
+router.post('/CreateProduct', upload.array('image', 6), productController.createProduct);
 router.put('/UpdateProduct/:id', productController.updateProduct);
 router.delete('/DeleteProduct/:id', productController.deleteProduct);
 router.get('/get-detail/:id', productController.getDetailProduct);
@@ -24,12 +24,11 @@ router.get('/getAll', productController.getAllProduct);
 router.delete('/delete-many', productController.deleteMany);
 
 //image
-// router.post('/AddImage/:id', authMiddleware.authUserMiddleWare, upload.array('image', 6), productController.addImage);
-router.post('/AddImage/:id', productController.addImage);
+router.post('/AddImage/:id', upload.array('image', 6), productController.addImage);
 router.get('/GetImageByProduct/:id', productController.getImageByProduct);
 router.delete('/DeleteImage', productController.deleteImage);
 router.delete('/DeleteImageByProduct/:id', productController.deleteImageByProduct);
-router.put('/UpdateImage', productController.updateImage);
+router.put('/UpdateImage/:id', upload.array('image', 6), productController.updateImage);
 
 
 router.post('/CreateReview/:id', productController.CreateReview);

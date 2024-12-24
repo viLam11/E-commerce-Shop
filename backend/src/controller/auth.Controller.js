@@ -146,8 +146,8 @@ class AuthController {
                 res.status(200).json({
                     status: 200,
                     msg: 'Authentication successful',
-                    data: { 
-                        token: token, 
+                    data: {
+                        token: token,
                         userType: loadedUser.usertype,
                         userID: loadedUser.uid
                     }
@@ -469,16 +469,16 @@ class AuthController {
     async getAddressById(req, res, next) {
         try {
             const userId = req.params.id;
-            if(!userId) {
+            if (!userId) {
                 return res.status(400).json({
                     status: 400,
                     msg: "The userID is required",
                     data: null
                 })
             }
-            
-            
-        } catch(err) {
+
+
+        } catch (err) {
             return res.status(400).json({
                 status: 400,
                 msg: err,

@@ -2,7 +2,7 @@ import { useContext, createContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
-export default function AuthProvider({children}) {
+export default function AuthProvider({ children }) {
     // const [isLogged, setIsLogged] = useState(false);
     // useState(() => {
     //     const check = localStorage.getItem("isLogged");
@@ -26,7 +26,7 @@ export default function AuthProvider({children}) {
     //     }
     //     setIsLogged(false);
     // }
-    const [user, setUser] = useState(null); 
+    const [user, setUser] = useState(null);
 
     return <AuthContext.Provider value={user} >{children}</AuthContext.Provider>
 }

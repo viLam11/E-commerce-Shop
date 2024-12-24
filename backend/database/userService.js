@@ -1,6 +1,7 @@
 const client = require('./database');
 const { v4: uuidv4 } = require('uuid');
 const CreateID = require('../createID')
+const { v4: uuidv4 } = require('uuid');
 class UserService {
     constructor() { };
 
