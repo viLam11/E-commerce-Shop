@@ -156,7 +156,7 @@ export default function ProductsManagement() {
                             </div>
 
                         </div>
-                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => {navigate("/admin/product-new")}}>
+                        <div className="add-product inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200" onClick={() => { navigate("/admin/product-new") }}>
                             <div className="font-bold ">Thêm sản phẩm</div>
                         </div>
 
@@ -189,7 +189,7 @@ export default function ProductsManagement() {
                                             <td className="text-left">{prod.pname}</td>
                                             <td className="text-left">
                                                 <span className="inline-block w-2/3 text-right p-4">{prod.price.toLocaleString()}</span>
-                                                 VND
+                                                VND
                                             </td>
                                             <td>
                                                 <div className="bg-white flex border w-20 border-black border-solid rounded-sm text-center m-auto">

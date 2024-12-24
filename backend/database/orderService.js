@@ -367,8 +367,8 @@ class OrderService {
                     });
                 } else {
                     try {
-                        await client.query(`DELETE FROM orders WHERE oid = $1`, [orderId]);
                         await client.query(`DELETE FROM order_include WHERE oid = $1`, [orderId]);
+                        await client.query(`DELETE FROM orders WHERE oid = $1`, [orderId]);
                         resolve({
                             status: 200,
                             msg: "Order deleted successfully",

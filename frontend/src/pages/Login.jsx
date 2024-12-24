@@ -49,7 +49,7 @@ export default function Login() {
           localStorage.setItem("userID", user_id);
           localStorage.setItem("role", userType);
           localStorage.setItem("uid", response.data.data.userID);
-          if(userType == "customer") navigate("/user/homepage")
+          if (userType == "customer") navigate("/user/homepage")
           else navigate("/admin/product-manage")
         }
       })
@@ -80,13 +80,13 @@ export default function Login() {
     // } 
     axios.post("http://localhost:8000/api/user/signUp", {
       email: email,
-        password: pass,
-        confirmPassword: pass,
-        fname: fname,
-        lname: lname,
-        gender: gender,
-        userType: role,
-        birthday: `${day}-${month}-${year}`
+      password: pass,
+      confirmPassword: pass,
+      fname: fname,
+      lname: lname,
+      gender: gender,
+      userType: role,
+      birthday: `${day}-${month}-${year}`
     })
       .then((response) => {
         if (response.status == 200) {
@@ -108,7 +108,7 @@ export default function Login() {
       <div className="flex flex-col min-h-screen">
         <Header role="customer" />
 
-        <div className="flex-grow flex" style={{marginTop: "80px"}}>
+        <div className="flex-grow flex" style={{ marginTop: "80px" }}>
           <div className="w-6/12 p-4 flex items-center justify-center">
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
@@ -188,13 +188,13 @@ export default function Login() {
         <Header role="customer" />
 
         <div className="flex w-full" >
-          <div className="w-6/12 p-4 flex items-center justify-center" style={{marginTop: "80px"}}>
+          <div className="w-6/12 p-4 flex items-center justify-center" style={{ marginTop: "80px" }}>
             <img src="./login.png" alt="login-img" className="w-3/4" />
           </div>
 
           <div className="w-5/12 p-4 flex justify-center items-center">
             <div className="w-full">
-              <h1 className="text-3xl font-bold text-left mt-6 mb-4" style={{marginTop: "80px"}}>Tạo tài khoản</h1>
+              <h1 className="text-3xl font-bold text-left mt-6 mb-4" style={{ marginTop: "80px" }}>Tạo tài khoản</h1>
               <div className="text-sm mb-6">Vui lòng điền các thông tin sau </div>
 
               <form action="#" method="POST">
@@ -267,11 +267,11 @@ export default function Login() {
 
                   <div className="mb-4 flex space-x-2">
                     <div className="pr-4">Giới tính</div>
-                    <input type="radio" id="male" value="male" name="gender" onClick={() => {setGender("male")}} />
+                    <input type="radio" id="male" value="male" name="gender" onClick={() => { setGender("male") }} />
                     <label htmlFor="male">Nam</label>
-                    <input type="radio" id="female" value="female" name="gender" onClick={() => {setGender("female")}} />
+                    <input type="radio" id="female" value="female" name="gender" onClick={() => { setGender("female") }} />
                     <label htmlFor="female">Nữ</label>
-                    <input type="radio" id="null" value="null" name="gender" onClick={() => {setGender(null)}} />
+                    <input type="radio" id="null" value="null" name="gender" onClick={() => { setGender(null) }} />
                     <label htmlFor="null">Khác</label>
                   </div>
 
@@ -279,49 +279,49 @@ export default function Login() {
                     <div className="flex items-center">
                       <span className="pr-4">Ngày sinh:</span>
                       <div className="flex">
-                      <span className="inline-block w-10">
-                        <input
-                          type="number"
-                          min={0}
-                          max={31}
-                          name="day"
-                          value={day}
-                          onChange={handleInputChange}
-                          placeholder="DD"
-                          className="border-b text-center inline-block w-10"
-                        />
-                      </span>/
-                      <span className="inline-block w-10">
-                        <input
-                          type="number"
-                          name="month"
-                          value={month}
-                          onChange={handleInputChange}
-                          placeholder="MM"
-                          className="border-b text-center inline-block w-10"
-                        />
-                      </span>/
-                      <span className="inline-block w-10">
-                        <input
-                          type="number"
-                          name="year"
-                          value={year}
-                          onChange={handleInputChange}
-                          placeholder="YYYY"
-                          className="border-b text-center inline-block w-10"
-                        />
-                      </span>
+                        <span className="inline-block w-10">
+                          <input
+                            type="number"
+                            min={0}
+                            max={31}
+                            name="day"
+                            value={day}
+                            onChange={handleInputChange}
+                            placeholder="DD"
+                            className="border-b text-center inline-block w-10"
+                          />
+                        </span>/
+                        <span className="inline-block w-10">
+                          <input
+                            type="number"
+                            name="month"
+                            value={month}
+                            onChange={handleInputChange}
+                            placeholder="MM"
+                            className="border-b text-center inline-block w-10"
+                          />
+                        </span>/
+                        <span className="inline-block w-10">
+                          <input
+                            type="number"
+                            name="year"
+                            value={year}
+                            onChange={handleInputChange}
+                            placeholder="YYYY"
+                            className="border-b text-center inline-block w-10"
+                          />
+                        </span>
                       </div>
 
                     </div>
                   </div>
 
                   <div className="role flex space-x-2">
-                      <div>Bạn là nhân viên ? </div>
-                      <input type="radio" value="admin" name="role" onClick={() => {setRole("admin")}} />
-                      <label htmlFor="role">Đúng</label>
-                      <input type="radio" value="customer" name="role" onClick={() => {setRole("customer")}} />
-                      <label htmlFor="role">Không</label>
+                    <div>Bạn là nhân viên ? </div>
+                    <input type="radio" value="admin" name="role" onClick={() => { setRole("admin") }} />
+                    <label htmlFor="role">Đúng</label>
+                    <input type="radio" value="customer" name="role" onClick={() => { setRole("customer") }} />
+                    <label htmlFor="role">Không</label>
                   </div>
                 </div>
 
