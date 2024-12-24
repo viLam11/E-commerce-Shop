@@ -256,7 +256,7 @@ export default function ProductsManagement() {
                                             value={field === "pname" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
-                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
                                             <option value="pname-asc">A-Z</option>
                                             <option value="pname-desc">Z-A</option>
                                         </select>
@@ -270,7 +270,7 @@ export default function ProductsManagement() {
                                             value={field === "price" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
-                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
                                             <option value="price-asc">Tăng</option>
                                             <option value="price-desc">Giảm</option>
                                         </select>
@@ -283,7 +283,7 @@ export default function ProductsManagement() {
                                             value={field === "quantity" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
-                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="" readOnly onClick={() => setCount((prev) => prev++)}></option>
                                             <option value="quantity-asc">
                                                 <FontAwesomeIcon icon={faArrowUp} />
 
