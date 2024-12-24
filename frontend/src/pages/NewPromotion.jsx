@@ -54,7 +54,7 @@ export default function NewPromotion() {
     function handleCreatPromo() {
         let newPromo;
         if(name == "" || quantity == 0 || description == "" || minSpent == 0 || value == 0 || maxAmount == 0 || applyRange == "" || discount_type == "") {
-            alert("Vui lòng điền đầy đủ thông tin");
+            return alert("Vui lòng điền đầy đủ thông tin");
         }
         if (discount_type == "percent") {
             if (value < 1 || value > 100) {
@@ -76,17 +76,31 @@ export default function NewPromotion() {
                 "apply_id": apply_id
             }
         } else {
-            newPromo = {
-                "name": name,
-                "quantity": quantity,
-                "description": description,
-                "starttime": formatDate(startDate),
-                "endtime": formatDate(endDate),
-                "minspent": minSpent,
-                "value": value,
-                "percentage": 0,
-                "max_amount": maxAmount,
-                "discount_type": discount_type,
+            // newPromo = {
+            //     "name": name,
+            //     "quantity": quantity,
+            //     "description": description,
+            //     "starttime": formatDate(startDate),
+            //     "endtime": formatDate(endDate),
+            //     "minspent": minSpent,
+            //     "value": value,
+            //     "percentage": 0,
+            //     "max_amount": maxAmount,
+            //     "discount_type": discount_type,
+            //     "apply_range": applyRange,
+            //     "apply_id": apply_id
+            // }
+            newPromo = { 
+                "name": name, 
+                "quantity": quantity, 
+                "description": description, 
+                "starttime": formatDate(startDate), 
+                "endtime": formatDate(endDate), 
+                "minspent": Number(minSpent), 
+                "value": 0, 
+                "percentage": Number(value), 
+                "max_amount": Number(maxAmount), 
+                "discount_type": "fix price", 
                 "apply_range": applyRange,
                 "apply_id": apply_id
             }
@@ -96,7 +110,12 @@ export default function NewPromotion() {
         axios.post(`http://localhost:8000/api/promotion/CreatePromotion`, newPromo)
             .then((response) => {
                 console.log("Check response: ", response.data);
-                alert("Thêm mã khuyến mãi thành công"); 
+                if(response.data.status === 200) {
+                    alert("Thêm mã khuyến mãi thành công"); 
+                } else {
+                    alert(response.data.msg)
+                }
+               
             })
             .catch((error) => {
                 if(error.response.data) {
@@ -221,10 +240,10 @@ export default function NewPromotion() {
 
                                         <div className="w-full">
                                             <input type="radio" value="fixed" className="mr-2" name="promo-type"
-                                                onClick={() => setDiscount_type("fixed")}
+                                                onClick={() => setDiscount_type("fix price")}
                                             /> Giảm số tiền cụ thể
                                             <div>
-                                                {discount_type == "fixed" ? <PromotionInput name="fixed" setValue={setValue} value={value}  /> : null}
+                                                {discount_type == "fix price" ? <PromotionInput name="fixed" setValue={setValue} value={value}  /> : null}
                                             </div>
                                         </div>
                                     </div>
@@ -252,8 +271,10 @@ export default function NewPromotion() {
 
                                 {applyRange == "product" ?  
                                     <div className="my-6 ml-6 ">
-                                        <label htmlFor="prodID" className="block mb-2">Mã sản phẩm &#40; đặt cách nhau bởi dấu phẩy &#41; </label>
-                                        <textarea name="prodIDs" className="w-2/3 h-10 bg-gray-100" ></textarea>
+                                        <label htmlFor="prodID" className="block mb-2">Mã sản phẩm </label>
+                                        <input type="text" className="w-2/3 h-10 bg-gray-100" 
+                                            onChange={(e) => setApply_id(e.target.value)}
+                                        />
                                     </div> 
                                 : null}
                                
@@ -264,7 +285,7 @@ export default function NewPromotion() {
                             <div className="w-full flex justify-center ">
                                 <button type="button" className="relative bg-red-600 p-2 font-bold rounded-md text-white block bottom-0"
                                     onClick={() => handleCreatPromo()}
-                                >Xác nhận</button>
+                                >Tạo mã khuyến mãi</button>
                             </div>
                         </div>
 
