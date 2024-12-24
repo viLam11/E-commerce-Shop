@@ -112,12 +112,11 @@ export default function NewPromotion() {
                 console.log("Check response: ", response.data);
                 if(response.data.status === 200) {
                     alert("Thêm mã khuyến mãi thành công"); 
-                } else {
-                    alert(response.data.msg)
-                }
+                } 
                
             })
             .catch((error) => {
+                console.log(error);
                 if(error.response.data) {
                     alert(error.response.data.message);
                 } else {
