@@ -298,7 +298,7 @@ export default function ProductsManagement() {
                                             value={field === "quantity" ? `${field}-${order}` : ""}
                                             onChange={handleSortChange}
                                         >
-                                            <option value="" readOnly onClick={() => setCount(count++)}></option>
+                                            <option value="" readOnly onClick={() => setCount((prve) => prev ++)}></option>
                                             <option value="quantity-asc">T</option>
                                             <option value="quantity-desc">G</option>
                                         </select>
