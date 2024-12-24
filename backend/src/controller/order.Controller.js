@@ -22,10 +22,8 @@ class OrderController {
 
     async createOrder(req, res) {
         try {
-            console.log(req.params.id)
             const { orderItems, status, shipping_address, shipping_fee, shipping_co, quantity, total_price } = req.body
-            //console.log(orderItems + status + shipping_address + shipping_fee + shipping_co + quantity + total_price)
-            if (!orderItems || !status || !shipping_address  || !shipping_co || !quantity || !total_price) {
+            if (!orderItems || !status || !shipping_address || !shipping_fee || !shipping_co || !quantity || !total_price) {
                 return res.status(200).json({
                     status: 'ERR',
                     message: 'The input is required'
@@ -37,8 +35,8 @@ class OrderController {
             return res.status(200).json(response)
         }
         catch (err) {
-            return res.status(400).json({
-                message: err.message
+            return res.status(404).json({
+                message: err
             })
         }
     }

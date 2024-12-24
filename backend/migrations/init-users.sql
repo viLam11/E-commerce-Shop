@@ -1,20 +1,19 @@
 create type user_type as enum('admin', 'customer');
 create type u_gender as enum('male', 'female');
 create type status	as enum('active', 'inactive');
---create type ranks as enum('silver', 'gold', 'diamond');
-create type bool as enum ('Yes', 'No');
-
-
+create type ranks as enum('silver', 'gold', 'diamond');
+create type bool as enum ('Yes', 'No')
+--users
 create table users(
 	uid	 		varchar(100) 	PRIMARY KEY,
 	username	varchar(50) 	NOT NULL unique,
-	upassword 	varchar(200) 	NOT NULL,
+	upassword 	varchar(60) 	NOT NULL,
 	fname		varchar(32) 	NOT NULL,
 	lname		varchar(32) 	NOT NULL,
 	email		varchar(50) 	NOT NULL unique,
 	gender		u_gender 		not null,
 	userType	user_type 		NOT NULL,
-	--ranking		ranks 		default silver,
+	ranking		ranks,
 	birthday	DATE,
 	total_payment integer		default 0,
 	id_no		varchar(20)
@@ -37,6 +36,16 @@ BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION check_role_constraint();
 
+COPY users (uid, username, upassword,fname, lname, email, gender, usertype, birthday, ranking,total_payment, id_no)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\users.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+select* from users;
+
+drop table users;
+
+--phone
 create table user_phone(
 	uid			varchar(100)	not null,
 	phone		varchar(11)		not null,
@@ -45,6 +54,15 @@ create table user_phone(
 								references users(uid)
 );
 
+COPY user_phone (uid, phone)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\phone.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+select * from user_phone
+
+drop table user_phone;
+--address
 
 create table user_address(
 	uid			varchar(100)	not null,
@@ -55,11 +73,31 @@ create table user_address(
 								references users(uid)
 );
 
+COPY user_address (uid, address, isdefault)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\address.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+select * from user_address;
+
+drop table user_address;
+--category
 create table category(
 	cate_id		varchar(100)	primary key,
 	cate_name	varchar(33)		not null
 );
+INSERT INTO category(cate_id, cate_name) VALUES('c01', 'Điện thoại');
+INSERT INTO category(cate_id, cate_name) VALUES('c02', 'Laptop');
+INSERT INTO category(cate_id, cate_name) VALUES('c03', 'Máy tính bảng');
+INSERT INTO category(cate_id, cate_name) VALUES('c04', 'Đồng hồ thông minh');
+INSERT INTO category(cate_id, cate_name) VALUES('c05', 'Phụ kiện');
 
+COPY category (cate_id, cate_name)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\category.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+--product
 CREATE TABLE product(
 	product_id			varchar(100)	PRIMARY KEY,
 	pname				varchar(100)	NOT NULL,
@@ -67,18 +105,25 @@ CREATE TABLE product(
 	description			TEXT,
 	price				INTEGER			NOT NULL check(price > 0),
 	quantity			INTEGER			not null Check(quantity >= 0),
-	last_updated_time	timestamp 		default now(),-- vì product bây giờ đã là lastupdate nên cần cập nhật khi ở các updateProduct,...
+	create_time	timestamp 		default now(),
 	cate_id				varchar(100)	not null,
 	sold 				integer			default 0,
 	rating				smallint			default 0,
 	constraint fk_category	foreign key (cate_id) references category(cate_id)
 );
 
+COPY product (product_id, pname, price,cate_id, brand, description, quantity, create_time, sold, rating)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\product.csv'
+DELIMITER ',' 
+CSV HEADER;
 
+drop table product;
 
+select * from product;
+--product image
 create table image(
 	product_id 	varchar(255) ,
-	--image_id	varchar(255) ,
+	image_id	varchar(255) ,
 	image_url	text	not null,
 	ismain		bool	default 'No',
 	primary key(product_id, image_id),
@@ -87,28 +132,43 @@ create table image(
 				on delete cascade
 );
 
-create type discount as enum('fix_price', 'percent');
+COPY image (product_id, image_id, image_url, ismain)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\image.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+select * from image;
+
+drop table image;
+--promotion
+create type discount as enum('fix price', 'percent');
 create type apply_type as enum ('product', 'category', 'all');
 create table promotion(
 	promotion_id	varchar(100)	PRIMARY KEY,
-	name			varchar(100)	NOT NULL,
+	name		varchar(100)	NOT NULL,
 	quantity		INTEGER			check(quantity >= 0),
 	description		text	,
 	starttime		date		default now(),
 	endtime			date		default now(),
 	minspent		INTEGER			not null,
-	discount_type	discount	not null,
-	value			integer			check (value < minSpent),
+	value		integer			check (value < minSpent),
 	percentage		integer			,
 	max_amount		integer			check (max_amount < minSpent),		
 	apply_id		varchar(50)		,
 	apply_range		apply_type		not null
 );
 
+COPY promotion (promotion_id, name, quantity, description,starttime, endtime, minspent, apply_range, apply_id, value, percentage, max_amount)
+FROM 'C:\Program Files\PostgreSQL\17\data sample\promotion.csv'
+DELIMITER ',' 
+CSV HEADER;
+
+select * from promotion
+
 CREATE OR REPLACE FUNCTION check_promo_constraint()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (NEW.discount_type = 'fix_price' and NEW.value is null) 
+    IF (NEW.discount_type = 'fix_price' and NEW.fix_value is null) 
 		or (NEW.discount_type = 'percent'  and (new.percentage is null or new.max_amount is null)) 
 	THEN
         RAISE EXCEPTION 'Error';
@@ -117,14 +177,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- CREATE TRIGGER promo_constraint
--- BEFORE INSERT ON users
--- FOR EACH ROW
--- EXECUTE FUNCTION check_promo_constraint();
+CREATE TRIGGER promo_constraint
+BEFORE INSERT ON users
+FOR EACH ROW
+EXECUTE FUNCTION check_promo_constraint();
 
-DROP TRIGGER IF EXISTS promo_constraint ON users;
-
-
+select * from promotion;
+drop table promotion;
+--order
 create type deli_state as enum('Cancelled','Completed','Returned','Shipped','Pending','Paid');
 create table orders(
 	oid						varchar(100) 	primary key,
@@ -138,83 +198,26 @@ create table orders(
 	receive_time			date	 		default now(),
 	shipping_co				varchar(50) 	not null,
 	quantity				integer			not null,
-	total_price				integer			not null,
-	final_price				integer			not null,-- không có trong erd
-	promotion_id	varchar(255),
-	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
+	total_price					integer			not null,
+	final_price				integer			not null,
 	constraint fk_order_prod foreign key(uid)
 				references users(uid)
 );
 
--- Trigger Function to update total_payment
-CREATE OR REPLACE FUNCTION update_total_payment()
+CREATE OR REPLACE FUNCTION calculate_final_price()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Handle INSERT operation
-    IF TG_OP = 'INSERT' THEN
-        IF NEW.status = 'Completed' THEN
-            UPDATE users
-            SET total_payment = total_payment + NEW.final_price
-            WHERE uid = NEW.uid;
-        END IF;
+    IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
+        NEW.final_price := NEW.total_price - NEW.shipping_fee;
     END IF;
-
-    -- Handle DELETE operation
-    IF TG_OP = 'DELETE' THEN
-        IF OLD.status = 'Completed' THEN
-            UPDATE users
-            SET total_payment = total_payment - OLD.final_price
-            WHERE uid = OLD.uid;
-        END IF;
-    END IF;
-
-    -- Handle UPDATE operation
-    IF TG_OP = 'UPDATE' THEN
-        IF OLD.status = 'Completed' AND NEW.status <> 'Completed' THEN
-            -- Order was completed but no longer completed
-            UPDATE users
-            SET total_payment = total_payment - OLD.final_price
-            WHERE uid = OLD.uid;
-        ELSIF OLD.status <> 'Completed' AND NEW.status = 'Completed' THEN
-            -- Order was not completed but now is completed
-            UPDATE users
-            SET total_payment = total_payment + NEW.final_price
-            WHERE uid = NEW.uid;
-        ELSIF OLD.status = 'Completed' AND NEW.status = 'Completed' THEN
-            -- Order remains completed, adjust for price changes
-            UPDATE users
-            SET total_payment = total_payment - OLD.final_price + NEW.final_price
-            WHERE uid = NEW.uid;
-        END IF;
-    END IF;
-
-    RETURN NULL; -- Triggers for AFTER events return NULL
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
---DROP FUNCTION update_total_payment()
--- Create the Trigger
-CREATE TRIGGER trigger_update_total_payment
-AFTER INSERT OR DELETE OR UPDATE ON orders
+CREATE TRIGGER	final_price
+BEFORE INSERT OR UPDATE ON orders
 FOR EACH ROW
-EXECUTE FUNCTION update_total_payment();
-
---DROP TRIGGER trigger_update_total_payment ON orders
-
--- CREATE OR REPLACE FUNCTION calculate_final_price()
--- RETURNS TRIGGER AS $$
--- BEGIN
---     IF NEW.total_price IS NOT NULL AND NEW.shipping_fee IS NOT NULL THEN
---         NEW.final_price := NEW.total_price - NEW.shipping_fee;
---     END IF;
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
-
--- CREATE TRIGGER	final_price
--- BEFORE INSERT OR UPDATE ON orders
--- FOR EACH ROW
--- EXECUTE FUNCTION calculate_final_price();
+EXECUTE FUNCTION calculate_final_price();
 
 select* from users;
 
@@ -234,20 +237,24 @@ create table reviews(
 	primary key(product_id, uid),
 	constraint fk_review_prod foreign key(product_id) references product(product_id),
 	constraint fk_cus_review	foreign key(uid) references users(uid)
-);
-
-
+)
+drop table reviews;
 create table order_include(
+	iid	smallint	not null,
 	oid	varchar(255)	not null,
 	product_id 	varchar(255)	not null,
-	--cate_id		varchar(255)	not null,-- đâu ra cái cate_id này???
+	promotion_id	varchar(255),
+	cate_id		varchar(255)	not null,
 	quantity	integer			not null,
 	paid_price	integer			not null,
-	primary key (oid, product_id)
+	discount	integer	,
 	constraint fk_order_prod foreign key(oid) references orders(oid),
 	constraint fk_prod_of_order	foreign key(product_id) references product(product_id),
-	--constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
-);
+	constraint fk_promo_of_order	foreign key(promotion_id) references promotion(promotion_id),
+	constraint fk_cate_of_order	foreign key(cate_id) references category(cate_id)
+)
+drop table order_include
+create type action_type('add', 'delete', 'update');
 
 select * from promotion;
 select * from orders;
@@ -305,27 +312,27 @@ SELECT * FROM orders
 WHERE orders.user_id = 'user000010';
 
 -- 3.2 Tính số tiền userID đã chi
--- CREATE OR REPLACE FUNCTION check_expense(
---     userID varchar(255)
--- )
--- RETURNS INTEGER AS $$
--- DECLARE
---     totalAmount INTEGER := 0;
---     coursePrice INTEGER;
--- BEGIN
---     FOR coursePrice IN 
---         SELECT price
---         FROM orders o
---         WHERE o.user_id = userID
---     LOOP
---         totalAmount := totalAmount + coursePrice;
---     END LOOP;
+CREATE OR REPLACE FUNCTION check_expense(
+    userID varchar(255)
+)
+RETURNS INTEGER AS $$
+DECLARE
+    totalAmount INTEGER := 0;
+    coursePrice INTEGER;
+BEGIN
+    FOR coursePrice IN 
+        SELECT price
+        FROM orders o
+        WHERE o.user_id = userID
+    LOOP
+        totalAmount := totalAmount + coursePrice;
+    END LOOP;
 
---     RETURN totalAmount;
--- END;
--- $$ LANGUAGE plpgsql;
+    RETURN totalAmount;
+END;
+$$ LANGUAGE plpgsql;
 
--- SELECT check_expense('user000001');
+SELECT check_expense('user000001');
 
 -- create table carts(
 -- 	uid			varchar(255)	not null,
@@ -341,12 +348,11 @@ CREATE TABLE cart (
     uid          VARCHAR(255) NOT NULL,
     product_id   VARCHAR(255) NOT NULL,
     quantity     INTEGER      NOT NULL DEFAULT 1 CHECK(quantity > 0),
+
     PRIMARY KEY (uid,product_id),
     CONSTRAINT fk_addtocart_productid FOREIGN KEY (product_id) REFERENCES product(product_id),
     CONSTRAINT fk_addtocart_uid FOREIGN KEY (uid) REFERENCES users(uid)
 );
-
-
 INSERT INTO cart(uid, product_id, quantity) 
 VALUES('8f0f389a-4ff3-4a1d-a29f-3b331929a50f','ptemp','10');
 -- INSERT INTO cart(uid, product_id, quantity) 
@@ -360,8 +366,6 @@ CREATE TABLE notification (
     PRIMARY KEY (uid,content),
     CONSTRAINT fk_uid_notify FOREIGN KEY (uid) REFERENCES users(uid)
 );
-
-
 INSERT INTO users(uid, username, upassword, fname, lname, email, gender, usertype, birthday, id_no) 
 VALUES('ALL','ALL', 'ALL', 'ALL', 'ALL', 'ALL', 'male', 'admin', DATE('03-07-2004') ,'ALL');
 INSERT INTO notification(uid, content) 
