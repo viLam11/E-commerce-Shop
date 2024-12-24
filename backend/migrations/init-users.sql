@@ -70,7 +70,7 @@ CREATE TABLE product(
 	last_updated_time	timestamp 		default now(),-- vì product bây giờ đã là lastupdate nên cần cập nhật khi ở các updateProduct,...
 	cate_id				varchar(100)	not null,
 	sold 				integer			default 0,
-	rating				smallint		default 0,
+	rating				smallint			default 0,
 	constraint fk_category	foreign key (cate_id) references category(cate_id)
 );
 
@@ -131,7 +131,7 @@ create table orders(
 	uid						varchar(100) 	not null ,
 	status					deli_state	 	not null,
 	create_time				date	 	 	default now(),
-	done_time				date	 	 	default now(),--ssanh done_time với create_time lúc shipped nếu khác thì đã trả tiền (cập nhật done_time khi trả tiền); nếu giống thì chưa trả (không cập nhật nếu trả bằng tiền mặt)
+	done_time				date	 	 	default now(),
 	shipping_address		varchar(100) 	not null,
 	shipping_fee			integer		 	default 0,
 	estimated_delivery_time	date			default now(),

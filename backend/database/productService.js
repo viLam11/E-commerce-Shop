@@ -144,10 +144,6 @@ class ProductService {
                                     );
                                 }
                             }
-                            await client.query(
-                                `UPDATE product SET last_updated_time = NOW() WHERE product_id = $1`,
-                                [id]
-                            );
                             const updateproduct = await client.query(`
                                 SELECT p.*, ARRAY_AGG(i.image_url) AS image
                                 FROM product p
@@ -155,7 +151,7 @@ class ProductService {
                                 WHERE p.product_id = $1
                                 GROUP BY 
                                     p.product_id, p.pname, p.brand, p.description, p.price, 
-                                    p.quantity, p.last_updated_time, p.cate_id, p.sold, p.rating;
+                                    p.quantity, p.create_time, p.cate_id, p.sold, p.rating;
                                 `, [id]);
 
                             resolve({
@@ -258,8 +254,9 @@ class ProductService {
         return new Promise(async (resolve, reject) => {
             try {
                 client.query(`
-                SELECT * FROM product
-                WHERE product_id = $1
+                 SELECT product.*
+                FROM product 
+                WHERE product.product_id = $1
             `, [id], async (err, res) => {
                     if (err) {
                         reject({
@@ -277,8 +274,8 @@ class ProductService {
                     }
                     else {
                         const image = await this.getImageByProduct(id);
-                        console.log(image)
-                        res.rows[0].image = image.data.map(item => item.image_url);
+                        console.log("CHECK IMG: ", image)
+                        if(image.data) res.rows[0].image = image.data.map(item => item.image_url);
                         resolve({
                             status: 200,
                             msg: 'SUCCESS',
@@ -288,7 +285,7 @@ class ProductService {
                 })
             }
             catch (err) {
-                reject(err)
+                console.log(err)
             }
         })
     };
@@ -316,9 +313,9 @@ class ProductService {
 
     async sortProducts(sort, limit, offset) {
         return new Promise((resolve, reject) => {
-            const allowedColumns = ['product_id', 'pname', 'price', 'brand', 'quantity', 'cate_id', 'last_updated_time', 'rating', 'sold']
+            const allowedColumns = ['product_id', 'pname', 'price', 'brand', 'quantity', 'cate_id', 'create_time', 'rating', 'sold']
             let order = 'DESC';
-            let column = 'last_updated_time';
+            let column = 'create_time';
 
             if (Array.isArray(sort)) {
                 const upperSort0 = sort[0].toUpperCase();
@@ -458,7 +455,7 @@ class ProductService {
                     });
                 }
                 client.query(
-                    `SELECT * FROM product ORDER BY last_updated_time DESC LIMIT $1 OFFSET $2`,
+                    `SELECT * FROM product ORDER BY create_time DESC LIMIT $1 OFFSET $2`,
                     [limit, limit * page], async (err, res) => {
                         if (err) {
                             reject({
@@ -584,9 +581,10 @@ class ProductService {
     }
 
     async getImageByProduct(productId) {
+        console.log("CHECK PRODID 2: ", productId);
         return new Promise(async (resolve, reject) => {
             try {
-                await client.query(`
+                client.query(`
                 SELECT * FROM image WHERE product_id = $1`
                     , [productId], async (err, res) => {
                         if (err) {
@@ -596,13 +594,13 @@ class ProductService {
                                 data: null
                             });
                         }
-                        else if (res.rows.length === 0) {
-                            resolve({
-                                status: 404,
-                                msg: 'The product is not exist',
-                                data: null
-                            });
-                        }
+                        // else if (res.rows.length === 0) {
+                        //     resolve({
+                        //         status: 404,
+                        //         msg: 'The product is not exist',
+                        //         data: null
+                        //     });
+                        // }
                         else {
                             console.log(res.rows);
                             resolve({
@@ -655,14 +653,10 @@ class ProductService {
                         client.query(`
                             DELETE FROM image 
                             WHERE product_id = $1 AND image_url = $2
-                            `, [product_id, image_url], async (deleteErr, deleteRes) => {
+                            `, [product_id, image_url], (deleteErr, deleteRes) => {
                             if (deleteErr) {
                                 reject(deleteErr.message);
                             } else {
-                                await client.query(
-                                    `UPDATE product SET last_updated_time = NOW() WHERE product_id = $1`,
-                                    [product_id]
-                                );
                                 resolve({
                                     status: 200,
                                     msg: "Product's image deleted successfully",
@@ -701,14 +695,10 @@ class ProductService {
                     client.query(`
                         DELETE FROM image 
                         WHERE product_id = $1
-                    `, [productId], async (deleteErr, deleteRes) => {
+                    `, [productId], (deleteErr, deleteRes) => {
                         if (deleteErr) {
                             reject(deleteErr.message);
                         } else {
-                            await client.query(
-                                `UPDATE product SET last_updated_time = NOW() WHERE product_id = $1`,
-                                [productId]
-                            );
                             resolve({
                                 status: 200,
                                 msg: "Product's images deleted successfully",

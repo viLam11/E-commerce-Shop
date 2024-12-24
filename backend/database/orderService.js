@@ -4,75 +4,147 @@ const CreateID = require('../createID')
 class OrderService {
     constructor() { };
 
-    async updateProductStock(productId, amount) {
-        return new Promise((resolve, reject) => {
-            // Kiểm tra xem số lượng tồn kho có đủ không
-            try {
-                client.query(
-                    `SELECT quantity FROM product WHERE product_id = $1`,
-                    [productId],
-                    (err, res) => {
-                        if (err) {
-                            return reject({
-                                status: 400,
-                                msg: err.message,
-                                data: null
-                            });
-                        }
+/** OLD */
+    // async updateProductStock(productId, amount) {
+    //     return new Promise((resolve, reject) => {
+    //         // Kiểm tra xem số lượng tồn kho có đủ không
+    //         try {
+    //             client.query(
+    //                 `SELECT quantity FROM product WHERE product_id = $1`,
+    //                 [productId],
+    //                 (err, res) => {
+    //                     if (err) {
+    //                         return reject({
+    //                             status: 400,
+    //                             msg: err.message,
+    //                             data: null
+    //                         });
+    //                     }
 
-                        console.log("prodID: ", productId);
-                        console.log("Check response: ", res.rows[0].quantity);
-                        console.log("amount: ", amount);
+    //                     console.log("prodID: ", productId);
+    //                     console.log("Check response: ", res.rows[0].quantity);
+    //                     console.log("amount: ", amount);
 
-                        const currentQuantity = res.rows[0].quantity;
-                        // const currentQuantity = 10;
-                        // Nếu số lượng tồn kho không đủ
-                        if (currentQuantity < amount) {
+    //                     const currentQuantity = res.rows[0].quantity;
+    //                     // const currentQuantity = 10;
+    //                     // Nếu số lượng tồn kho không đủ
+    //                     if (currentQuantity < amount) {
 
-                            console.log('Not enough stock');
-                            return reject({
-                                status: 400,
-                                msg: 'Not enough stock',
-                                data: null
-                            });
-                        }
+    //                         console.log('Not enough stock');
+    //                         return reject({
+    //                             status: 400,
+    //                             msg: 'Not enough stock',
+    //                             data: null
+    //                         });
+    //                     }
 
-                        // Nếu đủ số lượng, tiến hành cập nhật (thiếu
-                        //         , selled = selled + $1)
-                        client.query(
-                            `UPDATE product 
-                            SET quantity = quantity - $1,
-                                sold = sold + $1
-                            WHERE product_id = $2
-                            RETURNING *`,
-                            [amount, productId],
-                            (err, res) => {
-                                if (err) {
-                                    reject({
-                                        status: 400,
-                                        msg: err.message,
-                                        data: null
-                                    });
-                                } else {
-                                    resolve({
-                                        status: 200,
-                                        msg: 'Update successful',
-                                        data: res.rows[0]
-                                    });
-                                }
-                            }
-                        );
+    //                     // Nếu đủ số lượng, tiến hành cập nhật (thiếu
+    //                     //         , selled = selled + $1)
+    //                     client.query(
+    //                         `UPDATE product 
+    //                         SET quantity = quantity - $1,
+    //                             sold = sold + $1
+    //                         WHERE product_id = $2
+    //                         RETURNING *`,
+    //                         [amount, productId],
+    //                         (err, res) => {
+    //                             if (err) {
+    //                                 reject({
+    //                                     status: 400,
+    //                                     msg: err.message,
+    //                                     data: null
+    //                                 });
+    //                             } else {
+    //                                 resolve({
+    //                                     status: 200,
+    //                                     msg: 'Update successful',
+    //                                     data: res.rows[0]
+    //                                 });
+    //                             }
+    //                         }
+    //                     );
+    //                 }
+    //             );
+    //         }
+    //         catch (err) {
+    //             reject({
+    //                 status: 400,
+    //                 msg: err.message
+    //             })
+    //         }
+    //     });
+    // }
+/**NEW */
+
+async updateProductStock(productId, amount) {
+    return new Promise((resolve, reject) => {
+        // Kiểm tra xem số lượng tồn kho có đủ không
+        try {
+            client.query(
+                `SELECT quantity FROM product WHERE product_id = $1`,
+                [productId],
+                (err, res) => {
+                    if (err) {
+                        return reject({
+                            status: 400,
+                            msg: err.message,
+                            data: null
+                        });
                     }
-                );
-            }
-            catch (err) {
-                reject({
-                    status: 400,
-                    msg: err.message
-                })
-            }
-        });
-    }
+
+                    console.log("prodID: ", productId);
+                    console.log("Check response: ", res.rows[0].quantity);
+                    console.log("amount: ", amount);
+
+                    const currentQuantity = res.rows[0].quantity;
+                    // const currentQuantity = 10;
+                    // Nếu số lượng tồn kho không đủ
+                    if (currentQuantity < amount) {
+
+                        console.log('Not enough stock');
+                        return reject({
+                            status: 400,
+                            msg: 'Not enough stock',
+                            data: null
+                        });
+                    }
+
+                    // Nếu đủ số lượng, tiến hành cập nhật (thiếu
+                    //         , selled = selled + $1)
+                    client.query(
+                        `UPDATE product 
+                        SET quantity = quantity - $1,
+                            sold = sold + $1
+                        WHERE product_id = $2
+                        RETURNING *`,
+                        [amount, productId],
+                        (err, res) => {
+                            if (err) {
+                                reject({
+                                    status: 400,
+                                    msg: err.message,
+                                    data: null
+                                });
+                            } else {
+                                resolve({
+                                    status: 200,
+                                    msg: 'Update successful',
+                                    data: res.rows[0]
+                                });
+                            }
+                        }
+                    );
+                }
+            );
+        }
+        catch (err) {
+            reject({
+                status: 400,
+                msg: err.message
+            })
+        }
+    });
+}
 
 
     // async createOrder(newOrder, uid) {
@@ -517,7 +589,7 @@ class OrderService {
     // );
 
     async sortOrders(sort, limit, offset, uid) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const allowedColumns = ['oid', 'create_time', 'status', 'done_time', 'shipping_address', 'shipping_fee', 'shipping_co', 'quantity', 'total_price', 'final_price', 'estimated_delivery_time', 'receive_time']
             let order = 'DESC';
             let column = 'create_time';
@@ -545,9 +617,10 @@ class OrderService {
                     order = sort.toUpperCase()
                 }
             }
-            let query
-            if (uid) {
-                client.query(`SELECT * FROM orders WHERE uid = $3 ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`, [limit, offset, uid], async (err, res) => {
+            client.query(
+                `SELECT * FROM orders  WHERE uid = $3 ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`,
+                [limit, offset, uid],
+                async (err, res) => {
                     if (err) {
                         reject({
                             status: 400,
@@ -561,31 +634,12 @@ class OrderService {
                             data: res.rows
                         });
                     }
-                });
-
-            }
-            else {
-                client.query(`SELECT * FROM orders ORDER BY ${column} ${order} LIMIT $1 OFFSET $2`, [limit, offset], async (err, res) => {
-                    if (err) {
-                        reject({
-                            status: 400,
-                            msg: err.message,
-                            data: null
-                        });
-                    } else {
-                        resolve({
-                            status: 200,
-                            msg: 'SORT SUCCESS',
-                            data: res.rows
-                        });
-                    }
-                });
-
-            }
+                }
+            );
         });
     }
 
-    async getAllOrderbyUser(limit, page, sort, uid) {
+    async getAllOrder(limit, page, filter, sort, uid) {
         return new Promise(async (resolve, reject) => {
             try {
                 let countPro = await this.countOrders(uid)
@@ -615,7 +669,7 @@ class OrderService {
                                 status: 200,
                                 msg: 'SUCCESS',
                                 data: res.rows,
-                                totalOrder: countPro.data,
+                                totalOrder: countPro,
                                 currentPage: page + 1,
                                 totalPage: Math.ceil(countPro.data / limit)
                             });
@@ -625,53 +679,6 @@ class OrderService {
             }
 
             catch (err) {
-                reject(err)
-            }
-        })
-    }
-
-    async getAllOrder(limit, page, sort) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let countPro = await client.query(`SELECT COUNT(*) AS total FROM orders`)
-                countPro = Number(countPro.rows[0].total)
-                if (sort) {
-                    const orders = await this.sortOrders(sort, limit, limit * page)
-                    resolve({
-                        status: 200,
-                        msg: 'SUCCESS',
-                        data: orders.data,
-                        totalOrder: countPro,
-                        currentPage: page + 1,
-                        totalPage: Math.ceil(countPro / limit)
-                    });
-                }
-                client.query(
-                    `SELECT * FROM orders LIMIT $1 OFFSET $2`,
-                    [limit, limit * page],
-                    (err, res) => {
-                        if (err) {
-                            reject({
-                                status: 400,
-                                msg: err.message,
-                                data: null
-                            });
-                        } else {
-                            resolve({
-                                status: 200,
-                                msg: 'SUCCESS',
-                                data: res.rows,
-                                totalOrder: countPro,
-                                currentPage: page + 1,
-                                totalPage: Math.ceil(countPro / limit)
-                            });
-                        }
-                    }
-                );
-            }
-
-            catch (err) {
-                //console.log("check")
                 reject(err)
             }
         })

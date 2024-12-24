@@ -107,8 +107,7 @@ class CategoryService {
                             `SELECT p.*, i.image_url 
                             FROM (SELECT * FROM product WHERE cate_id = $1 LIMIT $2 OFFSET $3) p
                             LEFT JOIN image i ON p.product_id = i.product_id
-                            WHERE i.ismain = true
-                            `,
+                            AND i.ismain = true`,
                             [resCate.rows[0].cate_id, limit, limit * page],
                             (errPro, resPro) => {
                                 if (errPro) {

@@ -94,7 +94,7 @@ class PromotionService {
                             console.log(res.rows)
                             resolve({
                                 status: 404,
-                                msg: 'The promotion name is already exist',
+                                msg: 'Tên promotion đã tồn t',
                                 data: null
                             });
                         }
