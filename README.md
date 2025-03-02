@@ -33,18 +33,17 @@
     ```bash
     git clone https://github.com/viLam11/E-commerce-Shop.git
     cd E-commerce-Shop
----
 ### 2️⃣ Cài đặt cơ sở dữ liệu Tạo các table trong `./backend/migrations/init-users.sql
----
 ### 3️⃣ Tải packages 
-```bash
-cd backend
-npm install
-cd frontend
-npm install
+    ```bash
+    cd backend
+    npm install
+    cd frontend
+    npm install
 ### 4️⃣ Chạy chương trình
-Backend: npm start
-Frontend: npm run dev
+    ```bash
+    Backend: npm start
+    Frontend: npm run dev
 
 ---
 
