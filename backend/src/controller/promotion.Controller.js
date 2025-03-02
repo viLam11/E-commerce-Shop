@@ -4,13 +4,13 @@ class PromotionController {
     async createPromotion(req, res, next) {
         try {
             const { name, quantity, description, starttime, endtime, minspent, discount_type, value, percentage, max_amount, apply_range, apply_id } = req.body
-            if (!(name && quantity && description && starttime && endtime && minspent && max_amount && discount_type && apply_range )) {
-                return res.status(200).json({
-                    status: 'ERR',
-                    msg: 'The input is required',
-                    data: req.body
-                })
-            }
+            // if (!(name && quantity && description && starttime && endtime && minspent && max_amount && discount_type && apply_range )) {
+            //     return res.status(200).json({
+            //         status: 'ERR',
+            //         msg: 'The input is required',
+            //         data: req.body
+            //     })
+            // }
             const response = await PromotionService.createPromotion(req.body)
             return res.status(200).json(response)
         }

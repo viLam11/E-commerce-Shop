@@ -8,6 +8,9 @@ import '../../design/Home/highlight.css'
 import '../../design/Home/productIntro.css'
 import Header from "./Header";
 import Footer from "../Footer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faChevronLeft, faChevronRight} from '@fortawesome/free-solid-svg-icons';
+
 function Banner({productData}) {
     const [activeIndex, setActiveIndex] = useState(1);
     useEffect(() => {
@@ -73,31 +76,31 @@ function CategoryBar(){
         <div className="searching">
             <h3>Phân loại</h3>
             <div className="category-buttons">
-                <a className="category-type" href="/user/category/c01">
+                <a className="category-type" href="/category/c01">
                     <div>
                         <img src="../../public/img/s-l960 (1).webp" alt='Phone' style={{marginBottom: '6px' ,marginTop: '3px'}}/>
                         <br /> <span>Điện thoại</span>
                     </div>
                 </a>
-                <a className="category-type" href="/user/category/c04" >
+                <a className="category-type" href="/category/c04" >
                     <div>
                         <img src="../../public/img/s-l960.webp" style={{marginBottom: '12px' }}/>
                         <br /> <span>Đồng hồ thông minh</span>
                     </div>
                 </a>
-                <a className="category-type" href="/user/category/c02">
+                <a className="category-type" href="/category/c02">
                     <div>
                         <img src= "../../public/img/s-l960 (2).webp" style={{marginBottom: '23px',marginTop: '15px'}}/>
                         <br /> <span>Laptop</span>
                     </div>
                 </a>
-                <a className="category-type" href="/user/category/c03">
+                <a className="category-type" href="/category/c03">
                     <div>
                         <img src="../../public/img/s-l960 (3).webp" style={{marginBottom: '26px' ,marginTop: '8px'}}/>
                         <br /> <span>Tablet</span>
                     </div>
                 </a>
-                <a className="category-type" href="/user/category/c05">
+                <a className="category-type" href="/category/c05">
                     <div>
                         <img src="../../public/img/mobile-phone-accessories-for-sell-e-commerce-portal.jpg"style={{marginBottom: '16px' ,marginTop: '8px'}}/>
                         <br /> <span>Phụ kiện</span>
@@ -177,10 +180,16 @@ function FlashProduct({productData}) {
     return (
         <div className="spotlight">
             {/* <h2>Tháng này</h2> */}
-            <h2 className="view-all-container">
-                Các sản phẩm đang bán chạy
-                <span className='click left' onClick = {handlePrevious}></span>
-                <span className='click right' onClick={handleNext}></span>
+            <h2 className="w-full">
+                <div className="w-full flex justify-between">
+                    <h3 className="border ">Các sản phẩm đang bán chạy </h3>
+                    <span className="border  right-0">
+                        <FontAwesomeIcon icon={faChevronLeft} className='bg-white p-2 rounded-lg right-0 box-border  mx-2 focus:border-black hover:bg-red-200' onClick={handlePrevious} />
+                        <FontAwesomeIcon icon={faChevronRight} className='bg-white p-2 rounded-lg right-0 box-border mx-2 mr-10  hover:border-black hover:bg-red-200' onClick={handleNext} />
+                    </span>    
+                </div>
+                
+                  
             </h2>
             
             <div className="spotlight-list">

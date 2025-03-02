@@ -30,6 +30,18 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
         );
     };
 
+    const [product, setProduct] = useState({});
+    const [buyQuantity, setBuyQuantity] = useState(1);
+    useEffect(() => {
+        fetch(`http://localhost:8000/api/product/get-detail/${prodID}`)
+            .then(res => res.json())
+            .then(data => {
+                setProduct(data.data);
+                console.log(data)
+            })
+            .catch(err => console.error(err));
+    }, [])
+
     return (
 
        
@@ -38,7 +50,7 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
             <div className="relative w-56 h-56 border bg-white flex justify-center items-center align-center rounded-lg mx-auto"
                 onMouseOver={() => setShowBuy(true)}
                 onMouseOut={() => setShowBuy(false)}
-                onClick={() => window.location.href = (`/customer/product-detail/${prodID}`)}
+                onClick={() => window.location.href = (`/product-detail/${prodID}`)}
             >
                 <div className="add-to-cart absolute top-1 right-1 bg-black text-white p-2 text-center rounded-full">
                     <FontAwesomeIcon icon={faCartShopping} />
@@ -48,7 +60,6 @@ export default function ProductCard({prodID, prodName, prodPrice, prodRating, pr
                     <div className="buy-now absolute bottom-0 bg-black text-white w-full text-center p-1"
                         onClick={(e) => 
                             {e.stopPropagation();
-                            navigate(`/customer/pay/${prodID}`)
                         }}
                     >
                         Buy Now

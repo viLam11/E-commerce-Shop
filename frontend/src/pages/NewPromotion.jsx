@@ -6,11 +6,13 @@ import DatePicker from "react-datepicker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 
 export default function NewPromotion() {
     const [category, setCategory] = useState([]);
     // const [promoType, setPromoType] = useState(null);
+    const navigate = useNavigate(); 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [name, setName] = useState("");
@@ -111,11 +113,14 @@ export default function NewPromotion() {
             .then((response) => {
                 console.log("Check response: ", response.data);
                 if(response.data.status === 200) {
-                    alert("Thêm mã khuyến mãi thành công"); 
+                    alert("Thêm mã khuyến mãi thành công");
+                    navigate("/admin/all-promo");
                     // Auto create notification
-                    setContent(`Mã khuyến mãi ${name} đã được tạo`)
+                    // setContent(`Mã khuyến mãi ${name} đã được tạo`)
                 } 
-               
+                else if(response.data.status === 404) {
+                    alert("Tên mã khuyến mãi bị trùng");
+                }
             })
             .catch((error) => {
                 console.log(error);
@@ -128,20 +133,20 @@ export default function NewPromotion() {
     }
 
     // Auto create notification
-    const [content, setContent] = useState("")
-    useEffect(()=>{
-        const fetchData = async()=>{
-            if(!orderId) return;
-            const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
-            console.log(temp)
-            if (temp.status != 200){
-                return;
-            }
-            //alert("Tạo thông báo thành công")
-            setToggle(!toggle)
-        }
-        fetchData()
-    },[content])
+    // const [content, setContent] = useState("")
+    // useEffect(()=>{
+    //     const fetchData = async()=>{
+    //         if(!orderId) return;
+    //         const temp = await axios.post(`http://localhost:8000/api/notification/create?id=${currentUser.uid}`, {content: content, uid: currentUser.uid})
+    //         console.log(temp)
+    //         if (temp.status != 200){
+    //             return;
+    //         }
+    //         //alert("Tạo thông báo thành công")
+    //         setToggle(!toggle)
+    //     }
+    //     fetchData()
+    // },[content])
     //----------------------
     return (
         <div className="flex flex-col min-h-screen">

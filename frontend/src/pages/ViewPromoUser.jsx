@@ -1,19 +1,18 @@
-import Header from "../components/Header";
+import Header from "../components/customerGUI/Header";
 import Footer from "../components/Footer";
 import Promotion from "../components/Promotion";
 import Pagination from "../components/Pagination";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import UserPromo from "../components/UserPromo";
 
-export default function AllPromotion({role}) {
+export default function ViewPromoUser({role}) {
     const navigate = useNavigate();
     const [promotionData, setPromotionData] = useState([]);
     const [currentPromo, setCurrentPromo] = useState([]);    
     const [currentPage, setCurrentPage]  = useState(0);
     const [totalPage, setTotalPage] = useState(0);
-
-
 
     useEffect(() => {
         axios.get("http://localhost:8000/api/promotion/getAll")
@@ -47,22 +46,15 @@ export default function AllPromotion({role}) {
      return (
         <div className="flex flex-col min-h-screen">
             <Header role="admin" />
-            {role  === "user"}
-            <main className="flex-grow">
+            <main className="flex-grow mt-20">
                 <div className="m-2 pl-12">
                     <span className="text-grey-500">User / </span>
                     <span className=" font-medium">All Promotion</span>
                 </div>
-                <div className="flex justify-end px-6 mb-2">
-                    <div className="add-promo inline-block bg-gray-300 h-full relative right-20 p-2 hover:bg-slate-200"
-                        onClick={() => { navigate("/admin/new-promotion") }}>
-                        <div className="font-bold ">Thêm mã giảm giá</div>
-                    </div>
-                </div>
                 <div className="w-11/12 m-auto text-sm">
                     <div className="grid grid-cols-3 gap-4 m-auto ">                        
                          {Array.isArray(currentPromo) && currentPromo.length > 0 &&  currentPromo.map((promoData, index) =>  
-                                <Promotion key={index} id={promoData.promotion_id} name={promoData.name} description={promoData.description} startTime={promoData.starttime} endTime={promoData.endtime} minSpent={promoData.minspent} discount_type={promoData.discount_type} value={promoData.value} percentage={promoData.percentage} max_amount={promoData.max_amount} apply_range={promoData.apply_range} apply_id={promoData.apply_id}  />
+                                <UserPromo key={index} id={promoData.promotion_id} name={promoData.name} description={promoData.description} startTime={promoData.starttime} endTime={promoData.endtime} minSpent={promoData.minspent} discount_type={promoData.discount_type} value={promoData.value} percentage={promoData.percentage} max_amount={promoData.max_amount} apply_range={promoData.apply_range} apply_id={promoData.apply_id}  />
                          )}
                     </div>
                 </div>

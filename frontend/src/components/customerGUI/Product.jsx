@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faChevronLeft, faChevronRight} from '@fortawesome/free-solid-svg-icons';
 
 function Product({productData}) {
-    //console.log("Product Data:", state.productData);
     return (
             <DetailProduct productData={productData}/>
     );
@@ -74,20 +75,26 @@ function DetailProduct({productData}) {
     const [start, setStart] = useState(0); // Quản lý điểm bắt đầu
     const [end, setEnd] = useState(4); // Quản lý điểm kết thúc
     const handleNext = () => {
-        //console.log("Next")
         setStart((prev) => Math.min(prev + 4, sortedItems.length - 4));
         setEnd((prev) => Math.min(prev + 4, sortedItems.length));
     };
     
     const handlePrevious = () => {
-        //console.log("Prev")
         setStart((prev) => Math.max(prev - 4, 0));
         setEnd((prev) => Math.max(prev - 4, 4));
     };
-    return (<div className="spotlight">
-        <h2><span className='item'></span>Giới thiệu sản phẩm 
-            <span className='click left' onClick={handlePrevious}></span>
-            <span className='click right' onClick={handleNext}></span></h2>
+    return (
+    <div className="spotlight "> 
+        <div className=" w-full justify-between flex items-center">
+            <h2><span className='item'></span>Giới thiệu sản phẩm </h2>
+            <span>
+                <FontAwesomeIcon icon={faChevronLeft} className='bg-white p-2 rounded-lg right-0 box-border mx-2 focus:border-black hover:bg-red-200' onClick={handlePrevious} />
+                <FontAwesomeIcon icon={faChevronRight} className='bg-white p-2 rounded-lg right-0 box-border mx-2 mr-10  hover:border-black hover:bg-red-200' onClick={handleNext} />
+            </span>    
+        </div>
+         
+
+            
             <div className="spotlight-list">
                 {sortedItems
                     ? sortedItems.slice(start, end).map((row, index) => {

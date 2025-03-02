@@ -39,6 +39,11 @@ body {
     padding-left: 4.5px;
 }
 
+.update .side-bar .item:hover{
+    background-color: #d32f2f;
+    color: #f4f4f4;
+}
+
 .update .side-bar .item.active{
     background-color:lightpink;
     border: 2px solid #d32f2f;

@@ -7,6 +7,9 @@ import Footer from "../Footer";
 import '../../design/product/ratebar.css'
 import '../../design/product/review.css'
 import '../../design/product/view.css'
+import { set } from "date-fns";
+import { se } from "date-fns/locale";
+import { use } from "react";
 
 function NewReview({product, closePopup}){
     const [rating, setRating] = useState(0);
@@ -634,6 +637,25 @@ function Detail({reviews, product }) {
     const [images, setImages] = useState([]);
     const [mainImage, setMainImage] = useState(null);
     const [otherImages, setOtherImages] = useState([]);
+    const [alertNote, setAlert] = useState("")
+    const [isPopupAlert, setIsPopupAlert] = useState(false);
+    const [isErr, setIsErr] = useState(false)
+    const openPopupAlert = () => {
+                setIsPopupAlert(true);
+            };
+        
+            const closePopupAlert = () => {
+                setIsPopupAlert(false);
+            };   
+            useEffect(() => {
+                let timer;
+                if (isPopupAlert) {
+                  timer = setTimeout(() => {
+                    setIsPopupAlert(false);
+                  }, 3000); // Tự tắt sau 3 giây
+                }
+                return () => clearTimeout(timer); // Dọn dẹp timer khi component unmount hoặc khi popup tắt
+              }, [isPopupAlert]);
     const averageRate = reviews.length > 0 
         ? (reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0) / reviews.length).toFixed(1) 
         : "0.0";
@@ -687,6 +709,12 @@ function Detail({reviews, product }) {
     };
 
     const handleAddCart = async () => {
+        if (!localStorage.getItem('uid')) {
+            setAlert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+            setIsErr(true)
+            setIsPopupAlert(true)
+            return;
+        }
         try {
             const uid = localStorage.getItem('uid')
             const response = await axios.post(
@@ -704,16 +732,84 @@ function Detail({reviews, product }) {
             alert('Đã thêm sản phẩm vào giỏ hàng');
         } catch (e) {
             console.error("Error:", e.message || "Thêm vào giỏ hàng thất bại");
-            alert("Thêm vào giỏ hàng thất bại: " + (e.message || "Lỗi không xác định"));
+            setAlert("Thêm vào giỏ hàng thất bại");
+            setIsErr(true)
+            setIsPopupAlert(true)
         }
     };
     
     const handleBuyProduct = () => {
+        if (!localStorage.getItem('uid')) {
+            setAlert("Vui lòng đăng nhập để mua sản phẩm");
+            setIsErr(true)
+            setIsPopupAlert(true)
+            return;
+        }
         navigate(`/customer/pay`,{state: {product: product, quantity: buyQuantity}});
     };
 
     return (
         <>
+                            <style>
+                        {
+                            `.page-button {
+                                display: flex;
+                                justify-content: center;
+                                margin-bottom: 40px;
+                                margin-top: -20px;
+                                align-items: center;
+                            }
+                            .page-button button {
+                                width: 50px;
+                                height: 50px;
+                                align-items: center;
+                                justify-content: center;
+                                text-align: center;
+                                background-color: white;
+                                border: 1px solid gray;   
+                                color: black;   
+                                padding: 10px 20px;
+                                text-align: center;
+                                text-decoration: none;
+                                display: inline-block;
+                                font-size: 16px;
+                                margin: 4px 2px;
+                                cursor: pointer;
+                                border-radius: 16px;
+                                transition: background-color 0.3s ease, transform 0.3s ease;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                            }
+                            .page-button button:hover {
+                                background-color: red;
+                                color: white;
+                                transform: translateY(-2px);
+                            }
+                            .page-button button:disabled {
+                                background-color: #ccc;
+                                cursor: not-allowed;
+                            }
+                            .page-button button svg {
+                                vertical-align: middle;
+                                width: 10px;
+                                fill: currentColor;
+                            }`
+                        }
+                    </style>
+                {isPopupAlert && (
+                        <div className="popup" onClick={closePopupAlert}>
+                            <div className="popupContent" onClick={(e) => e.stopPropagation()} style={isErr == false?{width: "300px", height:"150px", backgroundColor:"rgba(0, 255, 0, 0.3)", color:"green"}:{width: "300px", height:"100px", backgroundColor:"rgba(255, 0, 0, 0.3)", color:"red"}}>
+                                {isErr == false?
+                                <>
+                                    <div>&#9989;</div>
+                                    <div>{alertNote}</div>
+                                </>:
+                                <>
+                                    <div style={{marginTop: "-15px"}}>&#10060;</div>
+                                    <div>{alertNote}</div>
+                                </>}
+                            </div>
+                        </div>
+                    )}        
             <div className="breadcrumbs">
                 <div>
                     <a href='/user/shopping' className="off">Mua sắm</a> /
@@ -742,14 +838,18 @@ function Detail({reviews, product }) {
                         <p className="price">{formatPrice(product.price)}</p>
                         <div className="purchase-options">
                             <div className="quantity">
-                                <button class="btn decrement" onClick={(e) => {e.preventDefault(); changeQuantity(0)}}>-</button>
+                                <button class="btn decrement" onClick={(e) => {
+                                    if(buyQuantity < 2) {alert("Số lượng mua phải lớn hơn 1"); return;}
+                                    e.preventDefault(); setBuy((prev) => prev-1)
+                                }}>-</button>
                                 <input
                                     type="text"
                                     value={buyQuantity}
-                                    onChange={(e)=>handleInputChange(e)}
+                                    // onChange={(e)=>handleInputChange(e)}
+                                    onChange={(e) => setBuy(e.target.value)}    
                                     style={{ width: "40px", textAlign: "center" }}
                                 />
-                                <button class="btn increment" onClick={(e) => {e.preventDefault(); changeQuantity(1)}}>+</button>
+                                <button class="btn increment" onClick={(e) => {e.preventDefault(); setBuy((pre) => pre+1)}}>+</button>
                             </div>
                             <button className="buy-now" onClick={handleBuyProduct}>Mua ngay</button>
                             <button className="add-to-cart" onClick={handleAddCart}>Thêm vào giỏ hàng</button>
@@ -779,13 +879,26 @@ function Detail({reviews, product }) {
 
 function Description({ product }) {
     if (!product) return null;
-    const hashDescription = product.description?product.description.split("\n"):[]
-
+    //const hashDescription = product.description?product.description.split("\n"):[]
+    const formatDescription = () => {
+        const hashDescription = product.description?product.description.split("\n"):[]
+        return hashDescription.map((des, idx)=>{
+            if (des.includes("Đặc điểm nổi bật")) return <h3 key={idx}>🌟 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Đặc điểm nổi bật</span></h3>
+            else if (des.includes("Thông số kỹ thuật")) return <h3 key={idx}>📋 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Thông số kỹ thuật</span></h3>
+            else if (des.includes("Hướng dẫn sử dụng")) return <h3 key={idx}>📖 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Hướng dẫn sử dụng</span></h3>
+            else if (des.includes("Bảo hành")) return <h3 key={idx}>🔧 <span style={{color:"red", textAlign:"left", fontWeight:"bold"}}>Bảo hành</span></h3>
+            else if (des == "") return <br key={idx}/>
+            else if (des.includes(':')) return <p key={idx}>⚡ <strong>{des.slice(des.indexOf('-') + 1 || 0, des.indexOf(':')+1)}</strong> {des.slice(des.indexOf(':')+1)}</p>
+            else if (des.includes('-')) return <p key={idx}>✔ {des.slice(des.indexOf('-')+1)}</p>
+            else
+            return <p key={idx}>💡 {des}</p>
+        })
+    }
     return (
         <div className="prod-description">
             <h3>Thông tin chi tiết sản phẩm</h3>
-            <div className="description">{hashDescription && hashDescription.length > 0?hashDescription.map((des, idx)=>{
-                return <p key={idx}>{des}</p>
+            <div className="description">{formatDescription() && formatDescription().length > 0?formatDescription().map((des, idx)=>{
+                return des
             }):null}</div>
         </div>
     );
@@ -800,7 +913,23 @@ function Review({ reviews, product }) {
         ...acc,
         [rating]: reviews.filter(review => review.rating === rating).length
     }), {});
-
+    const [allUser, setAllUser] = useState([])
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/user/users?limit=1000`);
+                if (!response.ok) throw new Error("Failed to fetch user");
+                const data = await response.json();
+                const newUser = data.data || [];
+                setAllUser(newUser.map(user => ({username: user.username, lname: user.lname, fname: user.fname, uid: user.uid})));
+            }
+            catch (error) {
+                console.error("Error fetching user:", error);
+            }
+        };
+        fetchUser();
+    }
+    , [reviews]);
     const myReview = reviews.find(review => review.uid === localStorage.getItem('uid')) || null;
     const otherReviews = reviews.filter(review => review.uid !== localStorage.getItem('uid'));
     const viewTime = (time) =>{
@@ -959,11 +1088,17 @@ function Review({ reviews, product }) {
                     </div>
                 </div>
                 </div>
+            <style>{`
+            .review-of-customer::-webkit-scrollbar {
+            display: none;
+            }
 
-            <div className="review-of-customer">
+            `}
+            </style>
+            <div className="review-of-customer" style={{maxHeight: "1000px", overflowY: "auto"}}>
                 {myReview?
                 <div className="a-review">
-                <div className="By">{myReview.uid}<span style={{marginLeft: '40px'}}> {viewTime(myReview.time)} </span><span className="edit-button" onClick={openPopup}> Chỉnh sửa &#128221;</span></div>
+                <div className="By">{allUser.find(i => i.uid == myReview.uid).username}<span style={{marginLeft: '40px'}}> {viewTime(myReview.time)} </span><span className="edit-button" onClick={openPopup}> Chỉnh sửa &#128221;</span></div>
                 <div><b>Rating:</b> <span style={{color: 'red'}}>{RateSwitch(myReview.rating)}</span></div>
                 <div><b>Comment:</b> {hashComment(myReview.comment) && hashComment(myReview.comment).length > 0?hashComment(myReview.comment).map((com, idx)=>{
                     return <p key={idx}>{com}</p>
@@ -971,9 +1106,17 @@ function Review({ reviews, product }) {
             </div>:null }
                 {otherReviews.map((review, index) => (
                     <div key={index} className="a-review">
-                        <div className="By">{review.uid}<span style={{marginLeft: '40px'}}> {viewTime(review.time)}</span></div>
+                        <div style={{display: "flex", alignItems: "center", marginBottom: "10px"}}>
+                            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" style={{width: "50px", height: "50px", borderRadius: "50%"}} />
+                            <div style={{marginLeft: "10px"}}>
+                            <div style={{fontWeight: "bold", color:"red"}}>{allUser.find(i => i.uid == review.uid).lname +' ' +allUser.find(i => i.uid == review.uid).fname}</div>
+                            <div className="By" style={{color:"gray", fontSize:"14px"}}>{allUser.find(i => i.uid == review.uid).username}</div>
+                            </div>
+                            <span style={{marginLeft: '40px'}}> {viewTime(review.time)}</span>
+                        </div>
                         <div><b>Rating:</b> <span style={{color: 'red'}}>{RateSwitch(review.rating)}</span></div>
                         <div><b>Comment:</b> {hashComment(review.comment) && hashComment(review.comment).length > 0?hashComment(review.comment).map((com, idx)=>{
+                            if (com.includes('Thời lượng pin') || com.includes('Tốc độ phản hồi') || com.includes('Tiện ích thông minh') || com.includes('Dịch vụ')) return <p key={idx} style={{color: "gray", display:"inline", marginLeft:"10px", fontSize: "12px", border: "1px solid gray", padding:"2px", borderRadius:"4px"}}>{com}</p>
                             return <p key={idx}>{com}</p>
                         }):null}</div>
                     </div>

@@ -134,7 +134,7 @@ export default function OrdersManagement() {
         })
             .then((response) => {
                 console.log(response);
-                setCount((prev) => prev++);
+                setCount((prev) => prev+1);
             })
     }
 

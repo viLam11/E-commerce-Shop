@@ -47,7 +47,7 @@ class NotificationController {
             return res.status(404).json({
                 status: 404,
                 msg: err,
-                data: null
+                data: "dfdf"
             })
         }
     }

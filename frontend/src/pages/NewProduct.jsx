@@ -31,7 +31,7 @@ export default function NewProduct() {
     const [brand, setBrand] = useState("");
     const [description, setDiscription] = useState(null);
     const [price, setPrice] = useState(0);
-    const [quantity, setQuantity] = useState(null);
+    const [quantity, setQuantity] = useState(0);
     const [status, setStatus] = useState("Available");
 
     // FUNCTION
@@ -111,11 +111,11 @@ export default function NewProduct() {
         const newProduct = {
             "pname": productName,
             "price": price,
-            "quantity": Number(quantity),
+            "quantity": quantity,
             "description": description,
             "cate_id": selectCat,
             "brand": brand,
-            "img": urls,
+            "image": urls,
             "ismain": 0
         }
 
@@ -125,7 +125,7 @@ export default function NewProduct() {
             .then((response) => {
                 if (response.status === 200) {
                     alert("Tạo sản phẩm thành công");
-                    navigate("/admin/product-manage");
+                    // navigate("/admin/product-manage");
                 }
             })
             .catch((error) => {

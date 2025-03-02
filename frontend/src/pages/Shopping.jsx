@@ -164,7 +164,7 @@ export default function Shopping() {
                             </div>
                             <div>
                                 <button className=" bg-red-500 text-white p-2 rounded-lg m-2 hover:bg-red-700 "
-                                    onClick={() => window.location.href = (`/customer/category/smartphone`)}
+                                    onClick={() => window.location.href = (`/category/c01`)}
                                 >Xem tất cả</button>
                             </div>
                         </div>
@@ -184,7 +184,7 @@ export default function Shopping() {
                             </div>
                             <div>
                                 <button className=" bg-red-500 text-white p-2 rounded-lg m-2 hover:bg-red-700 "
-                                    onClick={() => window.location.href = (`/customer/category/laptop`)}
+                                    onClick={() => window.location.href = (`/category/c02`)}
                                 >Xem tất cả</button>
                             </div>
                         </div>
@@ -204,7 +204,7 @@ export default function Shopping() {
                             </div>
                             <div>
                                 <button className=" bg-red-500 text-white p-2 rounded-lg m-2 hover:bg-red-700 "
-                                    onClick={() => window.location.href = (`/customer/category/tablet`)}
+                                    onClick={() => window.location.href = (`/category/c03`)}
                                 >Xem tất cả</button>
                             </div>
                         </div>
@@ -224,7 +224,7 @@ export default function Shopping() {
                             </div>
                             <div>
                                 <button className=" bg-red-500 text-white p-2 rounded-lg m-2 hover:bg-red-700 "
-                                    onClick={() => window.location.href = (`/customer/category/watch`)}
+                                    onClick={() => window.location.href = (`/category/c04`)}
                                 >Xem tất cả</button>
                             </div>
                         </div>
@@ -240,11 +240,11 @@ export default function Shopping() {
                         <div className="flex justify-between">
                             <div className="justify-center items-center">
                                 <span className="w-4 h-8 bg-red-500 inline-block"></span>
-                                <span className="px-4 text-red-500 font-bold ">Đồng hồ thông minh</span>
+                                <span className="px-4 text-red-500 font-bold ">Phụ kiện</span>
                             </div>
                             <div>
                                 <button className=" bg-red-500 text-white p-2 rounded-lg m-2 hover:bg-red-700 "
-                                    onClick={() => window.location.href = (`/customer/category/watch`)}
+                                    onClick={() => window.location.href = (`/category/c05`)}
                                 >Xem tất cả</button>
                             </div>
                         </div>

@@ -102,21 +102,21 @@ export default function Header({ page }) {
                 <div className="w-1/6 text-2xl font-bold tex-white flex justify-start pl-20">EXCLUSIVE</div>
                 <div className="menu w-4/6 justify-center text-center flex flex-row">
                     <ul className="grid grid-cols-4 gap-4 text-lg items-center">
-                        <li className="p-2" onClick={() => navigate("/customer/homepage")} >Trang chủ</li>
-                        <li className="" onClick={() => navigate("/customer/shopping")} >
+                        <li className="p-2" onClick={() => navigate("/user/homepage")} >Trang chủ</li>
+                        <li className="" onClick={() => navigate("/user/shopping")} >
                             <div className="w-full h-full p-2 relative "
                                
                                 onMouseEnter={() =>{ 
                                     setDisplayCat(true)}} // Hiển thị menu
                                 onMouseLeave={() => setDisplayCat(false)} // Ẩn menu khi ra ngoài
                             >
-                                <div  onClick={() => navigate("/customer/shopping")} >Mua sắm</div>
+                                <div  onClick={() => navigate("/user/shopping")} >Mua sắm</div>
                                 <div className={`absolute mt-2 left-0 z-10 text-sm ${displayCat === true ? "block" : "hidden"}`}>
                                 <ul className="bg-black p-2 text-left w-44">
                                     <li className="border-b p-2 hover:font-bold" 
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            window.location.href = (`/customer/category/smartphone`)
+                                            window.location.href = (`/user/category/smartphone`)
                                         }}
                                     >
                                         Điện thoại
@@ -124,26 +124,26 @@ export default function Header({ page }) {
                                     <li className="border-b p-2 hover:font-bold" 
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            window.location.href = (`/customer/category/laptop`)
+                                            window.location.href = (`/user/category/laptop`)
                                         }}
                                     >Laptop</li>
                                     <li className="border-b p-2 hover:font-bold" 
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            window.location.href = (`/customer/category/tablet`)
+                                            window.location.href = (`/user/category/tablet`)
                                         }}
                                     >
                                         Máy tính bảng  </li>
                                     <li className="border-b p-2 hover:font-bold" 
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            window.location.href = (`/customer/category/watch`)
+                                            window.location.href = (`/user/category/watch`)
                                         }}
                                     >Đồng hồ thông minh  </li>
                                     <li className="p-2 hover:font-bold"
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            window.location.href = (`/customer/category/other`)
+                                            window.location.href = (`/user/category/other`)
                                         }}
                                     >Phụ kiện  </li>
                                 </ul>
@@ -152,10 +152,10 @@ export default function Header({ page }) {
                             
                         </li>
                         <li className="p-2"
-                            onClick={() => navigate("/customer/news")}
+                            onClick={() => navigate("/user/news")}
                         >Tin tức</li>
                         <li className="p-2"
-                            onClick={() => navigate("/customer/about")}
+                            onClick={() => navigate("/user/about")}
                         >Giới thiệu</li>
                     </ul>
                 </div>
