@@ -48,4 +48,4 @@
 ---
 
 ## 📷 Giao Diện Demo  
-https://github.com/viLam11/E-commerce-Shop.git/images/1.png
+![Trang chủ] (https://github.com/viLam11/E-commerce-Shop/blob/master/images/1.png?raw=true)
